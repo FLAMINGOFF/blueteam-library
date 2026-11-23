@@ -6,7 +6,8 @@ status: test
 level: high
 platform: aws
 logsource: aws / cloudtrail
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1685.002
 author: vitaliy0x1

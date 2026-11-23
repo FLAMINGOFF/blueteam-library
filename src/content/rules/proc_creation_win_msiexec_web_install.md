@@ -7,6 +7,7 @@ level: medium
 platform: windows
 logsource: windows / process_creation
 tactics:
+  - TA0005
   - TA0011
 techniques:
   - T1218.007

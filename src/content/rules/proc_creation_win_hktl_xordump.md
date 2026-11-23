@@ -7,6 +7,7 @@ level: high
 platform: windows
 logsource: windows / process_creation
 tactics:
+  - TA0005
   - TA0006
 techniques:
   - T1036

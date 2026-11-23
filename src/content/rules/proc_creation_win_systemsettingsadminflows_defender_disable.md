@@ -9,7 +9,8 @@ status: experimental
 level: high
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1685
 author: Chirag Damani (KPMG India), Swachchhanda Shrawan Poudel (Nextron Systems)

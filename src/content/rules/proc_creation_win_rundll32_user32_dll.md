@@ -6,7 +6,8 @@ status: test
 level: medium
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques: []
 author: frack113
 date: '2022-06-04'

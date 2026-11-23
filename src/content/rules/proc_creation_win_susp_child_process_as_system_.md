@@ -8,6 +8,7 @@ platform: windows
 logsource: windows / process_creation
 tactics:
   - TA0004
+  - TA0005
 techniques:
   - T1134.002
 author: Teymur Kheirkhabarov, Roberto Rodriguez (@Cyb3rWard0g), Open Threat Research (OTR)

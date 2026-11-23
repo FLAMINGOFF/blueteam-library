@@ -9,7 +9,8 @@ status: test
 level: medium
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1218
 author: Agro (@agro_sev), Ensar Şamil (@sblmsrsn), oscd.community

@@ -8,7 +8,8 @@ status: test
 level: medium
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1036.003
 author: Florian Roth (Nextron Systems), Markus Neis, Tim Shelton (HAWK.IO), Nasreddine Bencherchali (Nextron Systems)

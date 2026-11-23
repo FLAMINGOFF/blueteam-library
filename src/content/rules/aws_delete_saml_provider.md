@@ -11,6 +11,7 @@ level: medium
 platform: aws
 logsource: aws / cloudtrail
 tactics:
+  - TA0005
   - TA0004
   - TA0001
   - TA0003

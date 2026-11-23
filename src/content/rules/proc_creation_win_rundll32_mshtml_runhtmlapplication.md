@@ -8,6 +8,7 @@ platform: windows
 logsource: windows / process_creation
 tactics:
   - TA0002
+  - TA0005
 techniques: []
 author: Nasreddine Bencherchali (Nextron Systems),  Florian Roth (Nextron Systems), Josh Nickels, frack113, Zaw Min Htun (ZETA)
 date: '2022-08-14'

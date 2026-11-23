@@ -6,7 +6,8 @@ status: test
 level: high
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1036
 author: Florian Roth (Nextron Systems), Patrick Bareiss, Anton Kutepov, oscd.community, Nasreddine Bencherchali (Nextron Systems)

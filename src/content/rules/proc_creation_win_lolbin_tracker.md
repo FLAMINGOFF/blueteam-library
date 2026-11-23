@@ -8,6 +8,7 @@ platform: windows
 logsource: windows / process_creation
 tactics:
   - TA0004
+  - TA0005
 techniques:
   - T1055.001
 author: Avneet Singh @v3t0_, oscd.community

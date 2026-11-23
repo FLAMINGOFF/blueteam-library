@@ -12,6 +12,7 @@ tactics:
   - TA0001
   - TA0003
   - TA0004
+  - TA0005
 techniques:
   - T1078.004
 author: Thuya@Hacktilizer, Ivan Saakov

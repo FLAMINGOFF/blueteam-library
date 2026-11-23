@@ -6,7 +6,8 @@ status: test
 level: high
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques: []
 author: Florian Roth (Nextron Systems), Nasreddine Bencherchali (Nextron Systems)
 date: '2023-05-17'

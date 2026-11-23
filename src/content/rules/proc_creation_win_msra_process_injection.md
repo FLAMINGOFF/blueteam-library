@@ -10,6 +10,7 @@ platform: windows
 logsource: windows / process_creation
 tactics:
   - TA0004
+  - TA0005
 techniques:
   - T1055
 author: Alexander McDonald

@@ -10,6 +10,7 @@ platform: linux
 logsource: linux / process_creation
 tactics:
   - TA0002
+  - TA0005
 techniques:
   - T1059.006
   - T1027.010

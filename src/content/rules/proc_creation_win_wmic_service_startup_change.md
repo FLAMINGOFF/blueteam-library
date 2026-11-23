@@ -8,6 +8,7 @@ platform: windows
 logsource: windows / process_creation
 tactics:
   - TA0002
+  - TA0112
 techniques:
   - T1047
   - T1685

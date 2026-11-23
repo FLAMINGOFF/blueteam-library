@@ -20,7 +20,7 @@ const KEEP = ["title_zh", "summary_zh", "notes_zh", "notes_en", "featured"];
 const TACTIC = {
   "reconnaissance": "TA0043", "resource-development": "TA0042", "initial-access": "TA0001",
   "execution": "TA0002", "persistence": "TA0003", "privilege-escalation": "TA0004",
-  "defense-evasion": "TA0005", "credential-access": "TA0006", "discovery": "TA0007",
+  "defense-evasion": "TA0005", "stealth": "TA0005", "defense-impairment": "TA0112", "credential-access": "TA0006", "discovery": "TA0007",
   "lateral-movement": "TA0008", "collection": "TA0009", "exfiltration": "TA0010",
   "command-and-control": "TA0011", "impact": "TA0040"
 };

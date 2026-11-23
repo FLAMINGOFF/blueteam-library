@@ -6,7 +6,8 @@ status: test
 level: high
 platform: linux
 logsource: linux / process_creation
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1685.006
 author: Max Altgelt (Nextron Systems), Roberto Rodriguez (Cyb3rWard0g), OTR (Open Threat Research), MSTIC

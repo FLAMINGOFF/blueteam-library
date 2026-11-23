@@ -10,6 +10,7 @@ tactics:
   - TA0009
   - TA0011
   - TA0007
+  - TA0005
 techniques: []
 author: Nasreddine Bencherchali (Nextron Systems)
 date: '2022-09-19'

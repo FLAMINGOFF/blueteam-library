@@ -9,7 +9,8 @@ status: experimental
 level: high
 platform: linux
 logsource: linux / process_creation
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1685.004
 author: Mohamed LAKRI

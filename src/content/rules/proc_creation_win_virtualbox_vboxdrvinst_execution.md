@@ -11,6 +11,7 @@ platform: windows
 logsource: windows / process_creation
 tactics:
   - TA0003
+  - TA0112
 techniques:
   - T1112
 author: Konstantin Grishchenko, oscd.community

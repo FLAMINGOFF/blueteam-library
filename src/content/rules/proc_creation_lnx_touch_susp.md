@@ -6,7 +6,8 @@ status: test
 level: medium
 platform: linux
 logsource: linux / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1070.006
 author: Joseliyo Sanchez, @Joseliyo_Jstnk

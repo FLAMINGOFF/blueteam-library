@@ -6,7 +6,8 @@ status: test
 level: medium
 platform: aws
 logsource: aws / cloudtrail
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1070
 author: Janantha Marasinghe

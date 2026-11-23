@@ -8,7 +8,8 @@ status: test
 level: medium
 platform: linux
 logsource: linux / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques: []
 author: Nasreddine Bencherchali (Nextron Systems)
 date: '2022-09-15'

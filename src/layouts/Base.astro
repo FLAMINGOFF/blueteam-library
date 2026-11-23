@@ -26,7 +26,7 @@ const items = [
   <a class="skip" href="#main">{lang === "zh" ? "跳到正文" : "Skip to content"}</a>
   <header class="topbar">
     <div class="wrap topbar-inner">
-      <a class="brand" href={base + "/"}><span class="logo">◆</span> {t(lang, "site")}</a>
+      <a class="brand" href={base + "/"}><svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3Z"/><path class="logo-check" d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="brand-text"> {t(lang, "site")}</span></a>
       <nav class="nav">
         {items.map(([k, p, label]) => <a href={base + p + "/"} class={nav === k ? "active" : ""}>{label}</a>)}
       </nav>
@@ -49,5 +49,6 @@ const items = [
     {items.slice(0, 5).map(([k, p, label]) => <a href={base + p + "/"} class={nav === k ? "active" : ""}>{label}</a>)}
   </nav>
   <script is:inline src={B + "/common.js"}></script>
+  <script is:inline>document.addEventListener("keydown",e=>{if(e.key==="/"&&!/input|textarea/i.test(document.activeElement.tagName)){const i=document.querySelector("input[name=q]");if(i){e.preventDefault();i.focus()}}})</script>
 </body>
 </html>

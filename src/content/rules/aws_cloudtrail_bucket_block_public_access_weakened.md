@@ -8,7 +8,8 @@ status: experimental
 level: medium
 platform: aws
 logsource: aws / cloudtrail
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1686.001
 author: Shoban Chiddarth

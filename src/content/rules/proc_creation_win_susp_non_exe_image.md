@@ -10,7 +10,8 @@ status: test
 level: medium
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques: []
 author: Max Altgelt (Nextron Systems)
 date: '2021-12-09'

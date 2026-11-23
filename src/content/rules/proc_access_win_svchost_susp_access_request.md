@@ -6,7 +6,8 @@ status: test
 level: high
 platform: windows
 logsource: windows / process_access
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1685.001
 author: Tim Burrell

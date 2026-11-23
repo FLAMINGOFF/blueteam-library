@@ -11,6 +11,7 @@ level: high
 platform: linux
 logsource: linux / process_creation
 tactics:
+  - TA0005
   - TA0002
 techniques:
   - T1027.011

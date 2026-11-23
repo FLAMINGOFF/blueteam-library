@@ -6,7 +6,8 @@ status: test
 level: low
 platform: linux
 logsource: linux / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1070
 author: Tuan Le (NCSGroup), Nasreddine Bencherchali (Nextron Systems)

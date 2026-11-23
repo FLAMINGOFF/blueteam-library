@@ -8,6 +8,7 @@ platform: linux
 logsource: linux / process_creation
 tactics:
   - TA0004
+  - TA0005
 techniques:
   - T1055.009
 author: Joseph Kamau

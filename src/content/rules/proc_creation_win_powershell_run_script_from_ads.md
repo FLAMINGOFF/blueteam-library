@@ -6,7 +6,8 @@ status: test
 level: high
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1564.004
 author: Sergey Soldatov, Kaspersky Lab, oscd.community

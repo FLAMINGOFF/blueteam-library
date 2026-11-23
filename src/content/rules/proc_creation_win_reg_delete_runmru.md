@@ -9,7 +9,8 @@ status: experimental
 level: high
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1070.003
 author: Swachchhanda Shrawan Poudel (Nextron Systems)

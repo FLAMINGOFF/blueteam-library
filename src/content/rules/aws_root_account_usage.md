@@ -10,6 +10,7 @@ tactics:
   - TA0004
   - TA0001
   - TA0003
+  - TA0005
 techniques:
   - T1078.004
 author: vitaliy0x1

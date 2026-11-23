@@ -6,7 +6,8 @@ status: test
 level: low
 platform: linux
 logsource: linux / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1027
 author: Daniil Yugoslavskiy, oscd.community

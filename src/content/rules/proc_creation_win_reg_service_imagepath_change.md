@@ -13,6 +13,7 @@ tactics:
   - TA0004
   - TA0003
   - TA0002
+  - TA0005
 techniques:
   - T1574.011
 author: frack113
