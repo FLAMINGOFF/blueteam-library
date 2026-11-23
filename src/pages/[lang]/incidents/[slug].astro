@@ -29,6 +29,7 @@ const rel = d.related_rules.map(id => allRules.find(r => r.id === id)).filter(Bo
     <p><b>{t(lang, "license")}{colon}</b>{pick(d.source.license)}</p>
   </div>
   <p class="note">{t(lang, "summaryNote")}</p>
+  {d.generated && <p class="note">{t(lang, "generatedNote")}</p>}
   <div class="detail">
     <div>
       <section class="panel"><h2>{t(lang, "overview")}</h2><p>{d.summary[lang]}</p></section>

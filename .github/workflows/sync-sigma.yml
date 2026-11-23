@@ -1,9 +1,10 @@
-# 每周从 SigmaHQ 同步规则，并以 PR 形式提交，人工审核后合并
+# 每周从 SigmaHQ 同步规则，构建通过后直接提交到 main 并触发部署（不再等人工审核）。
 name: Sync SigmaHQ rules
 on:
   schedule: [{ cron: "0 2 * * 1" }]
   workflow_dispatch:
-permissions: { contents: write, pull-requests: write }
+permissions: { contents: write, actions: write }
+concurrency: { group: content-sync, cancel-in-progress: false }
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -14,9 +15,17 @@ jobs:
       - run: npm ci
       - run: git clone --depth 1 https://github.com/SigmaHQ/sigma /tmp/sigma
       - run: node scripts/import-sigma.mjs /tmp/sigma
-      - uses: peter-evans/create-pull-request@v6
-        with:
-          branch: sync/sigmahq
-          title: "chore: 同步 SigmaHQ 规则"
-          commit-message: "chore: sync SigmaHQ rules"
-          body: 自动从 SigmaHQ 同步规则（DRL 1.1）。请检查新增/删除的规则后合并。
+      - id: diff
+        run: echo "changed=$([ -n "$(git status --porcelain src/content)" ] && echo 1 || echo 0)" >> "$GITHUB_OUTPUT"
+      - if: steps.diff.outputs.changed == '1'
+        run: npm run build          # 构建失败就不提交
+      - if: steps.diff.outputs.changed == '1'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/content/rules
+          git commit -m "chore: 同步 SigmaHQ 规则 $(date -u +%F)"
+          git pull --rebase origin main && git push origin HEAD:main
+      - if: steps.diff.outputs.changed == '1'
+        run: gh workflow run deploy.yml --ref main
+        env: { GH_TOKEN: "${{ github.token }}" }

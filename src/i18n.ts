@@ -95,6 +95,7 @@ const D = {
   published: { zh: "原文发布", en: "Published" },
   added: { zh: "本站收录", en: "Added" },
   summaryNote: { zh: "以下为本站根据原始报告撰写的摘要，细节以原文为准。", en: "This is our own summary of the original report. The original is authoritative." },
+  generatedNote: { zh: "本篇由每日自动抓取 CISA 公开数据生成，未经人工逐条审校；如有出入请以原文为准。", en: "Generated automatically from public CISA data and not individually reviewed; refer to the original if anything differs." },
   rulesIntro: { zh: "来自 SigmaHQ 等公开项目的检测规则，保留原作者、原始链接与许可证。", en: "Detection rules from public projects such as SigmaHQ, with original authors, links and licenses." },
   incidentsIntro: { zh: "公开安全事件报告的结构化摘要：时间线、根因、防守要点和可用的检测规则。", en: "Structured summaries of public incident reports: timeline, root cause, lessons and usable detection rules." },
   matrixIntro: { zh: "各 ATT&CK 战术下收录的规则数量，点击进入对应列表。", en: "Rule counts per ATT&CK tactic. Click to open the filtered list." },
