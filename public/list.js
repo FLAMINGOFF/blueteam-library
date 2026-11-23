@@ -3,7 +3,7 @@
   const root = document.getElementById("list-app");
   if (!root) return;
   const cfg = JSON.parse(document.getElementById("list-cfg").textContent);
-  const { lang, mode, L, tactics, levels, statuses } = cfg; // mode: rules | incidents | search | starred
+  const { base: BASE, lang, mode, L, tactics, levels, statuses } = cfg; // mode: rules | incidents | search | starred
   const PAGE = 30;
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const tn = id => (tactics[id] || {})[lang] || id;
@@ -27,7 +27,7 @@
 
   function card(o, q) {
     const isR = o.k === "r";
-    const href = `/${lang}/${isR ? "rules" : "incidents"}/${o.id}/`;
+    const href = `${BASE}/${lang}/${isR ? "rules" : "incidents"}/${o.id}/`;
     const key = (isR ? "r:" : "i:") + o.id;
     const meta = isR
       ? [(o.ta || []).map(tn).join(" / "), (o.te2 || []).slice(0, 4).join(", "), o.pf, o.au && (L.author + ": " + o.au), o.d]
@@ -95,5 +95,5 @@
   });
   root.addEventListener("change", e => { if (e.target.id === "sort") { const p = state(); p.set("sort", e.target.value); push(p); } });
 
-  fetch(`/${lang}/index.json`).then(r => r.json()).then(j => { data = [...j.rules, ...j.incidents]; render(); });
+  fetch(`${BASE}/${lang}/index.json`).then(r => r.json()).then(j => { data = [...j.rules, ...j.incidents]; render(); });
 })();

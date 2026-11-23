@@ -1,7 +1,7 @@
 ---
 import Base from "../../../layouts/Base.astro";
 import { render } from "astro:content";
-import { LANGS, t, tacticName, levelName, statusName, type Lang } from "../../../i18n";
+import { LANGS, t, tacticName, levelName, statusName, type Lang, B } from "../../../i18n";
 import { rules, incidents, ruleTitle, ruleSummary, translated } from "../../../data";
 export async function getStaticPaths() {
   const rs = await rules();
@@ -16,7 +16,7 @@ const rel = (await incidents()).filter(i => i.data.related_rules.includes(r.id))
 const notes = lang === "zh" ? d.notes_zh : d.notes_en;
 ---
 <Base lang={lang} title={ruleTitle(r, lang)} description={ruleSummary(r, lang).slice(0, 160)} nav="rules">
-  <div class="crumbs"><a href={`/${lang}/rules/`}>{t(lang, "rules")}</a> / {r.id}</div>
+  <div class="crumbs"><a href={`${B}/${lang}/rules/`}>{t(lang, "rules")}</a> / {r.id}</div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
     <h1 style="margin:0">{ruleTitle(r, lang)}</h1><button class="star" data-star={"r:" + r.id} aria-label="save">☆</button>
   </div>
@@ -42,14 +42,14 @@ const notes = lang === "zh" ? d.notes_zh : d.notes_en;
         <ul class="plain">{d.falsepositives.map(f => <li>{String(f)}</li>)}</ul>
       </section>
       {rel.length > 0 && <section class="panel"><h2>{t(lang, "relatedIncidents")}</h2>
-        {rel.map(i => <a class="card" href={`/${lang}/incidents/${i.id}/`}><div class="title">{i.data.title[lang]}</div><div class="sum">{i.data.publisher} · {i.data.published}</div></a>)}
+        {rel.map(i => <a class="card" href={`${B}/${lang}/incidents/${i.id}/`}><div class="title">{i.data.title[lang]}</div><div class="sum">{i.data.publisher} · {i.data.published}</div></a>)}
       </section>}
       {d.references.length > 0 && <section class="panel"><h2>{t(lang, "references")}</h2>
         <ul class="refs">{d.references.map(u => <li><a href={u} rel="noopener nofollow" target="_blank">{u}</a></li>)}</ul></section>}
     </div>
     <aside class="panel">
       <dl class="kv">
-        <dt>{t(lang, "tactic")}</dt><dd>{d.tactics.length ? d.tactics.map((x, i) => <>{i > 0 && "、"}<a href={`/${lang}/rules/?tactic=${x}`}>{tacticName(lang, x)}</a></>) : "—"}</dd>
+        <dt>{t(lang, "tactic")}</dt><dd>{d.tactics.length ? d.tactics.map((x, i) => <>{i > 0 && "、"}<a href={`${B}/${lang}/rules/?tactic=${x}`}>{tacticName(lang, x)}</a></>) : "—"}</dd>
         <dt>{t(lang, "techniques")}</dt><dd>{d.techniques.length ? d.techniques.map(x => <><a href={`https://attack.mitre.org/techniques/${x.replace(".", "/")}/`} rel="noopener" target="_blank"><code>{x}</code></a> </>) : "—"}</dd>
         <dt>{t(lang, "platform")}</dt><dd>{d.platform}</dd>
         <dt>{t(lang, "logsource")}</dt><dd>{d.logsource}</dd>
