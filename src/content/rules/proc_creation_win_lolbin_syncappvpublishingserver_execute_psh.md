@@ -1,0 +1,58 @@
+---
+title: SyncAppvPublishingServer Execute Arbitrary PowerShell Code
+summary: Executes arbitrary PowerShell code using SyncAppvPublishingServer.exe.
+sigma_id: fbd7c32d-db2a-4418-b92c-566eb8911133
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218
+author: frack113
+date: '2021-07-12'
+modified: '2022-10-04'
+falsepositives:
+  - App-V clients
+references:
+  - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1218/T1218.md
+  - https://lolbas-project.github.io/lolbas/Binaries/Syncappvpublishingserver/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_lolbin_syncappvpublishingserver_execute_psh.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: SyncAppvPublishingServer Execute Arbitrary PowerShell Code
+id: fbd7c32d-db2a-4418-b92c-566eb8911133
+related:
+    - id: fde7929d-8beb-4a4c-b922-be9974671667
+      type: obsolete
+status: test
+description: Executes arbitrary PowerShell code using SyncAppvPublishingServer.exe.
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1218/T1218.md
+    - https://lolbas-project.github.io/lolbas/Binaries/Syncappvpublishingserver/
+author: frack113
+date: 2021-07-12
+modified: 2022-10-04
+tags:
+    - attack.stealth
+    - attack.t1218
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\SyncAppvPublishingServer.exe'
+        - OriginalFileName: 'syncappvpublishingserver.exe'
+    selection_cli:
+        CommandLine|contains: '"n; '
+    condition: all of selection_*
+falsepositives:
+    - App-V clients
+level: medium
+```

@@ -1,0 +1,63 @@
+---
+title: Local Groups Reconnaissance Via Wmic.EXE
+summary: |-
+  Detects the execution of "wmic" with the "group" flag.
+  Adversaries may attempt to find local system groups and permission settings.
+  The knowledge of local system permission groups can help adversaries determine which groups exist and which users belong to a particular group.
+  Adversaries may use this information to determine which users have elevated permissions, such as the users found within the local administrators group.
+sigma_id: 164eda96-11b2-430b-85ff-6a265c15bf32
+status: test
+level: low
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0007
+techniques:
+  - T1069.001
+author: frack113
+date: '2021-12-12'
+modified: '2023-02-14'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1069.001/T1069.001.md
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_wmic_recon_group.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Local Groups Reconnaissance Via Wmic.EXE
+id: 164eda96-11b2-430b-85ff-6a265c15bf32
+status: test
+description: |
+    Detects the execution of "wmic" with the "group" flag.
+    Adversaries may attempt to find local system groups and permission settings.
+    The knowledge of local system permission groups can help adversaries determine which groups exist and which users belong to a particular group.
+    Adversaries may use this information to determine which users have elevated permissions, such as the users found within the local administrators group.
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1069.001/T1069.001.md
+author: frack113
+date: 2021-12-12
+modified: 2023-02-14
+tags:
+    - attack.discovery
+    - attack.t1069.001
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_img:
+        - Image|endswith: '\wmic.exe'
+        - OriginalFileName: 'wmic.exe'
+    selection_cli:
+        CommandLine|contains: ' group'
+    condition: all of selection*
+falsepositives:
+    - Unknown
+level: low
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_wmic_recon_group/info.yml
+```

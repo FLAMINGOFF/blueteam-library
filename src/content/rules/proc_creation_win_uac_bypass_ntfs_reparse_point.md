@@ -1,0 +1,67 @@
+---
+title: UAC Bypass Using NTFS Reparse Point - Process
+summary: Detects the pattern of UAC Bypass using NTFS reparse point and wusa.exe DLL hijacking (UACMe 36)
+sigma_id: 39ed3c80-e6a1-431b-9df3-911ac53d08a7
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+techniques:
+  - T1548.002
+author: Christian Burkard (Nextron Systems)
+date: '2021-08-30'
+modified: '2024-12-01'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/hfiref0x/UACME
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_uac_bypass_ntfs_reparse_point.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: UAC Bypass Using NTFS Reparse Point - Process
+id: 39ed3c80-e6a1-431b-9df3-911ac53d08a7
+status: test
+description: Detects the pattern of UAC Bypass using NTFS reparse point and wusa.exe DLL hijacking (UACMe 36)
+references:
+    - https://github.com/hfiref0x/UACME
+author: Christian Burkard (Nextron Systems)
+date: 2021-08-30
+modified: 2024-12-01
+tags:
+    - attack.privilege-escalation
+    - attack.t1548.002
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection1:
+        CommandLine|startswith: '"C:\Windows\system32\wusa.exe"  /quiet C:\Users\'
+        CommandLine|endswith: '\AppData\Local\Temp\update.msu'
+        IntegrityLevel:
+            - 'High'
+            - 'System'
+            - 'S-1-16-16384' # System
+            - 'S-1-16-12288' # High
+    selection2:
+        ParentCommandLine: '"C:\Windows\system32\dism.exe" /online /quiet /norestart /add-package /packagepath:"C:\Windows\system32\pe386" /ignorecheck'
+        IntegrityLevel:
+            - 'High'
+            - 'System'
+        CommandLine|contains|all:
+            - 'C:\Users\'
+            - '\AppData\Local\Temp\'
+            - '\dismhost.exe {'
+        Image|endswith: '\DismHost.exe'
+    condition: 1 of selection*
+falsepositives:
+    - Unknown
+level: high
+```

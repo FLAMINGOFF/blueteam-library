@@ -1,0 +1,62 @@
+---
+title: PowerShell AppLocker Policy Discovery Via Get-AppLockerPolicy
+summary: Detects AppLocker policy enumeration attempts via PowerShell using the Get-AppLockerPolicy cmdlet and an policy scope of either Effective, LDAP, or Local.
+sigma_id: f14b1e99-5e53-4598-98dc-6f20ad7b35e0
+status: experimental
+level: low
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0007
+techniques:
+  - T1518.001
+author: Tom3306
+date: '2026-08-19'
+falsepositives:
+  - PowerShell-based AppLocker auditing and policy troubleshooting by administrators.
+references:
+  - https://learn.microsoft.com/en-us/powershell/module/applocker/get-applockerpolicy
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_powershell_applocker_policy_discovery_via_get_applockerpolicy.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: PowerShell AppLocker Policy Discovery Via Get-AppLockerPolicy
+id: f14b1e99-5e53-4598-98dc-6f20ad7b35e0
+status: experimental
+description: |
+    Detects AppLocker policy enumeration attempts via PowerShell using the Get-AppLockerPolicy cmdlet and an policy scope of either Effective, LDAP, or Local.
+references:
+    - https://learn.microsoft.com/en-us/powershell/module/applocker/get-applockerpolicy
+author: Tom3306
+date: 2026-08-19
+tags:
+    - attack.discovery
+    - attack.t1518.001
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_img:
+        - Image|endswith:
+              - '\powershell.exe'
+              - '\pwsh.exe'
+        - OriginalFileName:
+              - 'PowerShell.EXE'
+              - 'pwsh.dll'
+    selection_cmdlet:
+        CommandLine|contains: 'Get-AppLockerPolicy'
+    selection_flag:
+        CommandLine|contains|windash:
+            - ' -Effective'
+            - ' -Ldap '
+            - ' -Local'
+    condition: all of selection_*
+falsepositives:
+    - PowerShell-based AppLocker auditing and policy troubleshooting by administrators.
+level: low
+```

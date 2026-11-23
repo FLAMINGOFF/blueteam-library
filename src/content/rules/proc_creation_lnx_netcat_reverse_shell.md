@@ -1,0 +1,99 @@
+---
+title: Potential Netcat Reverse Shell Execution
+summary: Detects execution of netcat with the "-e" or "-c" flags followed by common shells, which are commonly used to spawn reverse shells.
+sigma_id: 7f734ed0-4f47-46c0-837f-6ee62505abd9
+status: test
+level: high
+platform: linux
+logsource: linux / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1059
+author: '@d4ns4n_, Nasreddine Bencherchali (Nextron Systems)'
+date: '2023-04-07'
+modified: '2026-09-24'
+falsepositives:
+  - Unlikely
+references:
+  - https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet
+  - https://www.revshells.com/
+  - https://www.hackingtutorials.org/networking/hacking-netcat-part-2-bind-reverse-shells/
+  - https://www.infosecademy.com/netcat-reverse-shells/
+  - https://man7.org/linux/man-pages/man1/ncat.1.html
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/linux/process_creation/proc_creation_lnx_netcat_reverse_shell.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Netcat Reverse Shell Execution
+id: 7f734ed0-4f47-46c0-837f-6ee62505abd9
+status: test
+description: |
+    Detects execution of netcat with the "-e" or "-c" flags followed by common shells, which are commonly used to spawn reverse shells.
+references:
+    - https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet
+    - https://www.revshells.com/
+    - https://www.hackingtutorials.org/networking/hacking-netcat-part-2-bind-reverse-shells/
+    - https://www.infosecademy.com/netcat-reverse-shells/
+    - https://man7.org/linux/man-pages/man1/ncat.1.html
+author: '@d4ns4n_, Nasreddine Bencherchali (Nextron Systems)'
+date: 2023-04-07
+modified: 2026-09-24
+tags:
+    - attack.execution
+    - attack.t1059
+logsource:
+    category: process_creation
+    product: linux
+detection:
+    selection_nc:
+        Image|endswith:
+            - '/nc.openbsd'
+            - '/nc.traditional'
+            - '/nc'
+            - '/ncat'
+            - '/netcat.openbsd'
+            - '/netcat.traditional'
+            - '/netcat'
+    selection_flags:
+        CommandLine|contains:
+            - ' -c '
+            - ' -e '
+    selection_shell:
+        CommandLine|contains:
+            - ' ash'
+            - ' bash'
+            - ' bsh'
+            - ' csh'
+            - ' ksh'
+            - ' pdksh'
+            - ' sh'
+            - ' tcsh'
+            - '/bin/ash'
+            - '/bin/bash'
+            - '/bin/bsh'
+            - '/bin/csh'
+            - '/bin/ksh'
+            - '/bin/pdksh'
+            - '/bin/sh'
+            - '/bin/tcsh'
+            - '/bin/zsh'
+            - '$IFSash'
+            - '$IFSbash'
+            - '$IFSbsh'
+            - '$IFScsh'
+            - '$IFSksh'
+            - '$IFSpdksh'
+            - '$IFSsh'
+            - '$IFStcsh'
+            - '$IFSzsh'
+    condition: all of selection_*
+falsepositives:
+    - Unlikely
+level: high
+```

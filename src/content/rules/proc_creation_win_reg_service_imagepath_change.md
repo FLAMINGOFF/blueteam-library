@@ -1,0 +1,68 @@
+---
+title: Changing Existing Service ImagePath Value Via Reg.EXE
+summary: |-
+  Adversaries may execute their own malicious payloads by hijacking the Registry entries used by services.
+  Adversaries may use flaws in the permissions for registry to redirect from the originally specified executable to one that they control, in order to launch their own code at Service start.
+  Windows stores local service configuration information in the Registry under HKLM\SYSTEM\CurrentControlSet\Services
+sigma_id: 9b0b7ac3-6223-47aa-a3fd-e8f211e637db
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+  - TA0003
+  - TA0002
+techniques:
+  - T1574.011
+author: frack113
+date: '2021-12-30'
+modified: '2024-03-13'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1574.011/T1574.011.md#atomic-test-2---service-imagepath-change-with-regexe
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_reg_service_imagepath_change.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Changing Existing Service ImagePath Value Via Reg.EXE
+id: 9b0b7ac3-6223-47aa-a3fd-e8f211e637db
+status: test
+description: |
+    Adversaries may execute their own malicious payloads by hijacking the Registry entries used by services.
+    Adversaries may use flaws in the permissions for registry to redirect from the originally specified executable to one that they control, in order to launch their own code at Service start.
+    Windows stores local service configuration information in the Registry under HKLM\SYSTEM\CurrentControlSet\Services
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1574.011/T1574.011.md#atomic-test-2---service-imagepath-change-with-regexe
+author: frack113
+date: 2021-12-30
+modified: 2024-03-13
+tags:
+    - attack.privilege-escalation
+    - attack.persistence
+    - attack.execution
+    - attack.stealth
+    - attack.t1574.011
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\reg.exe'
+        CommandLine|contains|all:
+            - 'add '
+            - 'SYSTEM\CurrentControlSet\Services\'
+            - ' ImagePath '
+    selection_value:
+        CommandLine|contains|windash: ' -d '
+    condition: all of selection*
+falsepositives:
+    - Unknown
+level: medium
+```

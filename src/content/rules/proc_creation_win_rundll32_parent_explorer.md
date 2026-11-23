@@ -1,0 +1,56 @@
+---
+title: Rundll32 Spawned Via Explorer.EXE
+summary: Detects execution of "rundll32.exe" with a parent process of Explorer.exe. This has been observed by variants of Raspberry Robin, as first reported by Red Canary.
+sigma_id: 1723e720-616d-4ddc-ab02-f7e3685a4713
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques: []
+author: CD_ROM_
+date: '2022-05-21'
+modified: '2023-08-31'
+falsepositives:
+  - Unknown
+references:
+  - https://redcanary.com/blog/raspberry-robin/
+  - https://thedfirreport.com/2022/09/26/bumblebee-round-two/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_rundll32_parent_explorer.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Rundll32 Spawned Via Explorer.EXE
+id: 1723e720-616d-4ddc-ab02-f7e3685a4713
+status: test
+description: Detects execution of "rundll32.exe" with a parent process of Explorer.exe. This has been observed by variants of Raspberry Robin, as first reported by Red Canary.
+references:
+    - https://redcanary.com/blog/raspberry-robin/
+    - https://thedfirreport.com/2022/09/26/bumblebee-round-two/
+author: CD_ROM_
+date: 2022-05-21
+modified: 2023-08-31
+tags:
+    - attack.stealth
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        ParentImage|endswith: '\explorer.exe'
+    selection_img:
+        - Image|endswith: '\rundll32.exe'
+        - OriginalFileName: 'RUNDLL32.EXE'
+    filter_main_generic:
+        - CommandLine|contains: ' C:\Windows\System32\' # The space at the start is required
+        - CommandLine|endswith: ' -localserver 22d8c27b-47a1-48d1-ad08-7da7abd79617' # Windows 10 volume control
+    condition: all of selection_* and not 1 of filter_main_*
+falsepositives:
+    - Unknown
+level: medium
+```

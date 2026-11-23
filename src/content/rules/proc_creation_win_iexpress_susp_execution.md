@@ -1,0 +1,73 @@
+---
+title: Self Extracting Package Creation Via Iexpress.EXE From Potentially Suspicious Location
+summary: |-
+  Detects the use of iexpress.exe to create binaries via Self Extraction Directive (SED) files located in potentially suspicious locations.
+  This behavior has been observed in-the-wild by different threat actors.
+sigma_id: b2b048b0-7857-4380-b0fb-d3f0ab820b71
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218
+author: Joseliyo Sanchez, @Joseliyo_Jstnk, Nasreddine Bencherchali (Nextron Systems)
+date: '2024-02-05'
+modified: '2024-06-04'
+falsepositives:
+  - Administrators building packages using iexpress.exe
+references:
+  - https://strontic.github.io/xcyclopedia/library/iexpress.exe-D594B2A33EFAFD0EABF09E3FDC05FCEA.html
+  - https://en.wikipedia.org/wiki/IExpress
+  - https://decoded.avast.io/janvojtesek/raspberry-robins-roshtyak-a-little-lesson-in-trickery/
+  - https://www.virustotal.com/gui/file/602f4ae507fa8de57ada079adff25a6c2a899bd25cd092d0af7e62cdb619c93c/behavior
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_iexpress_susp_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Self Extracting Package Creation Via Iexpress.EXE From Potentially Suspicious Location
+id: b2b048b0-7857-4380-b0fb-d3f0ab820b71
+status: test
+description: |
+    Detects the use of iexpress.exe to create binaries via Self Extraction Directive (SED) files located in potentially suspicious locations.
+    This behavior has been observed in-the-wild by different threat actors.
+references:
+    - https://strontic.github.io/xcyclopedia/library/iexpress.exe-D594B2A33EFAFD0EABF09E3FDC05FCEA.html
+    - https://en.wikipedia.org/wiki/IExpress
+    - https://decoded.avast.io/janvojtesek/raspberry-robins-roshtyak-a-little-lesson-in-trickery/
+    - https://www.virustotal.com/gui/file/602f4ae507fa8de57ada079adff25a6c2a899bd25cd092d0af7e62cdb619c93c/behavior
+author: Joseliyo Sanchez, @Joseliyo_Jstnk, Nasreddine Bencherchali (Nextron Systems)
+date: 2024-02-05
+modified: 2024-06-04
+tags:
+    - attack.stealth
+    - attack.t1218
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    # VT Query: behavior_processes:"iexpress.exe" and behavior_processes:"/n /q /m" and behavior_processes:"*.sed*" and p:5+
+    selection_img:
+        - Image|endswith: '\iexpress.exe'
+        - OriginalFileName: 'IEXPRESS.exe'
+    selection_cli:
+        CommandLine|contains|windash: ' /n '
+    selection_paths:
+        CommandLine|contains:
+            # Note: Add more uncommon paths that fit your organizational needs.
+            - ':\ProgramData\'
+            - ':\Temp\'
+            - ':\Windows\System32\Tasks\'
+            - ':\Windows\Tasks\'
+            - ':\Windows\Temp\'
+            - '\AppData\Local\Temp\'
+    condition: all of selection_*
+falsepositives:
+    - Administrators building packages using iexpress.exe
+level: high
+```

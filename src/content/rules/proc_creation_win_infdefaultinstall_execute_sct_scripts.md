@@ -1,0 +1,55 @@
+---
+title: InfDefaultInstall.exe .inf Execution
+summary: Executes SCT script using scrobj.dll from a command in entered into a specially prepared INF file.
+sigma_id: ce7cf472-6fcc-490a-9481-3786840b5d9b
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218
+author: frack113
+date: '2021-07-13'
+modified: '2022-10-09'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1218/T1218.md#atomic-test-4---infdefaultinstallexe-inf-execution
+  - https://lolbas-project.github.io/lolbas/Binaries/Infdefaultinstall/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_infdefaultinstall_execute_sct_scripts.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: InfDefaultInstall.exe .inf Execution
+id: ce7cf472-6fcc-490a-9481-3786840b5d9b
+status: test
+description: Executes SCT script using scrobj.dll from a command in entered into a specially prepared INF file.
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1218/T1218.md#atomic-test-4---infdefaultinstallexe-inf-execution
+    - https://lolbas-project.github.io/lolbas/Binaries/Infdefaultinstall/
+author: frack113
+date: 2021-07-13
+modified: 2022-10-09
+tags:
+    - attack.stealth
+    - attack.t1218
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|contains|all:
+            - 'InfDefaultInstall.exe '
+            - '.inf'
+    condition: selection
+falsepositives:
+    - Unknown
+level: medium
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_infdefaultinstall_execute_sct_scripts/info.yml
+```

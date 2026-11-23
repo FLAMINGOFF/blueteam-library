@@ -1,0 +1,63 @@
+---
+title: HackTool - SharpLdapWhoami Execution
+summary: Detects SharpLdapWhoami, a whoami alternative that queries the LDAP service on a domain controller
+sigma_id: d9367cbb-c2e0-47ce-bdc0-128cb6da898d
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0007
+techniques:
+  - T1033
+author: Florian Roth (Nextron Systems)
+date: '2022-08-29'
+modified: '2023-02-04'
+falsepositives:
+  - Programs that use the same command line flags
+references:
+  - https://github.com/bugch3ck/SharpLdapWhoami
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hktl_sharpldapwhoami.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: HackTool - SharpLdapWhoami Execution
+id: d9367cbb-c2e0-47ce-bdc0-128cb6da898d
+status: test
+description: Detects SharpLdapWhoami, a whoami alternative that queries the LDAP service on a domain controller
+references:
+    - https://github.com/bugch3ck/SharpLdapWhoami
+author: Florian Roth (Nextron Systems)
+date: 2022-08-29
+modified: 2023-02-04
+tags:
+    - attack.discovery
+    - attack.t1033
+    - car.2016-03-001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_name:
+        Image|endswith: '\SharpLdapWhoami.exe'
+    selection_pe: # in case the file has been renamed after compilation
+        - OriginalFileName|contains: 'SharpLdapWhoami'
+        - Product: 'SharpLdapWhoami'
+    selection_flags1:
+        CommandLine|endswith:
+            - ' /method:ntlm'
+            - ' /method:kerb'
+            - ' /method:nego'
+            - ' /m:nego'
+            - ' /m:ntlm'
+            - ' /m:kerb'
+    condition: 1 of selection*
+falsepositives:
+    - Programs that use the same command line flags
+level: high
+```

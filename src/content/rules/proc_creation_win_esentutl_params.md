@@ -1,0 +1,58 @@
+---
+title: Esentutl Gather Credentials
+summary: Conti recommendation to its affiliates to use esentutl to access NTDS dumped file. Trickbot also uses this utilities to get MSEdge info via its module pwgrab.
+sigma_id: 7df1713a-1a5b-4a4b-a071-dc83b144a101
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+techniques:
+  - T1003
+  - T1003.003
+author: sam0x90
+date: '2021-08-06'
+modified: '2022-10-09'
+falsepositives:
+  - To be determined
+references:
+  - https://twitter.com/vxunderground/status/1423336151860002816
+  - https://thedfirreport.com/2021/08/01/bazarcall-to-conti-ransomware-via-trickbot-and-cobalt-strike/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_esentutl_params.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Esentutl Gather Credentials
+id: 7df1713a-1a5b-4a4b-a071-dc83b144a101
+status: test
+description: Conti recommendation to its affiliates to use esentutl to access NTDS dumped file. Trickbot also uses this utilities to get MSEdge info via its module pwgrab.
+references:
+    - https://twitter.com/vxunderground/status/1423336151860002816
+    - https://thedfirreport.com/2021/08/01/bazarcall-to-conti-ransomware-via-trickbot-and-cobalt-strike/
+author: sam0x90
+date: 2021-08-06
+modified: 2022-10-09
+tags:
+    - attack.credential-access
+    - attack.t1003
+    - attack.t1003.003
+    - attack.s0404
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|contains|all:
+            - 'esentutl'
+            - ' /p'
+    condition: selection
+falsepositives:
+    - To be determined
+level: medium
+```

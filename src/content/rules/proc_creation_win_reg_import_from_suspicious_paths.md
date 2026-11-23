@@ -1,0 +1,67 @@
+---
+title: Potential Suspicious Registry File Imported Via Reg.EXE
+summary: Detects the import of '.reg' files from suspicious paths using the 'reg.exe' utility
+sigma_id: 62e0298b-e994-4189-bc87-bc699aa62d97
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0003
+techniques:
+  - T1112
+author: frack113, Nasreddine Bencherchali
+date: '2022-08-01'
+modified: '2023-02-05'
+falsepositives:
+  - Legitimate import of keys
+references:
+  - https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/reg-import
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_reg_import_from_suspicious_paths.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Suspicious Registry File Imported Via Reg.EXE
+id: 62e0298b-e994-4189-bc87-bc699aa62d97
+related:
+    - id: 73bba97f-a82d-42ce-b315-9182e76c57b1
+      type: derived
+status: test
+description: Detects the import of '.reg' files from suspicious paths using the 'reg.exe' utility
+references:
+    - https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/reg-import
+author: frack113, Nasreddine Bencherchali
+date: 2022-08-01
+modified: 2023-02-05
+tags:
+    - attack.persistence
+    - attack.defense-impairment
+    - attack.t1112
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\reg.exe'
+        - OriginalFileName: 'reg.exe'
+    selection_cli:
+        CommandLine|contains: ' import '
+    selection_paths:
+        CommandLine|contains:
+            - 'C:\Users\'
+            - '%temp%'
+            - '%tmp%'
+            - '%appdata%'
+            - '\AppData\Local\Temp\'
+            - 'C:\Windows\Temp\'
+            - 'C:\ProgramData\'
+    condition: all of selection_*
+falsepositives:
+    - Legitimate import of keys
+level: medium
+```

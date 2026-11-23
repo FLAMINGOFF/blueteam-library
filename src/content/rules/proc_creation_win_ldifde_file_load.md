@@ -1,0 +1,64 @@
+---
+title: Import LDAP Data Interchange Format File Via Ldifde.EXE
+summary: Detects the execution of "Ldifde.exe" with the import flag "-i". The can be abused to include HTTP-based arguments which will allow the arbitrary download of files from a remote server.
+sigma_id: 6f535e01-ca1f-40be-ab8d-45b19c0c8b7f
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0011
+techniques:
+  - T1218
+  - T1105
+author: '@gott_cyber'
+date: '2022-09-02'
+modified: '2023-03-14'
+falsepositives:
+  - Since the content of the files are unknown, false positives are expected
+references:
+  - https://twitter.com/0gtweet/status/1564968845726580736
+  - https://strontic.github.io/xcyclopedia/library/ldifde.exe-979DE101F5059CEC1D2C56967CA2BAC0.html
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc731033(v=ws.11)
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_ldifde_file_load.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Import LDAP Data Interchange Format File Via Ldifde.EXE
+id: 6f535e01-ca1f-40be-ab8d-45b19c0c8b7f
+status: test
+description: |
+    Detects the execution of "Ldifde.exe" with the import flag "-i". The can be abused to include HTTP-based arguments which will allow the arbitrary download of files from a remote server.
+references:
+    - https://twitter.com/0gtweet/status/1564968845726580736
+    - https://strontic.github.io/xcyclopedia/library/ldifde.exe-979DE101F5059CEC1D2C56967CA2BAC0.html
+    - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc731033(v=ws.11)
+author: '@gott_cyber'
+date: 2022-09-02
+modified: 2023-03-14
+tags:
+    - attack.command-and-control
+    - attack.stealth
+    - attack.t1218
+    - attack.t1105
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\ldifde.exe'
+        - OriginalFileName: 'ldifde.exe'
+    selection_cli:
+        CommandLine|contains|all:
+            - '-i'
+            - '-f'
+    condition: all of selection_*
+falsepositives:
+    - Since the content of the files are unknown, false positives are expected
+level: medium
+```

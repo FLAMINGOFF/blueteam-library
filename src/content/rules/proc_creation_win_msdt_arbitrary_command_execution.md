@@ -1,0 +1,61 @@
+---
+title: Potential Arbitrary Command Execution Using Msdt.EXE
+summary: Detects processes leveraging the "ms-msdt" handler or the "msdt.exe" binary to execute arbitrary commands as seen in the follina (CVE-2022-30190) vulnerability
+sigma_id: 258fc8ce-8352-443a-9120-8a11e4857fa5
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1202
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-05-29'
+modified: '2024-03-13'
+falsepositives:
+  - Unknown
+references:
+  - https://twitter.com/nao_sec/status/1530196847679401984
+  - https://app.any.run/tasks/713f05d2-fe78-4b9d-a744-f7c133e3fafb/
+  - https://twitter.com/_JohnHammond/status/1531672601067675648
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_msdt_arbitrary_command_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Arbitrary Command Execution Using Msdt.EXE
+id: 258fc8ce-8352-443a-9120-8a11e4857fa5
+status: test
+description: Detects processes leveraging the "ms-msdt" handler or the "msdt.exe" binary to execute arbitrary commands as seen in the follina (CVE-2022-30190) vulnerability
+references:
+    - https://twitter.com/nao_sec/status/1530196847679401984
+    - https://app.any.run/tasks/713f05d2-fe78-4b9d-a744-f7c133e3fafb/
+    - https://twitter.com/_JohnHammond/status/1531672601067675648
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-05-29
+modified: 2024-03-13
+tags:
+    - attack.stealth
+    - attack.t1202
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\msdt.exe'
+        - OriginalFileName: 'msdt.exe'
+    selection_cmd_inline:
+        CommandLine|contains: 'IT_BrowseForFile='
+    selection_cmd_answerfile_flag:
+        CommandLine|contains: ' PCWDiagnostic'
+    selection_cmd_answerfile_param:
+        CommandLine|contains|windash: ' -af '
+    condition: selection_img and (selection_cmd_inline or all of selection_cmd_answerfile_*)
+falsepositives:
+    - Unknown
+level: high
+```

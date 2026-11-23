@@ -1,0 +1,30 @@
+---
+import Base from "../../layouts/Base.astro";
+import { langPaths, t, TACTIC_ORDER, tacticName, type Lang } from "../../i18n";
+import { rules, incidents } from "../../data";
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const rs = await rules(), is = await incidents();
+const cells = TACTIC_ORDER.map(id => ({ id, n: rs.filter(r => r.data.tactics.includes(id)).length, i: is.filter(x => x.data.tactics.includes(id)).length }));
+const heat = (n: number) => n === 0 ? 0 : n < 30 ? 1 : n < 150 ? 2 : 3;
+const techs = new Map<string, number>();
+rs.forEach(r => r.data.techniques.forEach(x => techs.set(x, (techs.get(x) || 0) + 1)));
+const topTech = [...techs].sort((a, b) => b[1] - a[1]).slice(0, 20);
+---
+<Base lang={lang} title={t(lang, "matrix")} nav="matrix">
+  <h1>{t(lang, "matrix")}</h1>
+  <p class="muted" style="margin-top:0">{t(lang, "matrixIntro")}</p>
+  <div class="matrix">
+    {cells.map(c => (
+      <a class={`cell heat-${heat(c.n)}`} href={`/${lang}/rules/?tactic=${c.id}`}>
+        <div class="tn">{tacticName(lang, c.id)}</div><div class="tid">{c.id}</div>
+        <div class="num">{c.n}</div><div class="small muted">{t(lang, "ruleUnit")} · {c.i} {t(lang, "incUnit")}</div>
+      </a>))}
+  </div>
+  <section class="panel" style="margin-top:20px">
+    <h2>{lang === "zh" ? "规则最多的 20 个技术" : "Top 20 techniques by rule count"}</h2>
+    {topTech.map(([id, n]) => (
+      <a class="trend" href={`/${lang}/search/?q=${id}`} style="color:inherit"><span><code>{id}</code></span><span class="small muted">{n}</span>
+      <span class="bar"><i style={`width:${(n / topTech[0][1]) * 100}%`}></i></span></a>))}
+  </section>
+</Base>

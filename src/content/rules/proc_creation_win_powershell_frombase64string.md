@@ -1,0 +1,57 @@
+---
+title: Base64 Encoded PowerShell Command Detected
+summary: Detects usage of the "FromBase64String" function in the commandline which is used to decode a base64 encoded string
+sigma_id: e32d4572-9826-4738-b651-95fa63747e8a
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1027
+  - T1140
+  - T1059.001
+author: Florian Roth (Nextron Systems)
+date: '2020-01-29'
+modified: '2023-01-26'
+falsepositives:
+  - Administrative script libraries
+references:
+  - https://gist.github.com/Neo23x0/6af876ee72b51676c82a2db8d2cd3639
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_powershell_frombase64string.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Base64 Encoded PowerShell Command Detected
+id: e32d4572-9826-4738-b651-95fa63747e8a
+status: test
+description: Detects usage of the "FromBase64String" function in the commandline which is used to decode a base64 encoded string
+references:
+    - https://gist.github.com/Neo23x0/6af876ee72b51676c82a2db8d2cd3639
+author: Florian Roth (Nextron Systems)
+date: 2020-01-29
+modified: 2023-01-26
+tags:
+    - attack.stealth
+    - attack.t1027
+    - attack.execution
+    - attack.t1140
+    - attack.t1059.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|contains: '::FromBase64String('
+    condition: selection
+falsepositives:
+    - Administrative script libraries
+level: high
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_powershell_frombase64string/info.yml
+```

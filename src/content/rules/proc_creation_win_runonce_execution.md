@@ -1,0 +1,60 @@
+---
+title: Run Once Task Execution as Configured in Registry
+summary: This rule detects the execution of Run Once task as configured in the registry
+sigma_id: 198effb6-6c98-4d0c-9ea3-451fa143c45c
+status: test
+level: low
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0003
+techniques:
+  - T1112
+author: Avneet Singh @v3t0_, oscd.community, Christopher Peacock @SecurePeacock (updated)
+date: '2020-10-18'
+modified: '2022-12-13'
+falsepositives:
+  - Unknown
+references:
+  - https://twitter.com/pabraeken/status/990717080805789697
+  - https://lolbas-project.github.io/lolbas/Binaries/Runonce/
+  - https://twitter.com/0gtweet/status/1602644163824156672?s=20&t=kuxbUnZPltpvFPZdCrqPXA
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_runonce_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Run Once Task Execution as Configured in Registry
+id: 198effb6-6c98-4d0c-9ea3-451fa143c45c
+status: test
+description: This rule detects the execution of Run Once task as configured in the registry
+references:
+    - https://twitter.com/pabraeken/status/990717080805789697
+    - https://lolbas-project.github.io/lolbas/Binaries/Runonce/
+    - https://twitter.com/0gtweet/status/1602644163824156672?s=20&t=kuxbUnZPltpvFPZdCrqPXA
+author: 'Avneet Singh @v3t0_, oscd.community, Christopher Peacock @SecurePeacock (updated)'
+date: 2020-10-18
+modified: 2022-12-13
+tags:
+    - attack.persistence
+    - attack.defense-impairment
+    - attack.t1112
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_img:
+        - Image|endswith: '\runonce.exe'
+        - Description: 'Run Once Wrapper'
+    selection_cli:
+        - CommandLine|contains: '/AlternateShellStartup'
+        - CommandLine|endswith: '/r'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: low
+```

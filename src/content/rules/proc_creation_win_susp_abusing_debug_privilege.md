@@ -1,0 +1,76 @@
+---
+title: Abused Debug Privilege by Arbitrary Parent Processes
+summary: Detection of unusual child processes by different system processes
+sigma_id: d522eca2-2973-4391-a3e0-ef0374321dae
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+techniques:
+  - T1548
+author: Semanur Guneysu @semanurtg, oscd.community
+date: '2020-10-28'
+modified: '2022-11-11'
+falsepositives:
+  - Unknown
+references:
+  - https://image.slidesharecdn.com/kheirkhabarovoffzonefinal-181117201458/95/hunting-for-privilege-escalation-in-windows-environment-74-638.jpg
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_susp_abusing_debug_privilege.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Abused Debug Privilege by Arbitrary Parent Processes
+id: d522eca2-2973-4391-a3e0-ef0374321dae
+status: test
+description: Detection of unusual child processes by different system processes
+references:
+    - https://image.slidesharecdn.com/kheirkhabarovoffzonefinal-181117201458/95/hunting-for-privilege-escalation-in-windows-environment-74-638.jpg
+author: 'Semanur Guneysu @semanurtg, oscd.community'
+date: 2020-10-28
+modified: 2022-11-11
+tags:
+    - attack.privilege-escalation
+    - attack.t1548
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_parent:
+        ParentImage|endswith:
+            - '\winlogon.exe'
+            - '\services.exe'
+            - '\lsass.exe'
+            - '\csrss.exe'
+            - '\smss.exe'
+            - '\wininit.exe'
+            - '\spoolsv.exe'
+            - '\searchindexer.exe'
+        User|contains: # covers many language settings
+            - 'AUTHORI'
+            - 'AUTORI'
+    selection_img:
+        - Image|endswith:
+              - '\powershell.exe'
+              - '\pwsh.exe'
+              - '\cmd.exe'
+        - OriginalFileName:
+              - 'PowerShell.EXE'
+              - 'pwsh.dll'
+              - 'Cmd.Exe'
+    filter:
+        CommandLine|contains|all:
+            - ' route '
+            - ' ADD '
+    condition: all of selection_* and not filter
+falsepositives:
+    - Unknown
+level: high
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_susp_abusing_debug_privilege/info.yml
+```

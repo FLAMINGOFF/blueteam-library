@@ -1,0 +1,78 @@
+---
+title: Proxy Execution Via Wuauclt.EXE
+summary: Detects the use of the Windows Update Client binary (wuauclt.exe) for proxy execution.
+sigma_id: af77cf95-c469-471c-b6a0-946c685c4798
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1218
+author: Roberto Rodriguez (Cyb3rWard0g), OTR (Open Threat Research), Florian Roth (Nextron Systems), Sreeman, FPT.EagleEye Team
+date: '2020-10-12'
+modified: '2023-11-11'
+falsepositives:
+  - Unknown
+references:
+  - https://dtm.uk/wuauclt/
+  - https://blog.malwarebytes.com/threat-intelligence/2022/01/north-koreas-lazarus-apt-leverages-windows-update-client-github-in-latest-campaign/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_wuauclt_dll_loading.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Proxy Execution Via Wuauclt.EXE
+id: af77cf95-c469-471c-b6a0-946c685c4798
+related:
+    - id: ba1bb0cb-73da-42de-ad3a-de10c643a5d0
+      type: obsolete
+    - id: d7825193-b70a-48a4-b992-8b5b3015cc11
+      type: obsolete
+status: test
+description: Detects the use of the Windows Update Client binary (wuauclt.exe) for proxy execution.
+references:
+    - https://dtm.uk/wuauclt/
+    - https://blog.malwarebytes.com/threat-intelligence/2022/01/north-koreas-lazarus-apt-leverages-windows-update-client-github-in-latest-campaign/
+author: Roberto Rodriguez (Cyb3rWard0g), OTR (Open Threat Research), Florian Roth (Nextron Systems), Sreeman, FPT.EagleEye Team
+date: 2020-10-12
+modified: 2023-11-11
+tags:
+    - attack.stealth
+    - attack.t1218
+    - attack.execution
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\wuauclt.exe'
+        - OriginalFileName: 'wuauclt.exe'
+    selection_cli:
+        CommandLine|contains|all:
+            - 'UpdateDeploymentProvider'
+            - 'RunHandlerComServer'
+    filter_main_generic:
+        # Note: Please enhance this if you find the full path
+        CommandLine|contains: ' /UpdateDeploymentProvider UpdateDeploymentProvider.dll '
+    filter_main_wuaueng:
+        # Note: Please enhance this if you find the full path
+        CommandLine|contains: ' wuaueng.dll '
+    filter_main_uus:
+        CommandLine|contains:
+            - ':\Windows\UUS\Packages\Preview\amd64\updatedeploy.dll /ClassId'
+            - ':\Windows\UUS\amd64\UpdateDeploy.dll /ClassId'
+    filter_main_winsxs:
+        CommandLine|contains|all:
+            - ':\Windows\WinSxS\'
+            - '\UpdateDeploy.dll /ClassId '
+    condition: all of selection_* and not 1 of filter_main_*
+falsepositives:
+    - Unknown
+level: high
+```

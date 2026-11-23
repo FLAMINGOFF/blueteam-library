@@ -1,0 +1,63 @@
+---
+title: Whoami.EXE Execution With Output Option
+summary: Detects the execution of "whoami.exe" with the "/FO" flag to choose CSV as output format or with redirection options to export the results to a file for later use.
+sigma_id: c30fb093-1109-4dc8-88a8-b30d11c95a5d
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0007
+techniques:
+  - T1033
+author: Florian Roth (Nextron Systems), Nasreddine Bencherchali (Nextron Systems)
+date: '2023-02-28'
+modified: '2023-12-04'
+falsepositives:
+  - Unknown
+references:
+  - https://brica.de/alerts/alert/public/1247926/agent-tesla-keylogger-delivered-inside-a-power-iso-daa-archive/
+  - https://app.any.run/tasks/7eaba74e-c1ea-400f-9c17-5e30eee89906/
+  - https://www.youtube.com/watch?v=DsJ9ByX84o4&t=6s
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_whoami_output.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Whoami.EXE Execution With Output Option
+id: c30fb093-1109-4dc8-88a8-b30d11c95a5d
+status: test
+description: Detects the execution of "whoami.exe" with the "/FO" flag to choose CSV as output format or with redirection options to export the results to a file for later use.
+references:
+    - https://brica.de/alerts/alert/public/1247926/agent-tesla-keylogger-delivered-inside-a-power-iso-daa-archive/
+    - https://app.any.run/tasks/7eaba74e-c1ea-400f-9c17-5e30eee89906/
+    - https://www.youtube.com/watch?v=DsJ9ByX84o4&t=6s
+author: Florian Roth (Nextron Systems), Nasreddine Bencherchali (Nextron Systems)
+date: 2023-02-28
+modified: 2023-12-04
+tags:
+    - attack.discovery
+    - attack.t1033
+    - car.2016-03-001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_main_img:
+        - Image|endswith: '\whoami.exe'
+        - OriginalFileName: 'whoami.exe'
+    selection_main_cli:
+        CommandLine|contains:
+            - ' /FO CSV'
+            - ' -FO CSV'
+    selection_special:
+        CommandLine|contains: 'whoami*>'
+    condition: all of selection_main_* or selection_special
+falsepositives:
+    - Unknown
+level: medium
+```

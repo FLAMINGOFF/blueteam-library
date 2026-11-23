@@ -1,0 +1,53 @@
+---
+title: Execution via WorkFolders.exe
+summary: Detects using WorkFolders.exe to execute an arbitrary control.exe
+sigma_id: 0bbc6369-43e3-453d-9944-cae58821c173
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218
+author: Maxime Thiebaut (@0xThiebaut)
+date: '2021-10-21'
+modified: '2022-12-25'
+falsepositives:
+  - Legitimate usage of the uncommon Windows Work Folders feature.
+references:
+  - https://twitter.com/elliotkillick/status/1449812843772227588
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_susp_workfolders.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Execution via WorkFolders.exe
+id: 0bbc6369-43e3-453d-9944-cae58821c173
+status: test
+description: Detects using WorkFolders.exe to execute an arbitrary control.exe
+references:
+    - https://twitter.com/elliotkillick/status/1449812843772227588
+author: Maxime Thiebaut (@0xThiebaut)
+date: 2021-10-21
+modified: 2022-12-25
+tags:
+    - attack.stealth
+    - attack.t1218
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\control.exe'
+        ParentImage|endswith: '\WorkFolders.exe'
+    filter:
+        Image: 'C:\Windows\System32\control.exe'
+    condition: selection and not filter
+falsepositives:
+    - Legitimate usage of the uncommon Windows Work Folders feature.
+level: high
+```

@@ -1,0 +1,78 @@
+---
+title: Microsoft IIS Service Account Password Dumped
+summary: Detects the Internet Information Services (IIS) command-line tool, AppCmd, being used to list passwords
+sigma_id: 2d3cdeec-c0db-45b4-aa86-082f7eb75701
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+techniques:
+  - T1003
+author: Tim Rauch, Janantha Marasinghe, Elastic (original idea)
+date: '2022-11-08'
+modified: '2023-01-22'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/elastic/detection-rules/blob/0aacc5e19292f764a002ea2093b2a076db35b589/rules/windows/credential_access_iis_apppoolsa_pwd_appcmd.toml
+  - https://twitter.com/0gtweet/status/1588815661085917186?cxt=HHwWhIDUyaDbzYwsAAAA
+  - https://www.netspi.com/blog/technical/network-penetration-testing/decrypting-iis-passwords-to-break-out-of-the-dmz-part-2/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_iis_appcmd_service_account_password_dumped.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Microsoft IIS Service Account Password Dumped
+id: 2d3cdeec-c0db-45b4-aa86-082f7eb75701
+status: test
+description: Detects the Internet Information Services (IIS) command-line tool, AppCmd, being used to list passwords
+references:
+    - https://github.com/elastic/detection-rules/blob/0aacc5e19292f764a002ea2093b2a076db35b589/rules/windows/credential_access_iis_apppoolsa_pwd_appcmd.toml
+    - https://twitter.com/0gtweet/status/1588815661085917186?cxt=HHwWhIDUyaDbzYwsAAAA
+    - https://www.netspi.com/blog/technical/network-penetration-testing/decrypting-iis-passwords-to-break-out-of-the-dmz-part-2/
+author: Tim Rauch, Janantha Marasinghe, Elastic (original idea)
+date: 2022-11-08
+modified: 2023-01-22
+tags:
+    - attack.credential-access
+    - attack.t1003
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_base_name:
+        - Image|endswith: '\appcmd.exe'
+        - OriginalFileName: 'appcmd.exe'
+    selection_base_list:
+        CommandLine|contains: 'list '
+    selection_standalone:
+        CommandLine|contains:
+            - ' /config' # https://pbs.twimg.com/media/FgydDAJWIAEio34?format=png&name=900x900
+            - ' /xml'
+            # We cover the "-" version just in case :)
+            - ' -config'
+            - ' -xml'
+    selection_cmd_flags:
+        CommandLine|contains:
+            - ' /@t' # Covers both "/@text:*" and "/@t:*"
+            - ' /text'
+            - ' /show'
+            # We cover the "-" version just in case :)
+            - ' -@t'
+            - ' -text'
+            - ' -show'
+    selection_cmd_grep:
+        CommandLine|contains:
+            - ':\*'
+            - 'password'
+    condition: all of selection_base_* and (selection_standalone or all of selection_cmd_*)
+falsepositives:
+    - Unknown
+level: high
+```

@@ -1,0 +1,57 @@
+---
+title: Potential File Overwrite Via Sysinternals SDelete
+summary: Detects the use of SDelete to erase a file not the free space
+sigma_id: a4824fca-976f-4964-b334-0621379e84c4
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0040
+techniques:
+  - T1485
+author: frack113
+date: '2021-06-03'
+modified: '2023-02-28'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1485/T1485.md
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_sysinternals_sdelete.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential File Overwrite Via Sysinternals SDelete
+id: a4824fca-976f-4964-b334-0621379e84c4
+status: test
+description: Detects the use of SDelete to erase a file not the free space
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1485/T1485.md
+author: frack113
+date: 2021-06-03
+modified: 2023-02-28
+tags:
+    - attack.impact
+    - attack.t1485
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        OriginalFileName: sdelete.exe
+    filter:
+        CommandLine|contains:
+            - ' -h'
+            - ' -c'
+            - ' -z'
+            - ' /\?'
+    condition: selection and not filter
+falsepositives:
+    - Unknown
+level: high
+```

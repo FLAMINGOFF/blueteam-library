@@ -1,0 +1,62 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { render } from "astro:content";
+import { LANGS, t, tacticName, levelName, statusName, type Lang } from "../../../i18n";
+import { rules, incidents, ruleTitle, ruleSummary, translated } from "../../../data";
+export async function getStaticPaths() {
+  const rs = await rules();
+  return LANGS.flatMap(lang => rs.map(r => ({ params: { lang, slug: r.id }, props: { r } })));
+}
+const { r } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const colon = lang === "zh" ? "：" : ": ";
+const d = r.data;
+const { Content } = await render(r);
+const rel = (await incidents()).filter(i => i.data.related_rules.includes(r.id));
+const notes = lang === "zh" ? d.notes_zh : d.notes_en;
+---
+<Base lang={lang} title={ruleTitle(r, lang)} description={ruleSummary(r, lang).slice(0, 160)} nav="rules">
+  <div class="crumbs"><a href={`/${lang}/rules/`}>{t(lang, "rules")}</a> / {r.id}</div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <h1 style="margin:0">{ruleTitle(r, lang)}</h1><button class="star" data-star={"r:" + r.id} aria-label="save">☆</button>
+  </div>
+  {lang === "zh" && translated(r) && <p class="muted small" style="margin:2px 0 0">{d.title}</p>}
+  <div class="badges" style="margin:8px 0 16px">
+    <span class={`sev sev-${d.level}`}>{levelName(lang, d.level)}</span><span class="badge fmt">{d.format}</span><span class="badge">{statusName(lang, d.status)}</span>
+    {lang === "zh" && !translated(r) && <span class="untr">{t(lang, "untranslated")}</span>}
+  </div>
+  <div class="srcbox">
+    <p><b>{t(lang, "source")}{colon}</b><a href={d.source.url} rel="noopener" target="_blank">{d.source.name} · {t(lang, "viewOriginal")} ↗</a></p>
+    <p><b>{t(lang, "author")}{colon}</b>{d.author}</p>
+    <p><b>{t(lang, "license")}{colon}</b>{d.source.license_url ? <a href={d.source.license_url} rel="noopener" target="_blank">{d.source.license === "DRL-1.1" ? "Detection Rule License (DRL) 1.1" : d.source.license}</a> : d.source.license}</p>
+  </div>
+  <div class="detail">
+    <div>
+      <section class="panel prose-block"><h2>{t(lang, "description")}</h2><p>{ruleSummary(r, lang)}</p>
+        {notes && <p class="muted">{notes}</p>}
+      </section>
+      <section class="panel"><h2 style="margin-bottom:10px">{t(lang, "detection")} (Sigma)</h2>
+        <div class="code-wrap"><button class="copy" data-copy data-ok={t(lang, "copied")}>{t(lang, "copy")}</button><Content /></div>
+      </section>
+      <section class="panel"><h2>{t(lang, "falsepositives")}</h2>
+        <ul class="plain">{d.falsepositives.map(f => <li>{String(f)}</li>)}</ul>
+      </section>
+      {rel.length > 0 && <section class="panel"><h2>{t(lang, "relatedIncidents")}</h2>
+        {rel.map(i => <a class="card" href={`/${lang}/incidents/${i.id}/`}><div class="title">{i.data.title[lang]}</div><div class="sum">{i.data.publisher} · {i.data.published}</div></a>)}
+      </section>}
+      {d.references.length > 0 && <section class="panel"><h2>{t(lang, "references")}</h2>
+        <ul class="refs">{d.references.map(u => <li><a href={u} rel="noopener nofollow" target="_blank">{u}</a></li>)}</ul></section>}
+    </div>
+    <aside class="panel">
+      <dl class="kv">
+        <dt>{t(lang, "tactic")}</dt><dd>{d.tactics.length ? d.tactics.map((x, i) => <>{i > 0 && "、"}<a href={`/${lang}/rules/?tactic=${x}`}>{tacticName(lang, x)}</a></>) : "—"}</dd>
+        <dt>{t(lang, "techniques")}</dt><dd>{d.techniques.length ? d.techniques.map(x => <><a href={`https://attack.mitre.org/techniques/${x.replace(".", "/")}/`} rel="noopener" target="_blank"><code>{x}</code></a> </>) : "—"}</dd>
+        <dt>{t(lang, "platform")}</dt><dd>{d.platform}</dd>
+        <dt>{t(lang, "logsource")}</dt><dd>{d.logsource}</dd>
+        <dt>{t(lang, "created")}</dt><dd>{d.date || "—"}</dd>
+        <dt>{t(lang, "modified")}</dt><dd>{d.modified || "—"}</dd>
+        {d.sigma_id && <><dt>ID</dt><dd><code style="font-size:11px">{d.sigma_id}</code></dd></>}
+      </dl>
+    </aside>
+  </div>
+</Base>

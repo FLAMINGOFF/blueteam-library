@@ -1,0 +1,79 @@
+---
+title: Potentially Suspicious NTFS Symlink Behavior Modification
+summary: Detects the modification of NTFS symbolic link behavior using fsutil, which could be used to enable remote to local or remote to remote symlinks for potential attacks.
+sigma_id: c0b2768a-dd06-4671-8339-b16ca8d1f27f
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1059
+  - T1222.001
+author: frack113, The DFIR Report
+date: '2022-03-02'
+modified: '2025-11-13'
+falsepositives:
+  - Legitimate usage, investigate the parent process and context to determine if benign.
+references:
+  - https://www.cybereason.com/blog/cybereason-vs.-blackcat-ransomware
+  - https://learn.microsoft.com/fr-fr/windows-server/administration/windows-commands/fsutil-behavior
+  - https://thedfirreport.com/2025/06/30/hide-your-rdp-password-spray-leads-to-ransomhub-deployment/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_fsutil_symlinkevaluation.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potentially Suspicious NTFS Symlink Behavior Modification
+id: c0b2768a-dd06-4671-8339-b16ca8d1f27f
+status: test
+description: |
+    Detects the modification of NTFS symbolic link behavior using fsutil, which could be used to enable remote to local or remote to remote symlinks for potential attacks.
+references:
+    - https://www.cybereason.com/blog/cybereason-vs.-blackcat-ransomware
+    - https://learn.microsoft.com/fr-fr/windows-server/administration/windows-commands/fsutil-behavior
+    - https://thedfirreport.com/2025/06/30/hide-your-rdp-password-spray-leads-to-ransomhub-deployment/
+author: frack113, The DFIR Report
+date: 2022-03-02
+modified: 2025-11-13
+tags:
+    - attack.execution
+    - attack.defense-impairment
+    - attack.t1059
+    - attack.t1222.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img_proxy:
+        # Note: Example command observed:  cmd.exe /c "fsutil behaviour set SymlinkEvaluation"
+        - Image|endswith:
+              - '\cmd.exe'
+              - '\powershell.exe'
+              - '\pwsh.exe'
+        - OriginalFileName:
+              - 'Cmd.Exe'
+              - 'PowerShell.EXE'
+              - 'pwsh.dll'
+    selection_fsutil_cli:
+        CommandLine|contains|all:
+            - 'fsutil'
+            - 'behavior'
+            - 'set'
+            - 'SymlinkEvaluation'
+    selection_symlink_params:
+        CommandLine|contains:
+            - 'R2L:1' # Remote to Local
+            - 'R2R:1' # Remote to Remote
+            - 'L2L:1' # Local to Local
+    condition: all of selection_*
+falsepositives:
+    - Legitimate usage, investigate the parent process and context to determine if benign.
+level: medium
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_fsutil_symlinkevaluation/info.yml
+```

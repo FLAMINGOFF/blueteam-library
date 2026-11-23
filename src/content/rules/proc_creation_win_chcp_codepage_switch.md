@@ -1,0 +1,60 @@
+---
+title: Suspicious CodePage Switch Via CHCP
+summary: Detects a code page switch in command line or batch scripts to a rare language
+sigma_id: c7942406-33dd-4377-a564-0f62db0593a3
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1036
+author: Florian Roth (Nextron Systems), Jonhnathan Ribeiro, oscd.community
+date: '2019-10-14'
+modified: '2023-03-07'
+falsepositives:
+  - Administrative activity (adjust code pages according to your organization's region)
+references:
+  - https://learn.microsoft.com/en-us/windows/win32/intl/code-page-identifiers
+  - https://twitter.com/cglyer/status/1183756892952248325
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_chcp_codepage_switch.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious CodePage Switch Via CHCP
+id: c7942406-33dd-4377-a564-0f62db0593a3
+status: test
+description: Detects a code page switch in command line or batch scripts to a rare language
+references:
+    - https://learn.microsoft.com/en-us/windows/win32/intl/code-page-identifiers
+    - https://twitter.com/cglyer/status/1183756892952248325
+author: Florian Roth (Nextron Systems), Jonhnathan Ribeiro, oscd.community
+date: 2019-10-14
+modified: 2023-03-07
+tags:
+    - attack.stealth
+    - attack.t1036
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\chcp.com'
+        CommandLine|endswith:
+            - ' 936'    # Chinese
+            # - ' 1256' # Arabic
+            - ' 1258'   # Vietnamese
+            # - ' 855'  # Russian
+            # - ' 866'  # Russian
+            # - ' 864'  # Arabic
+    condition: selection
+falsepositives:
+    - Administrative activity (adjust code pages according to your organization's region)
+level: medium
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_chcp_codepage_switch/info.yml
+```

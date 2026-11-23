@@ -1,0 +1,83 @@
+---
+title: Potential Encoded PowerShell Patterns In CommandLine
+summary: Detects specific combinations of encoding methods in PowerShell via the commandline
+sigma_id: cdf05894-89e7-4ead-b2b0-0a5f97a90f2f
+status: test
+level: low
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1027
+  - T1059.001
+author: Teymur Kheirkhabarov (idea), Vasiliy Burov (rule), oscd.community, Tim Shelton
+date: '2020-10-11'
+modified: '2023-01-26'
+falsepositives:
+  - Unknown
+references:
+  - https://speakerdeck.com/heirhabarov/hunting-for-powershell-abuse?slide=65
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_powershell_encoding_patterns.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Encoded PowerShell Patterns In CommandLine
+id: cdf05894-89e7-4ead-b2b0-0a5f97a90f2f
+related:
+    - id: 5b572dcf-254b-425c-a8c5-d9af6bea35a6
+      type: similar
+status: test
+description: Detects specific combinations of encoding methods in PowerShell via the commandline
+references:
+    - https://speakerdeck.com/heirhabarov/hunting-for-powershell-abuse?slide=65
+author: Teymur Kheirkhabarov (idea), Vasiliy Burov (rule), oscd.community, Tim Shelton
+date: 2020-10-11
+modified: 2023-01-26
+tags:
+    - attack.stealth
+    - attack.t1027
+    - attack.execution
+    - attack.t1059.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith:
+              - '\powershell.exe'
+              - '\pwsh.exe'
+        - OriginalFileName:
+              - 'PowerShell.EXE'
+              - 'pwsh.dll'
+    selection_to_1:
+        CommandLine|contains:
+            - 'ToInt'
+            - 'ToDecimal'
+            - 'ToByte'
+            - 'ToUint'
+            - 'ToSingle'
+            - 'ToSByte'
+    selection_to_2:
+        CommandLine|contains:
+            - 'ToChar'
+            - 'ToString'
+            - 'String'
+    selection_gen_1:
+        CommandLine|contains|all:
+            - 'char'
+            - 'join'
+    selection_gen_2:
+        CommandLine|contains|all:
+            - 'split'
+            - 'join'
+    condition: selection_img and (all of selection_to_* or 1 of selection_gen_*)
+falsepositives:
+    - Unknown
+level: low
+```

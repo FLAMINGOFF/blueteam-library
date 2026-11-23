@@ -1,0 +1,65 @@
+---
+title: Potential Credential Dumping Attempt Using New NetworkProvider - CLI
+summary: Detects when an attacker tries to add a new network provider in order to dump clear text credentials, similar to how the NPPSpy tool does it
+sigma_id: baef1ec6-2ca9-47a3-97cc-4cf2bda10b77
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+techniques:
+  - T1003
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-08-23'
+modified: '2023-02-02'
+falsepositives:
+  - Other legitimate network providers used and not filtred in this rule
+references:
+  - https://learn.microsoft.com/en-us/troubleshoot/windows-client/setup-upgrade-and-drivers/network-provider-settings-removed-in-place-upgrade
+  - https://github.com/gtworek/PSBits/tree/master/PasswordStealing/NPPSpy
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_registry_new_network_provider.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Credential Dumping Attempt Using New NetworkProvider - CLI
+id: baef1ec6-2ca9-47a3-97cc-4cf2bda10b77
+related:
+    - id: 0442defa-b4a2-41c9-ae2c-ea7042fc4701
+      type: similar
+status: test
+description: Detects when an attacker tries to add a new network provider in order to dump clear text credentials, similar to how the NPPSpy tool does it
+references:
+    - https://learn.microsoft.com/en-us/troubleshoot/windows-client/setup-upgrade-and-drivers/network-provider-settings-removed-in-place-upgrade
+    - https://github.com/gtworek/PSBits/tree/master/PasswordStealing/NPPSpy
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-08-23
+modified: 2023-02-02
+tags:
+    - attack.credential-access
+    - attack.t1003
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|contains|all:
+            - '\System\CurrentControlSet\Services\'
+            - '\NetworkProvider'
+    # filter:
+    #     CommandLine|contains:
+    #         - '\System\CurrentControlSet\Services\WebClient\NetworkProvider'
+    #         - '\System\CurrentControlSet\Services\LanmanWorkstation\NetworkProvider'
+    #         - '\System\CurrentControlSet\Services\RDPNP\NetworkProvider'
+    #         - '\System\CurrentControlSet\Services\P9NP\NetworkProvider' # Related to WSL remove the comment if you use WSL in your ENV
+    condition: selection
+falsepositives:
+    - Other legitimate network providers used and not filtred in this rule
+level: high
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_registry_new_network_provider/info.yml
+```

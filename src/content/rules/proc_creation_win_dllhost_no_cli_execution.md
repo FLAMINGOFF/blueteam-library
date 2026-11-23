@@ -1,0 +1,61 @@
+---
+title: Dllhost.EXE Execution Anomaly
+summary: Detects a "dllhost" process spawning with no commandline arguments which is very rare to happen and could indicate process injection activity or malware mimicking similar system processes.
+sigma_id: e7888eb1-13b0-4616-bd99-4bc0c2b054b9
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+techniques:
+  - T1055
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-06-27'
+modified: '2023-05-15'
+falsepositives:
+  - Unlikely
+references:
+  - https://redcanary.com/blog/child-processes/
+  - https://nasbench.medium.com/what-is-the-dllhost-exe-process-actually-running-ef9fe4c19c08
+  - https://www.ncsc.gov.uk/files/NCSC-MAR-Goofy-Guineapig.pdf
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_dllhost_no_cli_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Dllhost.EXE Execution Anomaly
+id: e7888eb1-13b0-4616-bd99-4bc0c2b054b9
+status: test
+description: Detects a "dllhost" process spawning with no commandline arguments which is very rare to happen and could indicate process injection activity or malware mimicking similar system processes.
+references:
+    - https://redcanary.com/blog/child-processes/
+    - https://nasbench.medium.com/what-is-the-dllhost-exe-process-actually-running-ef9fe4c19c08
+    - https://www.ncsc.gov.uk/files/NCSC-MAR-Goofy-Guineapig.pdf
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-06-27
+modified: 2023-05-15
+tags:
+    - attack.privilege-escalation
+    - attack.stealth
+    - attack.t1055
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\dllhost.exe'
+        CommandLine:
+            - 'dllhost.exe'
+            - 'dllhost'
+    filter_main_null:
+        CommandLine: null
+    condition: selection and not 1 of filter_main_*
+falsepositives:
+    - Unlikely
+level: high
+```

@@ -1,0 +1,56 @@
+---
+title: Potential Rundll32 Execution With DLL Stored In ADS
+summary: Detects execution of rundll32 where the DLL being called is stored in an Alternate Data Stream (ADS).
+sigma_id: 9248c7e1-2bf3-4661-a22c-600a8040b446
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1564.004
+author: Harjot Singh, '@cyb3rjy0t'
+date: '2023-01-21'
+modified: '2026-03-16'
+falsepositives:
+  - Unknown
+references:
+  - https://lolbas-project.github.io/lolbas/Binaries/Rundll32
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_rundll32_ads_stored_dll_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Rundll32 Execution With DLL Stored In ADS
+id: 9248c7e1-2bf3-4661-a22c-600a8040b446
+status: test
+description: Detects execution of rundll32 where the DLL being called is stored in an Alternate Data Stream (ADS).
+references:
+    - https://lolbas-project.github.io/lolbas/Binaries/Rundll32
+author: Harjot Singh, '@cyb3rjy0t'
+date: 2023-01-21
+modified: 2026-03-16
+tags:
+    - attack.stealth
+    - attack.t1564.004
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\rundll32.exe'
+        - OriginalFileName: 'RUNDLL32.EXE'
+    selection_cli:
+        # Example:
+        #   rundll32 "C:\ads\file.txt:ADSDLL.dll",DllMain
+        # Note: This doesn't cover the use case where a full path for the DLL isn't used. As it requires a more expensive regex
+        CommandLine|re: '[Rr][Uu][Nn][Dd][Ll][Ll]32(?:\.[Ee][Xx][Ee])? \S+?\w:\S+?:'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

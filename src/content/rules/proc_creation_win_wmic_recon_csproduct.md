@@ -1,0 +1,56 @@
+---
+title: Hardware Model Reconnaissance Via Wmic.EXE
+summary: Detects the execution of WMIC with the "csproduct" which is used to obtain information such as hardware models and vendor information
+sigma_id: 3e3ceccd-6c06-48b8-b5ff-ab1d25db8c1d
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1047
+author: Florian Roth (Nextron Systems)
+date: '2023-02-14'
+falsepositives:
+  - Unknown
+references:
+  - https://jonconwayuk.wordpress.com/2014/01/31/wmic-csproduct-using-wmi-to-identify-make-and-model-of-hardware/
+  - https://www.uptycs.com/blog/kuraystealer-a-bandit-using-discord-webhooks
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_wmic_recon_csproduct.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Hardware Model Reconnaissance Via Wmic.EXE
+id: 3e3ceccd-6c06-48b8-b5ff-ab1d25db8c1d
+status: test
+description: Detects the execution of WMIC with the "csproduct" which is used to obtain information such as hardware models and vendor information
+references:
+    - https://jonconwayuk.wordpress.com/2014/01/31/wmic-csproduct-using-wmi-to-identify-make-and-model-of-hardware/
+    - https://www.uptycs.com/blog/kuraystealer-a-bandit-using-discord-webhooks
+author: Florian Roth (Nextron Systems)
+date: 2023-02-14
+tags:
+    - attack.execution
+    - attack.t1047
+    - car.2016-03-002
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\wmic.exe'
+        - OriginalFileName: 'wmic.exe'
+    selection_cli:
+        CommandLine|contains: 'csproduct'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: medium
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_wmic_recon_csproduct/info.yml
+```

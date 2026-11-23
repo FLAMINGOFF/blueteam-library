@@ -1,0 +1,66 @@
+---
+title: Capture Credentials with Rpcping.exe
+summary: Detects using Rpcping.exe to send a RPC test connection to the target server (-s) and force the NTLM hash to be sent in the process.
+sigma_id: 93671f99-04eb-4ab4-a161-70d446a84003
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+techniques:
+  - T1003
+author: Julia Fomina, oscd.community
+date: '2020-10-09'
+modified: '2026-10-31'
+falsepositives:
+  - Unlikely
+references:
+  - https://lolbas-project.github.io/lolbas/Binaries/Rpcping/
+  - https://twitter.com/vysecurity/status/974806438316072960
+  - https://twitter.com/vysecurity/status/873181705024266241
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/hh875578(v=ws.11)
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_rpcping_credential_capture.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Capture Credentials with Rpcping.exe
+id: 93671f99-04eb-4ab4-a161-70d446a84003
+status: test
+description: Detects using Rpcping.exe to send a RPC test connection to the target server (-s) and force the NTLM hash to be sent in the process.
+references:
+    - https://lolbas-project.github.io/lolbas/Binaries/Rpcping/
+    - https://twitter.com/vysecurity/status/974806438316072960
+    - https://twitter.com/vysecurity/status/873181705024266241
+    - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/hh875578(v=ws.11)
+author: Julia Fomina, oscd.community
+date: 2020-10-09
+modified: 2026-10-31
+tags:
+    - attack.credential-access
+    - attack.t1003
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_main_img:
+        - Image|endswith: '\RpcPing.exe'
+        - OriginalFileName: 'RpcPing.exe'
+    selection_main_flag:
+        CommandLine|contains|windash: '-s'
+    selection_cli_ntlm:
+        CommandLine|contains|windash: '-u'
+        CommandLine|contains: 'NTLM'
+    selection_cli_ncacn:
+        CommandLine|contains|windash: '-t'
+        CommandLine|contains: 'ncacn_np'
+    condition: all of selection_main_* and 1 of selection_cli_*
+falsepositives:
+    - Unlikely
+level: medium
+```

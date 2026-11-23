@@ -1,0 +1,76 @@
+---
+title: Usage Of Web Request Commands And Cmdlets
+summary: Detects the use of various web request commands with commandline tools and Windows PowerShell cmdlets (including aliases) via CommandLine
+sigma_id: 9fc51a3c-81b3-4fa7-b35f-7c02cf10fd2d
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1059.001
+author: James Pemberton / @4A616D6573, Endgame, JHasenbusch, oscd.community, Austin Songer @austinsonger
+date: '2019-10-24'
+modified: '2025-10-20'
+falsepositives:
+  - Use of Get-Command and Get-Help modules to reference Invoke-WebRequest and Start-BitsTransfer.
+references:
+  - https://4sysops.com/archives/use-powershell-to-download-a-file-with-http-https-and-ftp/
+  - https://blog.jourdant.me/post/3-ways-to-download-files-with-powershell
+  - https://learn.microsoft.com/en-us/powershell/module/bitstransfer/add-bitsfile?view=windowsserver2019-ps
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_susp_web_request_cmd_and_cmdlets.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Usage Of Web Request Commands And Cmdlets
+id: 9fc51a3c-81b3-4fa7-b35f-7c02cf10fd2d
+related:
+    - id: 1139d2e2-84b1-4226-b445-354492eba8ba
+      type: similar
+    - id: f67dbfce-93bc-440d-86ad-a95ae8858c90
+      type: obsolete
+    - id: cd5c8085-4070-4e22-908d-a5b3342deb74
+      type: obsolete
+    - id: 6e897651-f157-4d8f-aaeb-df8151488385
+      type: obsolete
+status: test
+description: Detects the use of various web request commands with commandline tools and Windows PowerShell cmdlets (including aliases) via CommandLine
+references:
+    - https://4sysops.com/archives/use-powershell-to-download-a-file-with-http-https-and-ftp/
+    - https://blog.jourdant.me/post/3-ways-to-download-files-with-powershell
+    - https://learn.microsoft.com/en-us/powershell/module/bitstransfer/add-bitsfile?view=windowsserver2019-ps
+author: James Pemberton / @4A616D6573, Endgame, JHasenbusch, oscd.community, Austin Songer @austinsonger
+date: 2019-10-24
+modified: 2025-10-20
+tags:
+    - attack.execution
+    - attack.t1059.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|contains:
+            - '[System.Net.WebRequest]::create'
+            - 'curl '
+            - 'Invoke-RestMethod'
+            - 'Invoke-WebRequest'
+            - ' irm ' # Space before and after to avoid false positives with 'irm' as a substring
+            - 'iwr '
+            # - 'Net.WebClient' # There are various other rules that cover this, so it is commented out
+            - 'Resume-BitsTransfer'
+            - 'Start-BitsTransfer'
+            - 'wget '
+            - 'WinHttp.WinHttpRequest'
+    condition: selection
+falsepositives:
+    - Use of Get-Command and Get-Help modules to reference Invoke-WebRequest and Start-BitsTransfer.
+level: medium
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_susp_web_request_cmd_and_cmdlets/info.yml
+```

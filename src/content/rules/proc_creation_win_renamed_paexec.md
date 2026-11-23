@@ -1,0 +1,69 @@
+---
+title: Renamed PAExec Execution
+summary: Detects execution of renamed version of PAExec. Often used by attackers
+sigma_id: c4e49831-1496-40cf-8ce1-b53f942b02f9
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1202
+author: Florian Roth (Nextron Systems), Jason Lynch
+date: '2021-05-22'
+modified: '2024-11-23'
+falsepositives:
+  - Weird admins that rename their tools
+  - Software companies that bundle PAExec with their software and rename it, so that it is less embarrassing
+  - When executed with the "-s" flag. PAExec will copy itself to the "C:\Windows\" directory with a different name. Usually like this "PAExec-[XXXXX]-[ComputerName]"
+references:
+  - https://www.poweradmin.com/paexec/
+  - https://summit.fireeye.com/content/dam/fireeye-www/summit/cds-2018/presentations/cds18-technical-s05-att&cking-fin7.pdf
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_renamed_paexec.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Renamed PAExec Execution
+id: c4e49831-1496-40cf-8ce1-b53f942b02f9
+related:
+    - id: 7b0666ad-3e38-4e3d-9bab-78b06de85f7b
+      type: obsolete
+status: test
+description: Detects execution of renamed version of PAExec. Often used by attackers
+references:
+    - https://www.poweradmin.com/paexec/
+    - https://summit.fireeye.com/content/dam/fireeye-www/summit/cds-2018/presentations/cds18-technical-s05-att&cking-fin7.pdf
+author: Florian Roth (Nextron Systems), Jason Lynch
+date: 2021-05-22
+modified: 2024-11-23
+tags:
+    - attack.stealth
+    - attack.t1202
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        - Description: 'PAExec Application'
+        - OriginalFileName: 'PAExec.exe'
+        - Product|contains: 'PAExec'
+        - Hashes|contains:
+              - IMPHASH=11D40A7B7876288F919AB819CC2D9802
+              - IMPHASH=6444f8a34e99b8f7d9647de66aabe516
+              - IMPHASH=dfd6aa3f7b2b1035b76b718f1ddc689f
+              - IMPHASH=1a6cca4d5460b1710a12dea39e4a592c
+    filter_main_known_location:
+        - Image|endswith: '\paexec.exe'
+        - Image|startswith: 'C:\Windows\PAExec-'
+    condition: selection and not 1 of filter_main_*
+falsepositives:
+    - Weird admins that rename their tools
+    - Software companies that bundle PAExec with their software and rename it, so that it is less embarrassing
+    - When executed with the "-s" flag. PAExec will copy itself to the "C:\Windows\" directory with a different name. Usually like this "PAExec-[XXXXX]-[ComputerName]"
+level: high
+```

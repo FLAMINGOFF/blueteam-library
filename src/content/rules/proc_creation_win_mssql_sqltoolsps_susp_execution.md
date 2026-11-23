@@ -1,0 +1,64 @@
+---
+title: SQL Client Tools PowerShell Session Detection
+summary: |-
+  This rule detects execution of a PowerShell code through the sqltoolsps.exe utility, which is included in the standard set of utilities supplied with the Microsoft SQL Server Management studio.
+  Script blocks are not logged in this case, so this utility helps to bypass protection mechanisms based on the analysis of these logs.
+sigma_id: a746c9b8-a2fb-4ee5-a428-92bee9e99060
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1059.001
+  - T1127
+author: Agro (@agro_sev) oscd.communitly
+date: '2020-10-13'
+modified: '2026-10-31'
+falsepositives:
+  - Direct PS command execution through SQLToolsPS.exe is uncommon, childprocess sqltoolsps.exe spawned by smss.exe is a legitimate action.
+references:
+  - https://github.com/LOLBAS-Project/LOLBAS/blob/8283d8d91552213ded165fd36deb6cb9534cb443/yml/OtherMSBinaries/Sqltoolsps.yml
+  - https://twitter.com/pabraeken/status/993298228840992768
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_mssql_sqltoolsps_susp_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: SQL Client Tools PowerShell Session Detection
+id: a746c9b8-a2fb-4ee5-a428-92bee9e99060
+status: test
+description: |
+  This rule detects execution of a PowerShell code through the sqltoolsps.exe utility, which is included in the standard set of utilities supplied with the Microsoft SQL Server Management studio.
+  Script blocks are not logged in this case, so this utility helps to bypass protection mechanisms based on the analysis of these logs.
+references:
+    - https://github.com/LOLBAS-Project/LOLBAS/blob/8283d8d91552213ded165fd36deb6cb9534cb443/yml/OtherMSBinaries/Sqltoolsps.yml
+    - https://twitter.com/pabraeken/status/993298228840992768
+author: 'Agro (@agro_sev) oscd.communitly'
+date: 2020-10-13
+modified: 2026-10-31
+tags:
+    - attack.execution
+    - attack.stealth
+    - attack.t1059.001
+    - attack.t1127
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        - Image|endswith: '\sqltoolsps.exe'
+        - ParentImage|endswith: '\sqltoolsps.exe'
+        - OriginalFileName: 'sqltoolsps.exe'
+    filter:
+        ParentImage|endswith: '\smss.exe'
+    condition: selection and not filter
+falsepositives:
+    - Direct PS command execution through SQLToolsPS.exe is uncommon, childprocess sqltoolsps.exe spawned by smss.exe is a legitimate action.
+level: medium
+```

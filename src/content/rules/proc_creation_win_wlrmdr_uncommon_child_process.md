@@ -1,0 +1,81 @@
+---
+title: Wlrmdr.EXE Uncommon Argument Or Child Process
+summary: >-
+  Detects the execution of "Wlrmdr.exe" with the "-u" command line flag which allows anything passed to it to be an argument of the ShellExecute API, which would allow an attacker to execute arbitrary
+  binaries.
+
+  This detection also focuses on any uncommon child processes spawned from "Wlrmdr.exe" as a supplement for those that posses "ParentImage" telemetry.
+sigma_id: 9cfc00b6-bfb7-49ce-9781-ef78503154bb
+status: experimental
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218
+author: frack113, manasmbellani
+date: '2022-02-16'
+modified: '2025-10-31'
+falsepositives:
+  - Unknown
+references:
+  - https://twitter.com/0gtweet/status/1493963591745220608?s=20&t=xUg9DsZhJy1q9bPTUWgeIQ
+  - https://lolbas-project.github.io/lolbas/Binaries/Wlrmdr/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_wlrmdr_uncommon_child_process.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Wlrmdr.EXE Uncommon Argument Or Child Process
+id: 9cfc00b6-bfb7-49ce-9781-ef78503154bb
+status: experimental
+description: |
+    Detects the execution of "Wlrmdr.exe" with the "-u" command line flag which allows anything passed to it to be an argument of the ShellExecute API, which would allow an attacker to execute arbitrary binaries.
+    This detection also focuses on any uncommon child processes spawned from "Wlrmdr.exe" as a supplement for those that posses "ParentImage" telemetry.
+references:
+    - https://twitter.com/0gtweet/status/1493963591745220608?s=20&t=xUg9DsZhJy1q9bPTUWgeIQ
+    - https://lolbas-project.github.io/lolbas/Binaries/Wlrmdr/
+author: frack113, manasmbellani
+date: 2022-02-16
+modified: 2025-10-31
+tags:
+    - attack.stealth
+    - attack.t1218
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent: # This selection is looking for processes spawned from wlrmdr using the "-u" flag
+        ParentImage|endswith: '\wlrmdr.exe'
+    selection_child_img:
+        - Image|endswith: '\wlrmdr.exe'
+        - OriginalFileName: 'WLRMNDR.EXE'
+    selection_child_cli_flags_s:
+        CommandLine|contains|windash: '-s '
+    selection_child_cli_flags_f:
+        CommandLine|contains|windash: '-f '
+    selection_child_cli_flags_t:
+        CommandLine|contains|windash: '-t '
+    selection_child_cli_flags_m:
+        CommandLine|contains|windash: '-m '
+    selection_child_cli_flags_a:
+        CommandLine|contains|windash: '-a '
+    selection_child_cli_flags_u:
+        CommandLine|contains|windash: '-u '
+    filter_main_winlogon:
+        ParentImage: 'C:\Windows\System32\winlogon.exe'
+    filter_main_empty:
+        ParentImage:
+            - ''
+            - '-'
+    filter_main_null:
+        ParentImage: null
+    condition: selection_parent or (all of selection_child_* and not 1 of filter_main_*)
+falsepositives:
+    - Unknown
+level: medium
+```

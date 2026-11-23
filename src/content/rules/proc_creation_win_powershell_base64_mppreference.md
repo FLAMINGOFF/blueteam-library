@@ -1,0 +1,72 @@
+---
+title: Powershell Base64 Encoded MpPreference Cmdlet
+summary: Detects base64 encoded "MpPreference" PowerShell cmdlet code that tries to modifies or tamper with Windows Defender AV
+sigma_id: c6fb44c6-71f5-49e6-9462-1425d328aee3
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1685
+author: Florian Roth (Nextron Systems)
+date: '2022-03-04'
+modified: '2023-01-30'
+falsepositives:
+  - Unknown
+references:
+  - https://learn.microsoft.com/en-us/defender-endpoint/configure-process-opened-file-exclusions-microsoft-defender-antivirus
+  - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1562.001/T1562.001.md
+  - https://twitter.com/AdamTheAnalyst/status/1483497517119590403
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_powershell_base64_mppreference.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Powershell Base64 Encoded MpPreference Cmdlet
+id: c6fb44c6-71f5-49e6-9462-1425d328aee3
+status: test
+description: Detects base64 encoded "MpPreference" PowerShell cmdlet code that tries to modifies or tamper with Windows Defender AV
+references:
+    - https://learn.microsoft.com/en-us/defender-endpoint/configure-process-opened-file-exclusions-microsoft-defender-antivirus
+    - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1562.001/T1562.001.md
+    - https://twitter.com/AdamTheAnalyst/status/1483497517119590403
+author: Florian Roth (Nextron Systems)
+date: 2022-03-04
+modified: 2023-01-30
+tags:
+    - attack.defense-impairment
+    - attack.t1685
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        - CommandLine|base64offset|contains:
+              - 'Add-MpPreference '
+              - 'Set-MpPreference '
+              - 'add-mppreference '
+              - 'set-mppreference '
+        - CommandLine|contains:
+              # UTF16-LE
+              - 'QQBkAGQALQBNAHAAUAByAGUAZgBlAHIAZQBuAGMAZQAgA'
+              - 'EAZABkAC0ATQBwAFAAcgBlAGYAZQByAGUAbgBjAGUAIA'
+              - 'BAGQAZAAtAE0AcABQAHIAZQBmAGUAcgBlAG4AYwBlACAA'
+              - 'UwBlAHQALQBNAHAAUAByAGUAZgBlAHIAZQBuAGMAZQAgA'
+              - 'MAZQB0AC0ATQBwAFAAcgBlAGYAZQByAGUAbgBjAGUAIA'
+              - 'TAGUAdAAtAE0AcABQAHIAZQBmAGUAcgBlAG4AYwBlACAA'
+              - 'YQBkAGQALQBtAHAAcAByAGUAZgBlAHIAZQBuAGMAZQAgA'
+              - 'EAZABkAC0AbQBwAHAAcgBlAGYAZQByAGUAbgBjAGUAIA'
+              - 'hAGQAZAAtAG0AcABwAHIAZQBmAGUAcgBlAG4AYwBlACAA'
+              - 'cwBlAHQALQBtAHAAcAByAGUAZgBlAHIAZQBuAGMAZQAgA'
+              - 'MAZQB0AC0AbQBwAHAAcgBlAGYAZQByAGUAbgBjAGUAIA'
+              - 'zAGUAdAAtAG0AcABwAHIAZQBmAGUAcgBlAG4AYwBlACAA'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+```

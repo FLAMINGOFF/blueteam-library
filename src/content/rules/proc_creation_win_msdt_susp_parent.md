@@ -1,0 +1,69 @@
+---
+title: Suspicious MSDT Parent Process
+summary: Detects msdt.exe executed by a suspicious parent as seen in CVE-2022-30190 / Follina exploitation
+sigma_id: 7a74da6b-ea76-47db-92cc-874ad90df734
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1036
+  - T1218
+author: Nextron Systems
+date: '2022-06-01'
+modified: '2023-02-06'
+falsepositives:
+  - Unknown
+references:
+  - https://twitter.com/nao_sec/status/1530196847679401984
+  - https://app.any.run/tasks/713f05d2-fe78-4b9d-a744-f7c133e3fafb/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_msdt_susp_parent.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious MSDT Parent Process
+id: 7a74da6b-ea76-47db-92cc-874ad90df734
+status: test
+description: Detects msdt.exe executed by a suspicious parent as seen in CVE-2022-30190 / Follina exploitation
+references:
+    - https://twitter.com/nao_sec/status/1530196847679401984
+    - https://app.any.run/tasks/713f05d2-fe78-4b9d-a744-f7c133e3fafb/
+author: Nextron Systems
+date: 2022-06-01
+modified: 2023-02-06
+tags:
+    - attack.stealth
+    - attack.t1036
+    - attack.t1218
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        ParentImage|endswith:
+            - '\cmd.exe'
+            - '\cscript.exe'
+            - '\mshta.exe'
+            - '\powershell.exe'
+            - '\pwsh.exe'
+            - '\regsvr32.exe'
+            - '\rundll32.exe'
+            - '\schtasks.exe'
+            - '\wmic.exe'
+            - '\wscript.exe'
+            - '\wsl.exe'
+            # Note: office applications are covered by: 438025f9-5856-4663-83f7-52f878a70a50
+    selection_msdt:
+        - Image|endswith: '\msdt.exe'
+        - OriginalFileName: 'msdt.exe'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

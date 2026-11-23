@@ -1,0 +1,68 @@
+---
+title: Hiding User Account Via SpecialAccounts Registry Key - CommandLine
+summary: >-
+  Detects changes to the registry key "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\Userlist" where the value is set to "0" in order to hide user account from being
+  listed on the logon screen.
+sigma_id: 9ec9fb1b-e059-4489-9642-f270c207923d
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1564.002
+author: '@Kostastsale, TheDFIRReport'
+date: '2022-05-14'
+modified: '2024-08-23'
+falsepositives:
+  - System administrator activities
+references:
+  - https://thedfirreport.com/2024/01/29/buzzing-on-christmas-eve-trigona-ransomware-in-3-hours/
+  - https://thedfirreport.com/2024/04/01/from-onenote-to-ransomnote-an-ice-cold-intrusion/
+  - https://thedfirreport.com/2024/04/29/from-icedid-to-dagon-locker-ransomware-in-29-days/
+  - https://thedfirreport.com/2022/07/11/select-xmrig-from-sqlserver/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_registry_special_accounts_hide_user.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Hiding User Account Via SpecialAccounts Registry Key - CommandLine
+id: 9ec9fb1b-e059-4489-9642-f270c207923d
+related:
+    - id: f8aebc67-a56d-4ec9-9fbe-7b0e8b7b4efd
+      type: similar
+status: test
+description: |
+    Detects changes to the registry key "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\Userlist" where the value is set to "0" in order to hide user account from being listed on the logon screen.
+references:
+    - https://thedfirreport.com/2024/01/29/buzzing-on-christmas-eve-trigona-ransomware-in-3-hours/
+    - https://thedfirreport.com/2024/04/01/from-onenote-to-ransomnote-an-ice-cold-intrusion/
+    - https://thedfirreport.com/2024/04/29/from-icedid-to-dagon-locker-ransomware-in-29-days/
+    - https://thedfirreport.com/2022/07/11/select-xmrig-from-sqlserver/
+author: '@Kostastsale, TheDFIRReport'
+date: 2022-05-14
+modified: 2024-08-23
+tags:
+    - attack.stealth
+    - attack.t1564.002
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\reg.exe'
+        CommandLine|contains|all:
+            - '\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList'
+            - 'add'
+            - '/v'
+            - '/d 0'
+    condition: selection
+falsepositives:
+    - System administrator activities
+level: medium
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_registry_special_accounts_hide_user/info.yml
+```

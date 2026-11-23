@@ -1,0 +1,61 @@
+---
+title: Potentially Suspicious Ping/Copy Command Combination
+summary: Detects uncommon and potentially suspicious one-liner command containing both "ping" and "copy" at the same time, which is usually used by malware.
+sigma_id: ded2b07a-d12f-4284-9b76-653e37b6c8b0
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1070.004
+author: X__Junior (Nextron Systems)
+date: '2023-07-18'
+modified: '2024-03-06'
+falsepositives:
+  - Unknown
+references:
+  - Internal Research
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_cmd_ping_copy_combined_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potentially Suspicious Ping/Copy Command Combination
+id: ded2b07a-d12f-4284-9b76-653e37b6c8b0
+status: test
+description: |
+    Detects uncommon and potentially suspicious one-liner command containing both "ping" and "copy" at the same time, which is usually used by malware.
+references:
+    - Internal Research
+author: X__Junior (Nextron Systems)
+date: 2023-07-18
+modified: 2024-03-06
+tags:
+    - attack.stealth
+    - attack.t1070.004
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    # Note: In the case of sysmon and similar logging utilities, see this discussion https://github.com/SigmaHQ/sigma/discussions/4277
+    selection_cmd:
+        - Image|endswith: '\cmd.exe'
+        - OriginalFileName: 'Cmd.Exe'
+    selection_action:
+        CommandLine|contains|all:
+            - 'ping' # Covers "ping" and "ping.exe"
+            - 'copy '
+    selection_cli_1:
+        CommandLine|contains|windash: ' -n ' # Count
+    selection_cli_2:
+        CommandLine|contains|windash: ' -y '
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: medium
+```

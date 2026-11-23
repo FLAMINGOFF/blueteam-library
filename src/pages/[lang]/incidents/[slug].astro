@@ -1,0 +1,56 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { LANGS, t, tacticName, levelName, type Lang } from "../../../i18n";
+import { rules, incidents, ruleTitle } from "../../../data";
+export async function getStaticPaths() {
+  const is = await incidents();
+  return LANGS.flatMap(lang => is.map(i => ({ params: { lang, slug: i.id }, props: { i } })));
+}
+const { i } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const colon = lang === "zh" ? "：" : ": ";
+const pick = (s: string) => s.includes(" / ") ? s.split(" / ")[lang === "zh" ? 0 : 1] : s;
+const d = i.data;
+const allRules = await rules();
+const rel = d.related_rules.map(id => allRules.find(r => r.id === id)).filter(Boolean);
+---
+<Base lang={lang} title={d.title[lang]} description={d.summary[lang].slice(0, 160)} nav="incidents">
+  <div class="crumbs"><a href={`/${lang}/incidents/`}>{t(lang, "incidents")}</a> / {i.id}</div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <h1 style="margin:0">{d.title[lang]}</h1><button class="star" data-star={"i:" + i.id} aria-label="save">☆</button>
+  </div>
+  <div class="badges" style="margin:8px 0 16px">
+    <span class={`sev sev-${d.severity}`}>{levelName(lang, d.severity)}</span><span class="badge">{d.sector[lang]}</span>
+    {d.tags.map(tg => <a class="badge" href={`/${lang}/incidents/?tag=${encodeURIComponent(tg)}`}>#{tg}</a>)}
+  </div>
+  <div class="srcbox">
+    <p><b>{t(lang, "source")}{colon}</b><a href={d.source.url} rel="noopener" target="_blank">{d.source.title} ↗</a></p>
+    <p><b>{t(lang, "publisher")}{colon}</b>{d.publisher} · {t(lang, "published")} {d.published}</p>
+    <p><b>{t(lang, "license")}{colon}</b>{pick(d.source.license)}</p>
+  </div>
+  <p class="note">{t(lang, "summaryNote")}</p>
+  <div class="detail">
+    <div>
+      <section class="panel"><h2>{t(lang, "overview")}</h2><p>{d.summary[lang]}</p></section>
+      <section class="panel"><h2>{t(lang, "timeline")}</h2>
+        <ol class="timeline" style="margin-top:12px">{d.timeline.map(x => <li><div class="tt">{x.date}</div>{x[lang]}</li>)}</ol></section>
+      <section class="panel"><h2>{t(lang, "rootCause")}</h2><p>{d.root_cause[lang]}</p>
+        <h3>{t(lang, "lessons")}</h3><ul class="plain">{d.lessons.map(x => <li>{x[lang]}</li>)}</ul>
+        {d.detection_ideas.length > 0 && <><h3>{t(lang, "detectionIdeas")}</h3><ul class="plain">{d.detection_ideas.map(x => <li>{x[lang]}</li>)}</ul></>}
+      </section>
+      {rel.length > 0 && <section class="panel"><h2>{t(lang, "relatedRules")}</h2>
+        {rel.map(r => <a class="card" href={`/${lang}/rules/${r!.id}/`}><div class="row1"><span class={`sev sev-${r!.data.level}`}>{levelName(lang, r!.data.level)}</span><span class="badge fmt">Sigma</span></div><div class="title" style="margin-top:6px">{ruleTitle(r!, lang)}</div><div class="sum">{r!.data.source.name} · {r!.data.author}</div></a>)}
+      </section>}
+    </div>
+    <aside class="panel">
+      <dl class="kv">
+        {d.actor && <><dt>{t(lang, "actor")}</dt><dd>{pick(d.actor)}</dd></>}
+        <dt>{t(lang, "initialAccess")}</dt><dd>{d.initial_access[lang]}</dd>
+        <dt>{t(lang, "detectedBy")}</dt><dd>{d.detected_by[lang]}</dd>
+        <dt>{t(lang, "tactic")}</dt><dd>{d.tactics.map((x, k) => <>{k > 0 && "、"}<a href={`/${lang}/incidents/?tactic=${x}`}>{tacticName(lang, x)}</a></>)}</dd>
+        {d.techniques.length > 0 && <><dt>{t(lang, "techniques")}</dt><dd>{d.techniques.map(x => <><code>{x}</code> </>)}</dd></>}
+        <dt>{t(lang, "added")}</dt><dd>{d.added}</dd>
+      </dl>
+    </aside>
+  </div>
+</Base>

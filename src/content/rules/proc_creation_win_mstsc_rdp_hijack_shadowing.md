@@ -1,0 +1,55 @@
+---
+title: Potential MSTSC Shadowing Activity
+summary: Detects RDP session hijacking by using MSTSC shadowing
+sigma_id: 6ba5a05f-b095-4f0a-8654-b825f4f16334
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0008
+techniques:
+  - T1563.002
+author: Florian Roth (Nextron Systems)
+date: '2020-01-24'
+modified: '2023-02-05'
+falsepositives:
+  - Unknown
+references:
+  - https://twitter.com/kmkz_security/status/1220694202301976576
+  - https://github.com/kmkz/Pentesting/blob/47592e5e160d3b86c2024f09ef04ceb87d204995/Post-Exploitation-Cheat-Sheet
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_mstsc_rdp_hijack_shadowing.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential MSTSC Shadowing Activity
+id: 6ba5a05f-b095-4f0a-8654-b825f4f16334
+status: test
+description: Detects RDP session hijacking by using MSTSC shadowing
+references:
+    - https://twitter.com/kmkz_security/status/1220694202301976576
+    - https://github.com/kmkz/Pentesting/blob/47592e5e160d3b86c2024f09ef04ceb87d204995/Post-Exploitation-Cheat-Sheet
+author: Florian Roth (Nextron Systems)
+date: 2020-01-24
+modified: 2023-02-05
+tags:
+    - attack.lateral-movement
+    - attack.t1563.002
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|contains|all:
+            - 'noconsentprompt'
+            - 'shadow:'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+```

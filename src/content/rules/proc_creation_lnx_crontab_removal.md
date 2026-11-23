@@ -1,0 +1,51 @@
+---
+title: Remove Scheduled Cron Task/Job
+summary: |-
+  Detects usage of the 'crontab' utility to remove the current crontab.
+  This is a common occurrence where cryptocurrency miners compete against each other by removing traces of other miners to hijack the maximum amount of resources possible
+sigma_id: c2e234de-03a3-41e1-b39a-1e56dc17ba67
+status: test
+level: medium
+platform: linux
+logsource: linux / process_creation
+tactics: []
+techniques: []
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-09-15'
+falsepositives:
+  - Unknown
+references:
+  - https://www.trendmicro.com/en_us/research/22/i/how-malicious-actors-abuse-native-linux-tools-in-their-attacks.html
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/linux/process_creation/proc_creation_lnx_crontab_removal.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Remove Scheduled Cron Task/Job
+id: c2e234de-03a3-41e1-b39a-1e56dc17ba67
+status: test
+description: |
+    Detects usage of the 'crontab' utility to remove the current crontab.
+    This is a common occurrence where cryptocurrency miners compete against each other by removing traces of other miners to hijack the maximum amount of resources possible
+references:
+    - https://www.trendmicro.com/en_us/research/22/i/how-malicious-actors-abuse-native-linux-tools-in-their-attacks.html
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-09-15
+tags:
+    - attack.stealth
+logsource:
+    category: process_creation
+    product: linux
+detection:
+    selection:
+        Image|endswith: 'crontab'
+        CommandLine|contains: ' -r'
+    condition: selection
+falsepositives:
+    - Unknown
+level: medium
+```

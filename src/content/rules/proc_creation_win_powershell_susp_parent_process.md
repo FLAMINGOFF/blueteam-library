@@ -1,0 +1,90 @@
+---
+title: Suspicious PowerShell Parent Process
+summary: Detects a suspicious or uncommon parent processes of PowerShell
+sigma_id: 754ed792-634f-40ae-b3bc-e0448d33f695
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1059.001
+author: Teymur Kheirkhabarov, Harish Segar
+date: '2020-03-20'
+modified: '2023-02-04'
+falsepositives:
+  - Other scripts
+references:
+  - https://speakerdeck.com/heirhabarov/hunting-for-powershell-abuse?slide=26
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_powershell_susp_parent_process.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious PowerShell Parent Process
+id: 754ed792-634f-40ae-b3bc-e0448d33f695
+related:
+    - id: 692f0bec-83ba-4d04-af7e-e884a96059b6
+      type: derived
+status: test
+description: Detects a suspicious or uncommon parent processes of PowerShell
+references:
+    - https://speakerdeck.com/heirhabarov/hunting-for-powershell-abuse?slide=26
+author: Teymur Kheirkhabarov, Harish Segar
+date: 2020-03-20
+modified: 2023-02-04
+tags:
+    - attack.execution
+    - attack.t1059.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        - ParentImage|contains: 'tomcat'
+        - ParentImage|endswith:
+              - '\amigo.exe'
+              - '\browser.exe'
+              - '\chrome.exe'
+              - '\firefox.exe'
+              - '\httpd.exe'
+              - '\iexplore.exe'
+              - '\jbosssvc.exe'
+              - '\microsoftedge.exe'
+              - '\microsoftedgecp.exe'
+              - '\MicrosoftEdgeSH.exe'
+              - '\mshta.exe'
+              - '\nginx.exe'
+              - '\outlook.exe'
+              - '\php-cgi.exe'
+              - '\regsvr32.exe'
+              - '\rundll32.exe'
+              - '\safari.exe'
+              - '\services.exe'
+              - '\sqlagent.exe'
+              - '\sqlserver.exe'
+              - '\sqlservr.exe'
+              - '\vivaldi.exe'
+              - '\w3wp.exe'
+    selection_powershell:
+        - Image|endswith:
+              - '\powershell.exe'
+              - '\pwsh.exe'
+        - CommandLine|contains:
+              - '/c powershell'  # FPs with sub processes that contained "powershell" somewhere in the command line
+              - '/c pwsh'
+        - Description: 'Windows PowerShell'
+        - Product: 'PowerShell Core 6'
+        - OriginalFileName:
+              - 'PowerShell.EXE'
+              - 'pwsh.dll'
+    condition: all of selection_*
+falsepositives:
+    - Other scripts
+level: high
+```

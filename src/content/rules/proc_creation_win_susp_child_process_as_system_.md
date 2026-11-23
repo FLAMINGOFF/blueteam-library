@@ -1,0 +1,77 @@
+---
+title: Suspicious Child Process Created as System
+summary: Detection of child processes spawned with SYSTEM privileges by parents with LOCAL SERVICE or NETWORK SERVICE accounts
+sigma_id: 590a5f4c-6c8c-4f10-8307-89afe9453a9d
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+techniques:
+  - T1134.002
+author: Teymur Kheirkhabarov, Roberto Rodriguez (@Cyb3rWard0g), Open Threat Research (OTR)
+date: '2019-10-26'
+modified: '2024-12-01'
+falsepositives:
+  - Unknown
+references:
+  - https://speakerdeck.com/heirhabarov/hunting-for-privilege-escalation-in-windows-environment
+  - https://foxglovesecurity.com/2016/09/26/rotten-potato-privilege-escalation-from-service-accounts-to-system/
+  - https://github.com/antonioCoco/RogueWinRM
+  - https://twitter.com/Cyb3rWard0g/status/1453123054243024897
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_susp_child_process_as_system_.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious Child Process Created as System
+id: 590a5f4c-6c8c-4f10-8307-89afe9453a9d
+status: test
+description: Detection of child processes spawned with SYSTEM privileges by parents with LOCAL SERVICE or NETWORK SERVICE accounts
+references:
+    - https://speakerdeck.com/heirhabarov/hunting-for-privilege-escalation-in-windows-environment
+    - https://foxglovesecurity.com/2016/09/26/rotten-potato-privilege-escalation-from-service-accounts-to-system/
+    - https://github.com/antonioCoco/RogueWinRM
+    - https://twitter.com/Cyb3rWard0g/status/1453123054243024897
+author: Teymur Kheirkhabarov, Roberto Rodriguez (@Cyb3rWard0g), Open Threat Research (OTR)
+date: 2019-10-26
+modified: 2024-12-01
+tags:
+    - attack.privilege-escalation
+    - attack.stealth
+    - attack.t1134.002
+logsource:
+    category: process_creation
+    product: windows
+    definition: 'Requirements: ParentUser field needs sysmon >= 13.30'
+detection:
+    selection:
+        ParentUser|contains:
+            - 'AUTHORI'
+            - 'AUTORI'
+        ParentUser|endswith:
+            - '\NETWORK SERVICE'
+            - '\LOCAL SERVICE'
+        User|contains: # covers many language settings
+            - 'AUTHORI'
+            - 'AUTORI'
+        User|endswith: # System
+            - '\SYSTEM'
+            - '\Système'
+            - '\СИСТЕМА'
+        IntegrityLevel:
+            - 'System'
+            - 'S-1-16-16384'
+    filter_rundll32:
+        Image|endswith: '\rundll32.exe'
+        CommandLine|contains: 'DavSetCookie'
+    condition: selection and not 1 of filter_*
+falsepositives:
+    - Unknown
+level: high
+```

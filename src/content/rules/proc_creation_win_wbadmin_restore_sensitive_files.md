@@ -1,0 +1,73 @@
+---
+title: Sensitive File Recovery From Backup Via Wbadmin.EXE
+summary: |-
+  Detects the dump of highly sensitive files such as "NTDS.DIT" and "SECURITY" hive.
+  Attackers can leverage the "wbadmin" utility in order to dump sensitive files that might contain credential or sensitive information.
+sigma_id: 84972c80-251c-4c3a-9079-4f00aad93938
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+techniques:
+  - T1003.003
+author: Nasreddine Bencherchali (Nextron Systems), frack113
+date: '2024-05-10'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/LOLBAS-Project/LOLBAS/blob/2cc01b01132b5c304027a658c698ae09dd6a92bf/yml/OSBinaries/Wbadmin.yml
+  - https://lolbas-project.github.io/lolbas/Binaries/Wbadmin/
+  - https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wbadmin-start-recovery
+  - https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wbadmin-start-backup
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_wbadmin_restore_sensitive_files.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Sensitive File Recovery From Backup Via Wbadmin.EXE
+id: 84972c80-251c-4c3a-9079-4f00aad93938
+related:
+    - id: 6fe4aa1e-0531-4510-8be2-782154b73b48
+      type: derived
+status: test
+description: |
+    Detects the dump of highly sensitive files such as "NTDS.DIT" and "SECURITY" hive.
+    Attackers can leverage the "wbadmin" utility in order to dump sensitive files that might contain credential or sensitive information.
+references:
+    - https://github.com/LOLBAS-Project/LOLBAS/blob/2cc01b01132b5c304027a658c698ae09dd6a92bf/yml/OSBinaries/Wbadmin.yml
+    - https://lolbas-project.github.io/lolbas/Binaries/Wbadmin/
+    - https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wbadmin-start-recovery
+    - https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/wbadmin-start-backup
+author: Nasreddine Bencherchali (Nextron Systems), frack113
+date: 2024-05-10
+tags:
+    - attack.credential-access
+    - attack.t1003.003
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\wbadmin.exe'
+        - OriginalFileName: 'WBADMIN.EXE'
+    selection_backup:
+        CommandLine|contains|all:
+            - ' recovery'
+            - 'recoveryTarget'
+            - 'itemtype:File'
+        CommandLine|contains:
+            - '\config\SAM'
+            - '\config\SECURITY'
+            - '\config\SYSTEM'
+            - '\Windows\NTDS\NTDS.dit'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

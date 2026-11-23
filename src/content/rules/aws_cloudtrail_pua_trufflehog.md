@@ -1,0 +1,57 @@
+---
+title: PUA - AWS TruffleHog Execution
+summary: |-
+  Detects the execution of TruffleHog, a popular open-source tool used for scanning repositories for secrets and sensitive information, within an AWS environment.
+  It has been reported to be used by threat actors for credential harvesting. All detections should be investigated to determine if the usage is authorized by security teams or potentially malicious.
+sigma_id: a840e606-7c8c-4684-9bc1-eb6b6155127f
+status: experimental
+level: medium
+platform: aws
+logsource: aws / cloudtrail
+tactics:
+  - TA0006
+techniques:
+  - T1555
+  - T1003
+author: Swachchhanda Shrawan Poudel (Nextron Systems)
+date: '2025-10-21'
+falsepositives:
+  - Legitimate use of TruffleHog by security teams for credential scanning.
+references:
+  - https://github.com/trufflesecurity/trufflehog
+  - https://www.rapid7.com/blog/post/tr-crimson-collective-a-new-threat-group-observed-operating-in-the-cloud/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/cloud/aws/cloudtrail/aws_cloudtrail_pua_trufflehog.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: PUA - AWS TruffleHog Execution
+id: a840e606-7c8c-4684-9bc1-eb6b6155127f
+status: experimental
+description: |
+    Detects the execution of TruffleHog, a popular open-source tool used for scanning repositories for secrets and sensitive information, within an AWS environment.
+    It has been reported to be used by threat actors for credential harvesting. All detections should be investigated to determine if the usage is authorized by security teams or potentially malicious.
+references:
+    - https://github.com/trufflesecurity/trufflehog
+    - https://www.rapid7.com/blog/post/tr-crimson-collective-a-new-threat-group-observed-operating-in-the-cloud/
+author: Swachchhanda Shrawan Poudel (Nextron Systems)
+date: 2025-10-21
+tags:
+    - attack.credential-access
+    - attack.t1555
+    - attack.t1003
+logsource:
+    product: aws
+    service: cloudtrail
+detection:
+    selection:
+        userAgent: 'TruffleHog'
+    condition: selection
+falsepositives:
+    - Legitimate use of TruffleHog by security teams for credential scanning.
+level: medium
+```

@@ -1,0 +1,62 @@
+---
+title: Raccine Uninstall
+summary: Detects commands that indicate a Raccine removal from an end system. Raccine is a free ransomware protection tool.
+sigma_id: a31eeaed-3fd5-478e-a8ba-e62c6b3f9ecc
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1685
+author: Florian Roth (Nextron Systems)
+date: '2021-01-21'
+modified: '2022-10-09'
+falsepositives:
+  - Legitimate deinstallation by administrative staff
+references:
+  - https://github.com/Neo23x0/Raccine
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_susp_disable_raccine.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Raccine Uninstall
+id: a31eeaed-3fd5-478e-a8ba-e62c6b3f9ecc
+status: test
+description: Detects commands that indicate a Raccine removal from an end system. Raccine is a free ransomware protection tool.
+references:
+    - https://github.com/Neo23x0/Raccine
+author: Florian Roth (Nextron Systems)
+date: 2021-01-21
+modified: 2022-10-09
+tags:
+    - attack.defense-impairment
+    - attack.t1685
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection1:
+        CommandLine|contains|all:
+            - 'taskkill '
+            - 'RaccineSettings.exe'
+    selection2:
+        CommandLine|contains|all:
+            - 'reg.exe'
+            - 'delete'
+            - 'Raccine Tray'
+    selection3:
+        CommandLine|contains|all:
+            - 'schtasks'
+            - '/DELETE'
+            - 'Raccine Rules Updater'
+    condition: 1 of selection*
+falsepositives:
+    - Legitimate deinstallation by administrative staff
+level: high
+```

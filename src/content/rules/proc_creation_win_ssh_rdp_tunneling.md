@@ -1,0 +1,55 @@
+---
+title: Potential RDP Tunneling Via SSH
+summary: Execution of ssh.exe to perform data exfiltration and tunneling through RDP
+sigma_id: f7d7ebd5-a016-46e2-9c54-f9932f2d386d
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0011
+techniques:
+  - T1572
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-10-12'
+modified: '2023-01-25'
+falsepositives:
+  - Unknown
+references:
+  - https://www.absolomb.com/2018-01-26-Windows-Privilege-Escalation-Guide/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_ssh_rdp_tunneling.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential RDP Tunneling Via SSH
+id: f7d7ebd5-a016-46e2-9c54-f9932f2d386d
+related:
+    - id: f38ce0b9-5e97-4b47-a211-7dc8d8b871da # plink.exe
+      type: similar
+status: test
+description: Execution of ssh.exe to perform data exfiltration and tunneling through RDP
+references:
+    - https://www.absolomb.com/2018-01-26-Windows-Privilege-Escalation-Guide/
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-10-12
+modified: 2023-01-25
+tags:
+    - attack.command-and-control
+    - attack.t1572
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\ssh.exe'
+        CommandLine|contains: ':3389'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+```

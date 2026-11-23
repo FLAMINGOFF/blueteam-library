@@ -1,0 +1,67 @@
+---
+title: New DLL Registered Via Odbcconf.EXE
+summary: Detects execution of "odbcconf" with "REGSVR" in order to register a new DLL (equivalent to running regsvr32). Attackers abuse this to install and run malicious DLLs.
+sigma_id: 9f0a8bf3-a65b-440a-8c1e-5cb1547c8e70
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218.008
+author: Kirill Kiryanov, Beyu Denis, Daniil Yugoslavskiy, oscd.community, Nasreddine Bencherchali (Nextron Systems)
+date: '2023-05-22'
+falsepositives:
+  - Legitimate DLLs being registered via "odbcconf" will generate false positives. Investigate the path of the DLL and its content to determine if the action is authorized.
+references:
+  - https://learn.microsoft.com/en-us/sql/odbc/odbcconf-exe?view=sql-server-ver16
+  - https://lolbas-project.github.io/lolbas/Binaries/Odbcconf/
+  - https://redcanary.com/blog/raspberry-robin/
+  - https://web.archive.org/web/20191023232753/https://twitter.com/Hexacorn/status/1187143326673330176
+  - https://www.hexacorn.com/blog/2020/08/23/odbcconf-lolbin-trifecta/
+  - https://www.trendmicro.com/en_us/research/17/h/backdoor-carrying-emails-set-sights-on-russian-speaking-businesses.html
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_odbcconf_register_dll_regsvr.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: New DLL Registered Via Odbcconf.EXE
+id: 9f0a8bf3-a65b-440a-8c1e-5cb1547c8e70
+related:
+    - id: ba4cfc11-d0fa-4d94-bf20-7c332c412e76
+      type: similar
+status: test
+description: Detects execution of "odbcconf" with "REGSVR" in order to register a new DLL (equivalent to running regsvr32). Attackers abuse this to install and run malicious DLLs.
+references:
+    - https://learn.microsoft.com/en-us/sql/odbc/odbcconf-exe?view=sql-server-ver16
+    - https://lolbas-project.github.io/lolbas/Binaries/Odbcconf/
+    - https://redcanary.com/blog/raspberry-robin/
+    - https://web.archive.org/web/20191023232753/https://twitter.com/Hexacorn/status/1187143326673330176
+    - https://www.hexacorn.com/blog/2020/08/23/odbcconf-lolbin-trifecta/
+    - https://www.trendmicro.com/en_us/research/17/h/backdoor-carrying-emails-set-sights-on-russian-speaking-businesses.html
+author: Kirill Kiryanov, Beyu Denis, Daniil Yugoslavskiy, oscd.community, Nasreddine Bencherchali (Nextron Systems)
+date: 2023-05-22
+tags:
+    - attack.stealth
+    - attack.t1218.008
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\odbcconf.exe'
+        - OriginalFileName: 'odbcconf.exe'
+    selection_cli:
+        # Note: The "/A" flag is not required to call a specific action
+        CommandLine|contains|all:
+            - 'REGSVR '
+            - '.dll'
+    condition: all of selection_*
+falsepositives:
+    - Legitimate DLLs being registered via "odbcconf" will generate false positives. Investigate the path of the DLL and its content to determine if the action is authorized.
+level: medium
+```

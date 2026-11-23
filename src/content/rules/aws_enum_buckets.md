@@ -1,0 +1,63 @@
+---
+title: Potential Bucket Enumeration on AWS
+summary: Looks for potential enumeration of AWS buckets via ListBuckets.
+sigma_id: f305fd62-beca-47da-ad95-7690a0620084
+status: test
+level: low
+platform: aws
+logsource: aws / cloudtrail
+tactics:
+  - TA0007
+techniques:
+  - T1580
+  - T1619
+author: Christopher Peacock @securepeacock, SCYTHE @scythe_io
+date: '2023-01-06'
+modified: '2024-07-10'
+falsepositives:
+  - Administrators listing buckets, it may be necessary to filter out users who commonly conduct this activity.
+references:
+  - https://github.com/Lifka/hacking-resources/blob/c2ae355d381bd0c9f0b32c4ead049f44e5b1573f/cloud-hacking-cheat-sheets.md
+  - https://jamesonhacking.blogspot.com/2020/12/pivoting-to-private-aws-s3-buckets.html
+  - https://securitycafe.ro/2022/12/14/aws-enumeration-part-ii-practical-enumeration/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/cloud/aws/cloudtrail/aws_enum_buckets.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Bucket Enumeration on AWS
+id: f305fd62-beca-47da-ad95-7690a0620084
+related:
+    - id: 4723218f-2048-41f6-bcb0-417f2d784f61
+      type: similar
+status: test
+description: Looks for potential enumeration of AWS buckets via ListBuckets.
+references:
+    - https://github.com/Lifka/hacking-resources/blob/c2ae355d381bd0c9f0b32c4ead049f44e5b1573f/cloud-hacking-cheat-sheets.md
+    - https://jamesonhacking.blogspot.com/2020/12/pivoting-to-private-aws-s3-buckets.html
+    - https://securitycafe.ro/2022/12/14/aws-enumeration-part-ii-practical-enumeration/
+author: Christopher Peacock @securepeacock, SCYTHE @scythe_io
+date: 2023-01-06
+modified: 2024-07-10
+tags:
+    - attack.discovery
+    - attack.t1580
+    - attack.t1619
+logsource:
+    product: aws
+    service: cloudtrail
+detection:
+    selection:
+        eventSource: 's3.amazonaws.com'
+        eventName: 'ListBuckets'
+    filter:
+        userIdentity.type: 'AssumedRole'
+    condition: selection and not filter
+falsepositives:
+    - Administrators listing buckets, it may be necessary to filter out users who commonly conduct this activity.
+level: low
+```

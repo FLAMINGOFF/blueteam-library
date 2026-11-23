@@ -1,0 +1,94 @@
+---
+title: Suspicious HH.EXE Execution
+summary: Detects a suspicious execution of a Microsoft HTML Help (HH.exe)
+sigma_id: e8a95b5e-c891-46e2-b33a-93937d3abc31
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+  - TA0001
+techniques:
+  - T1047
+  - T1059.001
+  - T1059.003
+  - T1059.005
+  - T1059.007
+  - T1218
+  - T1218.001
+  - T1218.010
+  - T1218.011
+  - T1566
+  - T1566.001
+author: Maxim Pavlunin
+date: '2020-04-01'
+modified: '2023-04-12'
+falsepositives:
+  - Unknown
+references:
+  - https://www.levelblue.com/blogs/spiderlabs-blog/chm-badness-delivers-a-banking-trojan
+  - https://github.com/elastic/protections-artifacts/commit/746086721fd385d9f5c6647cada1788db4aea95f#diff-27939090904026cc396b0b629c8e4314acd6f5dac40a676edbc87f4567b47eb7
+  - https://www.ptsecurity.com/ww-en/analytics/pt-esc-threat-intelligence/higaisa-or-winnti-apt-41-backdoors-old-and-new/
+  - https://www.zscaler.com/blogs/security-research/unintentional-leak-glimpse-attack-vectors-apt37
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hh_susp_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious HH.EXE Execution
+id: e8a95b5e-c891-46e2-b33a-93937d3abc31
+status: test
+description: Detects a suspicious execution of a Microsoft HTML Help (HH.exe)
+references:
+    - https://www.levelblue.com/blogs/spiderlabs-blog/chm-badness-delivers-a-banking-trojan
+    - https://github.com/elastic/protections-artifacts/commit/746086721fd385d9f5c6647cada1788db4aea95f#diff-27939090904026cc396b0b629c8e4314acd6f5dac40a676edbc87f4567b47eb7
+    - https://www.ptsecurity.com/ww-en/analytics/pt-esc-threat-intelligence/higaisa-or-winnti-apt-41-backdoors-old-and-new/
+    - https://www.zscaler.com/blogs/security-research/unintentional-leak-glimpse-attack-vectors-apt37
+author: Maxim Pavlunin
+date: 2020-04-01
+modified: 2023-04-12
+tags:
+    - attack.execution
+    - attack.initial-access
+    - attack.stealth
+    - attack.t1047
+    - attack.t1059.001
+    - attack.t1059.003
+    - attack.t1059.005
+    - attack.t1059.007
+    - attack.t1218
+    - attack.t1218.001
+    - attack.t1218.010
+    - attack.t1218.011
+    - attack.t1566
+    - attack.t1566.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - OriginalFileName: 'HH.exe'
+        - Image|endswith: '\hh.exe'
+    selection_paths:
+        CommandLine|contains:
+            - '.application'
+            - '\AppData\Local\Temp\'
+            - '\Content.Outlook\'
+            - '\Downloads\'
+            - '\Users\Public\'
+            - '\Windows\Temp\'
+            # - '\AppData\Local\Temp\Temp?_'
+            # - '\AppData\Local\Temp\Rar$'
+            # - '\AppData\Local\Temp\7z'
+            # - '\AppData\Local\Temp\wz'
+            # - '\AppData\Local\Temp\peazip-tmp'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

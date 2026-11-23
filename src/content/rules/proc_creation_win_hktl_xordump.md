@@ -1,0 +1,60 @@
+---
+title: HackTool - XORDump Execution
+summary: Detects suspicious use of XORDump process memory dumping utility
+sigma_id: 66e563f9-1cbd-4a22-a957-d8b7c0f44372
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+techniques:
+  - T1036
+  - T1003.001
+author: Florian Roth (Nextron Systems)
+date: '2022-01-28'
+modified: '2023-02-08'
+falsepositives:
+  - Another tool that uses the command line switches of XORdump
+references:
+  - https://github.com/audibleblink/xordump
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hktl_xordump.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: HackTool - XORDump Execution
+id: 66e563f9-1cbd-4a22-a957-d8b7c0f44372
+status: test
+description: Detects suspicious use of XORDump process memory dumping utility
+references:
+    - https://github.com/audibleblink/xordump
+author: Florian Roth (Nextron Systems)
+date: 2022-01-28
+modified: 2023-02-08
+tags:
+    - attack.stealth
+    - attack.t1036
+    - attack.t1003.001
+    - attack.credential-access
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        - Image|endswith: '\xordump.exe'
+        - CommandLine|contains:
+              - ' -process lsass.exe '
+              - ' -m comsvcs '
+              - ' -m dbghelp '
+              - ' -m dbgcore '
+    condition: selection
+falsepositives:
+    - Another tool that uses the command line switches of XORdump
+level: high
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_hktl_xordump/info.yml
+```

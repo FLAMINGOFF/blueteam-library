@@ -1,0 +1,75 @@
+---
+title: Control Panel Items
+summary: Detects the malicious use of a control panel item
+sigma_id: 0ba863e6-def5-4e50-9cea-4dd8c7dc46a4
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+  - TA0002
+  - TA0003
+techniques:
+  - T1218.002
+  - T1546
+author: Kyaw Min Thein, Furkan Caliskan (@caliskanfurkan_)
+date: '2020-06-22'
+modified: '2023-10-11'
+falsepositives:
+  - Unknown
+references:
+  - https://ired.team/offensive-security/code-execution/code-execution-through-control-panel-add-ins
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_control_panel_item.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Control Panel Items
+id: 0ba863e6-def5-4e50-9cea-4dd8c7dc46a4
+status: test
+description: Detects the malicious use of a control panel item
+references:
+    - https://ired.team/offensive-security/code-execution/code-execution-through-control-panel-add-ins
+author: Kyaw Min Thein, Furkan Caliskan (@caliskanfurkan_)
+date: 2020-06-22
+modified: 2023-10-11
+tags:
+    - attack.privilege-escalation
+    - attack.execution
+    - attack.stealth
+    - attack.t1218.002
+    - attack.persistence
+    - attack.t1546
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_reg_img:
+        - Image|endswith: '\reg.exe'
+        - OriginalFileName: 'reg.exe'
+    selection_reg_cli:
+        CommandLine|contains|all:
+            - 'add'
+            - 'CurrentVersion\Control Panel\CPLs'
+    selection_cpl:
+        CommandLine|endswith: '.cpl'
+    filter_cpl_sys:
+        CommandLine|contains:
+            - '\System32\'
+            - '%System%'
+            - '|C:\Windows\system32|'
+    filter_cpl_igfx:
+        CommandLine|contains|all:
+            - 'regsvr32 '
+            - ' /s '
+            - 'igfxCPL.cpl'
+    condition: all of selection_reg_* or (selection_cpl and not 1 of filter_cpl_*)
+falsepositives:
+    - Unknown
+level: high
+```

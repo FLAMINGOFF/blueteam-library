@@ -1,0 +1,22 @@
+# 每周从 SigmaHQ 同步规则，并以 PR 形式提交，人工审核后合并
+name: Sync SigmaHQ rules
+on:
+  schedule: [{ cron: "0 2 * * 1" }]
+  workflow_dispatch:
+permissions: { contents: write, pull-requests: write }
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: git clone --depth 1 https://github.com/SigmaHQ/sigma /tmp/sigma
+      - run: node scripts/import-sigma.mjs /tmp/sigma
+      - uses: peter-evans/create-pull-request@v6
+        with:
+          branch: sync/sigmahq
+          title: "chore: 同步 SigmaHQ 规则"
+          commit-message: "chore: sync SigmaHQ rules"
+          body: 自动从 SigmaHQ 同步规则（DRL 1.1）。请检查新增/删除的规则后合并。

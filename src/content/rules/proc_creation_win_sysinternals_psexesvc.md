@@ -1,0 +1,55 @@
+---
+title: PsExec Service Execution
+summary: Detects launch of the PSEXESVC service, which means that this system was the target of a psexec remote execution
+sigma_id: fdfcbd78-48f1-4a4b-90ac-d82241e368c5
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques: []
+author: Thomas Patzke, Romaissa Adjailia, Florian Roth (Nextron Systems)
+date: '2017-06-12'
+modified: '2023-02-28'
+falsepositives:
+  - Legitimate administrative tasks
+references:
+  - https://learn.microsoft.com/en-us/sysinternals/downloads/psexec
+  - https://www.youtube.com/watch?v=ro2QuZTIMBM
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_sysinternals_psexesvc.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: PsExec Service Execution
+id: fdfcbd78-48f1-4a4b-90ac-d82241e368c5
+related:
+    - id: fa91cc36-24c9-41ce-b3c8-3bbc3f2f67ba
+      type: obsolete
+status: test
+description: Detects launch of the PSEXESVC service, which means that this system was the target of a psexec remote execution
+references:
+    - https://learn.microsoft.com/en-us/sysinternals/downloads/psexec
+    - https://www.youtube.com/watch?v=ro2QuZTIMBM
+author: Thomas Patzke, Romaissa Adjailia, Florian Roth (Nextron Systems)
+date: 2017-06-12
+modified: 2023-02-28
+tags:
+    - attack.execution
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        - Image: 'C:\Windows\PSEXESVC.exe'
+        - OriginalFileName: 'psexesvc.exe'
+    condition: selection
+falsepositives:
+    - Legitimate administrative tasks
+level: medium
+```

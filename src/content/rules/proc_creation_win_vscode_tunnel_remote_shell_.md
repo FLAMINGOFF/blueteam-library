@@ -1,0 +1,67 @@
+---
+title: Visual Studio Code Tunnel Shell Execution
+summary: >-
+  Detects the execution of a shell (powershell, bash, wsl...) via Visual Studio Code tunnel. Attackers can abuse this functionality to establish a C2 channel and execute arbitrary commands on the
+  system.
+sigma_id: f4a623c2-4ef5-4c33-b811-0642f702c9f1
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0011
+techniques:
+  - T1071.001
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2023-10-25'
+falsepositives:
+  - Legitimate use of Visual Studio Code tunnel and running code from there
+references:
+  - https://ipfyx.fr/post/visual-studio-code-tunnel/
+  - https://badoption.eu/blog/2023/01/31/code_c2.html
+  - https://code.visualstudio.com/docs/remote/tunnels
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_vscode_tunnel_remote_shell_.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Visual Studio Code Tunnel Shell Execution
+id: f4a623c2-4ef5-4c33-b811-0642f702c9f1
+status: test
+description: Detects the execution of a shell (powershell, bash, wsl...) via Visual Studio Code tunnel. Attackers can abuse this functionality to establish a C2 channel and execute arbitrary commands on the system.
+references:
+    - https://ipfyx.fr/post/visual-studio-code-tunnel/
+    - https://badoption.eu/blog/2023/01/31/code_c2.html
+    - https://code.visualstudio.com/docs/remote/tunnels
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2023-10-25
+tags:
+    - attack.command-and-control
+    - attack.t1071.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        ParentImage|contains: '\servers\Stable-'
+        ParentImage|endswith: '\server\node.exe'
+        ParentCommandLine|contains: '.vscode-server' # Technically one can host its own local server instead of using the VsCode one. And that would probably change the name (requires further research)
+    # Note: Child processes (ie: shells) can be whatever technically (with some efforts)
+    selection_child_1:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+        CommandLine|contains: '\terminal\browser\media\shellIntegration.ps1'
+    selection_child_2:
+        Image|endswith:
+            - '\wsl.exe'
+            - '\bash.exe'
+    condition: selection_parent and 1 of selection_child_*
+falsepositives:
+    - Legitimate use of Visual Studio Code tunnel and running code from there
+level: medium
+```

@@ -1,0 +1,72 @@
+---
+title: Password Provided In Command Line Of Net.EXE
+summary: Detects a when net.exe is called with a password in the command line
+sigma_id: d4498716-1d52-438f-8084-4a603157d131
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0001
+  - TA0003
+  - TA0004
+  - TA0008
+techniques:
+  - T1021.002
+  - T1078
+author: Tim Shelton (HAWK.IO)
+date: '2021-12-09'
+modified: '2023-02-21'
+falsepositives:
+  - Unknown
+references:
+  - Internal Research
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_net_use_password_plaintext.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Password Provided In Command Line Of Net.EXE
+id: d4498716-1d52-438f-8084-4a603157d131
+status: test
+description: Detects a when net.exe is called with a password in the command line
+references:
+    - Internal Research
+author: Tim Shelton (HAWK.IO)
+date: 2021-12-09
+modified: 2023-02-21
+tags:
+    - attack.initial-access
+    - attack.persistence
+    - attack.privilege-escalation
+    - attack.lateral-movement
+    - attack.stealth
+    - attack.t1021.002
+    - attack.t1078
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith:
+              - '\net.exe'
+              - '\net1.exe'
+        - OriginalFileName:
+              - 'net.exe'
+              - 'net1.exe'
+    selection_cli:
+        CommandLine|contains|all:
+            - ' use '
+            - ':*\\'
+            - '/USER:* *'
+    filter_main_empty:
+        CommandLine|endswith: ' '
+    condition: all of selection_* and not 1 of filter_main_*
+falsepositives:
+    - Unknown
+level: medium
+```

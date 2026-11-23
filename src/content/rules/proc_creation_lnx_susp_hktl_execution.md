@@ -1,0 +1,134 @@
+---
+title: Linux HackTool Execution
+summary: Detects known hacktool execution based on image name.
+sigma_id: a015e032-146d-4717-8944-7a1884122111
+status: test
+level: high
+platform: linux
+logsource: linux / process_creation
+tactics:
+  - TA0002
+  - TA0042
+techniques:
+  - T1587
+author: Nasreddine Bencherchali (Nextron Systems), Georg Lauenstein (sure[secure])
+date: '2023-01-03'
+modified: '2024-09-19'
+falsepositives:
+  - Unlikely
+references:
+  - https://github.com/Gui774ume/ebpfkit
+  - https://github.com/pathtofile/bad-bpf
+  - https://github.com/carlospolop/PEASS-ng
+  - https://github.com/t3l3machus/hoaxshell
+  - https://github.com/t3l3machus/Villain
+  - https://github.com/HavocFramework/Havoc
+  - https://github.com/1N3/Sn1per
+  - https://github.com/Ne0nd0g/merlin
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/linux/process_creation/proc_creation_lnx_susp_hktl_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Linux HackTool Execution
+id: a015e032-146d-4717-8944-7a1884122111
+status: test
+description: Detects known hacktool execution based on image name.
+references:
+    - https://github.com/Gui774ume/ebpfkit
+    - https://github.com/pathtofile/bad-bpf
+    - https://github.com/carlospolop/PEASS-ng
+    - https://github.com/t3l3machus/hoaxshell
+    - https://github.com/t3l3machus/Villain
+    - https://github.com/HavocFramework/Havoc
+    - https://github.com/1N3/Sn1per
+    - https://github.com/Ne0nd0g/merlin
+    - https://github.com/Pennyw0rth/NetExec/
+author: Nasreddine Bencherchali (Nextron Systems), Georg Lauenstein (sure[secure])
+date: 2023-01-03
+modified: 2024-09-19
+tags:
+    - attack.execution
+    - attack.resource-development
+    - attack.t1587
+logsource:
+    product: linux
+    category: process_creation
+detection:
+    selection_c2_frameworks:
+        Image|endswith:
+            - '/crackmapexec'
+            - '/havoc'
+            - '/merlin-agent'
+            - '/merlinServer-Linux-x64'
+            - '/msfconsole'
+            - '/msfvenom'
+            - '/ps-empire server'
+            - '/ps-empire'
+            - '/sliver-client'
+            - '/sliver-server'
+            - '/Villain.py'
+    selection_c2_framework_cobaltstrike:
+        Image|contains:
+            - '/cobaltstrike'
+            - '/teamserver'
+    selection_scanners:
+        Image|endswith:
+            - '/autorecon'
+            - '/httpx'
+            - '/legion'
+            - '/naabu'
+            - '/netdiscover'
+            - '/nuclei'
+            - '/recon-ng'
+    selection_scanners_sniper:
+        Image|contains: '/sniper'
+    selection_web_enum:
+        Image|endswith:
+            - '/dirb'
+            - '/dirbuster'
+            - '/eyewitness'
+            - '/feroxbuster'
+            - '/ffuf'
+            - '/gobuster'
+            - '/wfuzz'
+            - '/whatweb'
+    selection_web_vuln:
+        Image|endswith:
+            - '/joomscan'
+            - '/nikto'
+            - '/wpscan'
+    selection_exploit_tools:
+        Image|endswith:
+            - '/aircrack-ng'
+            - '/bloodhound-python'
+            - '/bpfdos'
+            - '/ebpfki'
+            - '/evil-winrm'
+            - '/hashcat'
+            - '/hoaxshell.py'
+            - '/hydra'
+            - '/john'
+            - '/ncrack'
+            # default binary: https://github.com/Pennyw0rth/NetExec/releases/download/v1.0.0/nxc-ubuntu-latest
+            - '/nxc-ubuntu-latest'
+            - '/pidhide'
+            - '/pspy32'
+            - '/pspy32s'
+            - '/pspy64'
+            - '/pspy64s'
+            - '/setoolkit'
+            - '/sqlmap'
+            - '/writeblocker'
+    selection_linpeas:
+        # covers: all linux versions listed here: https://github.com/carlospolop/PEASS-ng/releases
+        Image|contains: '/linpeas'
+    condition: 1 of selection_*
+falsepositives:
+    - Unlikely
+level: high
+```

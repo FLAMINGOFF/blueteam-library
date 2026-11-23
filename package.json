@@ -1,0 +1,12 @@
+{
+  "name": "blueteam-library",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "import:sigma": "node scripts/import-sigma.mjs"
+  },
+  "dependencies": { "astro": "^5.18.2", "js-yaml": "^5.5.0" }
+}

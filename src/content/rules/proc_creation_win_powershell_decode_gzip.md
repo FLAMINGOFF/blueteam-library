@@ -1,0 +1,51 @@
+---
+title: Gzip Archive Decode Via PowerShell
+summary: Detects attempts of decoding encoded Gzip archives via PowerShell.
+sigma_id: 98767d61-b2e8-4d71-b661-e36783ee24c1
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0011
+techniques:
+  - T1132.001
+author: Hieu Tran
+date: '2023-03-13'
+falsepositives:
+  - Legitimate administrative scripts may use this functionality. Use "ParentImage" in combination with the script names and allowed users and applications to filter legitimate executions
+references:
+  - https://www.zscaler.com/blogs/security-research/onenote-growing-threat-malware-distribution
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_powershell_decode_gzip.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Gzip Archive Decode Via PowerShell
+id: 98767d61-b2e8-4d71-b661-e36783ee24c1
+status: test
+description: Detects attempts of decoding encoded Gzip archives via PowerShell.
+references:
+    - https://www.zscaler.com/blogs/security-research/onenote-growing-threat-malware-distribution
+author: Hieu Tran
+date: 2023-03-13
+tags:
+    - attack.command-and-control
+    - attack.t1132.001
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        CommandLine|contains|all:
+            - 'GZipStream'
+            - '::Decompress'
+    condition: selection
+falsepositives:
+    - Legitimate administrative scripts may use this functionality. Use "ParentImage" in combination with the script names and allowed users and applications to filter legitimate executions
+level: medium
+```

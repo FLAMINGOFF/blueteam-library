@@ -1,0 +1,75 @@
+---
+title: HackTool - Default PowerSploit/Empire Scheduled Task Creation
+summary: Detects the creation of a schtask via PowerSploit or Empire Default Configuration.
+sigma_id: 56c217c3-2de2-479b-990f-5c109ba8458f
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+  - TA0003
+  - TA0004
+techniques:
+  - T1053.005
+  - T1059.001
+author: Markus Neis, @Karneades
+date: '2018-03-06'
+modified: '2023-03-03'
+falsepositives:
+  - Unlikely
+references:
+  - https://github.com/PowerShellMafia/PowerSploit/blob/8690399ef70d2cad10213575ac67e8fa90ddf7c3/Persistence/Persistence.psm1
+  - https://github.com/EmpireProject/Empire/blob/08cbd274bef78243d7a8ed6443b8364acd1fc48b/lib/modules/powershell/persistence/userland/schtasks.py
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hktl_powersploit_empire_default_schtasks.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: HackTool - Default PowerSploit/Empire Scheduled Task Creation
+id: 56c217c3-2de2-479b-990f-5c109ba8458f
+status: test
+description: Detects the creation of a schtask via PowerSploit or Empire Default Configuration.
+references:
+    - https://github.com/PowerShellMafia/PowerSploit/blob/8690399ef70d2cad10213575ac67e8fa90ddf7c3/Persistence/Persistence.psm1
+    - https://github.com/EmpireProject/Empire/blob/08cbd274bef78243d7a8ed6443b8364acd1fc48b/lib/modules/powershell/persistence/userland/schtasks.py
+author: Markus Neis, @Karneades
+date: 2018-03-06
+modified: 2023-03-03
+tags:
+    - attack.execution
+    - attack.persistence
+    - attack.privilege-escalation
+    - attack.s0111
+    - attack.g0022
+    - attack.g0060
+    - car.2013-08-001
+    - attack.t1053.005
+    - attack.t1059.001
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        ParentImage|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+        Image|endswith: '\schtasks.exe'
+        CommandLine|contains|all:
+            - '/Create'
+            - 'powershell.exe -NonI'
+            - '/TN Updater /TR'
+        CommandLine|contains:
+            - '/SC ONLOGON'
+            - '/SC DAILY /ST'
+            - '/SC ONIDLE'
+            - '/SC HOURLY'
+    condition: selection
+falsepositives:
+    - Unlikely
+level: high
+```

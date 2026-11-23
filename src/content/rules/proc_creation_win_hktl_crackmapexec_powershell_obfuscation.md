@@ -1,0 +1,70 @@
+---
+title: HackTool - CrackMapExec PowerShell Obfuscation
+summary: The CrachMapExec pentesting framework implements a PowerShell obfuscation with some static strings detected by this rule.
+sigma_id: 6f8b3439-a203-45dc-a88b-abf57ea15ccf
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1059.001
+  - T1027.005
+author: Thomas Patzke
+date: '2020-05-22'
+modified: '2023-02-21'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/byt3bl33d3r/CrackMapExec
+  - https://github.com/byt3bl33d3r/CrackMapExec/blob/0a49f75347b625e81ee6aa8c33d3970b5515ea9e/cme/helpers/powershell.py#L242
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hktl_crackmapexec_powershell_obfuscation.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: HackTool - CrackMapExec PowerShell Obfuscation
+id: 6f8b3439-a203-45dc-a88b-abf57ea15ccf
+status: test
+description: The CrachMapExec pentesting framework implements a PowerShell obfuscation with some static strings detected by this rule.
+references:
+    - https://github.com/byt3bl33d3r/CrackMapExec
+    - https://github.com/byt3bl33d3r/CrackMapExec/blob/0a49f75347b625e81ee6aa8c33d3970b5515ea9e/cme/helpers/powershell.py#L242
+author: Thomas Patzke
+date: 2020-05-22
+modified: 2023-02-21
+tags:
+    - attack.execution
+    - attack.stealth
+    - attack.t1059.001
+    - attack.t1027.005
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith:
+              - '\powershell.exe'
+              - '\pwsh.exe'
+        - OriginalFileName:
+              - 'PowerShell.EXE'
+              - 'pwsh.dll'
+    selection_cli:
+        CommandLine|contains:
+            - 'join*split'
+            # Line 343ff
+            - '( $ShellId[1]+$ShellId[13]+''x'')'
+            - '( $PSHome[*]+$PSHOME[*]+'
+            - '( $env:Public[13]+$env:Public[5]+''x'')'
+            - '( $env:ComSpec[4,*,25]-Join'''')'
+            - '[1,3]+''x''-Join'''')'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

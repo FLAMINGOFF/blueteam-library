@@ -1,0 +1,78 @@
+---
+title: New Port Forwarding Rule Added Via Netsh.EXE
+summary: Detects the execution of netsh commands that configure a new port forwarding (PortProxy) rule
+sigma_id: 322ed9ec-fcab-4f67-9a34-e7c6aef43614
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0008
+  - TA0011
+techniques:
+  - T1090
+author: Florian Roth (Nextron Systems), omkar72, oscd.community, Swachchhanda Shrawan Poudel
+date: '2019-01-29'
+modified: '2023-09-01'
+falsepositives:
+  - Legitimate administration activity
+  - WSL2 network bridge PowerShell script used for WSL/Kubernetes/Docker (e.g. https://github.com/microsoft/WSL/issues/4150#issuecomment-504209723)
+references:
+  - https://www.fireeye.com/blog/threat-research/2019/01/bypassing-network-restrictions-through-rdp-tunneling.html
+  - https://adepts.of0x.cc/netsh-portproxy-code/
+  - https://www.dfirnotes.net/portproxy_detection/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_netsh_port_forwarding.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: New Port Forwarding Rule Added Via Netsh.EXE
+id: 322ed9ec-fcab-4f67-9a34-e7c6aef43614
+status: test
+description: Detects the execution of netsh commands that configure a new port forwarding (PortProxy) rule
+references:
+    - https://www.fireeye.com/blog/threat-research/2019/01/bypassing-network-restrictions-through-rdp-tunneling.html
+    - https://adepts.of0x.cc/netsh-portproxy-code/
+    - https://www.dfirnotes.net/portproxy_detection/
+author: Florian Roth (Nextron Systems), omkar72, oscd.community, Swachchhanda Shrawan Poudel
+date: 2019-01-29
+modified: 2023-09-01
+tags:
+    - attack.lateral-movement
+    - attack.command-and-control
+    - attack.t1090
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\netsh.exe'
+        - OriginalFileName: 'netsh.exe'
+    selection_cli_1:
+        CommandLine|contains|all:
+            - 'interface'
+            - 'portproxy'
+            - 'add'
+            - 'v4tov4'
+    selection_cli_2:
+        CommandLine|contains|all:
+            # Example: netsh I p a v l=8001 listena=127.0.0.1 connectp=80 c=192.168.1.1
+            - 'i ' # interface
+            - 'p ' # portproxy
+            - 'a ' # add
+            - 'v ' # v4tov4
+    selection_cli_3:
+        CommandLine|contains|all:
+            - 'connectp'
+            - 'listena'
+            - 'c='
+    condition: selection_img and 1 of selection_cli_*
+falsepositives:
+    - Legitimate administration activity
+    - WSL2 network bridge PowerShell script used for WSL/Kubernetes/Docker (e.g. https://github.com/microsoft/WSL/issues/4150#issuecomment-504209723)
+level: medium
+```

@@ -1,0 +1,70 @@
+---
+title: Registry Modification Attempt Via VBScript
+summary: |-
+  Detects attempts to modify the registry using VBScript's CreateObject("Wscript.shell") and RegWrite methods via common LOLBINs.
+  It could be an attempt to modify the registry for persistence without using straightforward methods like regedit.exe, reg.exe, or PowerShell.
+  Threat Actors may use this technique to evade detection by security solutions that monitor for direct registry modifications through traditional tools.
+sigma_id: 921aa10f-2e74-4cca-9498-98f9ca4d6fdf
+status: experimental
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0003
+  - TA0002
+techniques:
+  - T1112
+  - T1059.005
+author: Swachchhanda Shrawan Poudel (Nextron Systems)
+date: '2025-08-13'
+falsepositives:
+  - Unknown
+references:
+  - https://www.linkedin.com/posts/mauricefielenbach_livingofftheland-redteam-persistence-activity-7344801774182051843-TE00/
+  - https://www.nextron-systems.com/2025/07/29/detecting-the-most-popular-mitre-persistence-method-registry-run-keys-startup-folder/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_vbscript_registry_modification.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Registry Modification Attempt Via VBScript
+id: 921aa10f-2e74-4cca-9498-98f9ca4d6fdf
+related:
+    - id: 2a0a169d-cc66-43ce-9ae2-6e678e54e46a
+      type: similar
+    - id: 7f4c43f9-b1a5-4c7d-b24a-b41bf3a3ebf2
+      type: similar
+status: experimental
+description: |
+    Detects attempts to modify the registry using VBScript's CreateObject("Wscript.shell") and RegWrite methods via common LOLBINs.
+    It could be an attempt to modify the registry for persistence without using straightforward methods like regedit.exe, reg.exe, or PowerShell.
+    Threat Actors may use this technique to evade detection by security solutions that monitor for direct registry modifications through traditional tools.
+references:
+    - https://www.linkedin.com/posts/mauricefielenbach_livingofftheland-redteam-persistence-activity-7344801774182051843-TE00/
+    - https://www.nextron-systems.com/2025/07/29/detecting-the-most-popular-mitre-persistence-method-registry-run-keys-startup-folder/
+date: 2025-08-13
+author: Swachchhanda Shrawan Poudel (Nextron Systems)
+tags:
+    - attack.persistence
+    - attack.execution
+    - attack.defense-impairment
+    - attack.t1112
+    - attack.t1059.005
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|contains|all:
+            - 'CreateObject'
+            - 'Wscript.shell'
+            - '.RegWrite'
+    condition: selection
+falsepositives:
+    - Unknown
+level: medium
+```

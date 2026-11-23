@@ -1,0 +1,53 @@
+---
+title: File Deletion
+summary: Detects file deletion using "rm", "shred" or "unlink" commands which are used often by adversaries to delete files left behind by the actions of their intrusion activity
+sigma_id: 30aed7b6-d2c1-4eaf-9382-b6bc43e50c57
+status: stable
+level: informational
+platform: linux
+logsource: linux / process_creation
+tactics: []
+techniques:
+  - T1070.004
+author: Ömer Günal, oscd.community
+date: '2020-10-07'
+modified: '2022-09-15'
+falsepositives:
+  - Legitimate administration activities
+references:
+  - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1070.004/T1070.004.md
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/linux/process_creation/proc_creation_lnx_file_deletion.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: File Deletion
+id: 30aed7b6-d2c1-4eaf-9382-b6bc43e50c57
+status: stable
+description: Detects file deletion using "rm", "shred" or "unlink" commands which are used often by adversaries to delete files left behind by the actions of their intrusion activity
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1070.004/T1070.004.md
+author: Ömer Günal, oscd.community
+date: 2020-10-07
+modified: 2022-09-15
+tags:
+    - attack.stealth
+    - attack.t1070.004
+logsource:
+    product: linux
+    category: process_creation
+detection:
+    selection:
+        Image|endswith:
+            - '/rm'     # covers /rmdir as well
+            - '/shred'
+            - '/unlink'
+    condition: selection
+falsepositives:
+    - Legitimate administration activities
+level: informational
+```

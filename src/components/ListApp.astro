@@ -1,0 +1,10 @@
+---
+import { dict, TACTICS, LEVELS, STATUS, type Lang } from "../i18n";
+interface Props { lang: Lang; mode: "rules" | "incidents" | "search" | "starred" }
+const { lang, mode } = Astro.props;
+const cfg = JSON.stringify({ lang, mode, L: dict(lang), tactics: TACTICS, levels: LEVELS, statuses: STATUS });
+---
+<script type="application/json" id="list-cfg" set:html={cfg}></script>
+<div id="list-app"><div class="empty">…</div></div>
+<noscript><p class="muted">This page needs JavaScript for filtering.</p></noscript>
+<script is:inline src="/list.js"></script>

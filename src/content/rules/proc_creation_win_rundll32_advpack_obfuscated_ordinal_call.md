@@ -1,0 +1,57 @@
+---
+title: Suspicious Advpack Call Via Rundll32.EXE
+summary: Detects execution of "rundll32" calling "advpack.dll" with potential obfuscated ordinal calls in order to leverage the "RegisterOCX" function
+sigma_id: a1473adb-5338-4a20-b4c3-126763e2d3d3
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques: []
+author: Florian Roth (Nextron Systems), Nasreddine Bencherchali (Nextron Systems)
+date: '2023-05-17'
+falsepositives:
+  - Unlikely
+references:
+  - https://web.archive.org/web/20220215183046/https://twitter.com/Hexacorn/status/1224848930795552769
+  - http://www.hexacorn.com/blog/2020/02/05/stay-positive-lolbins-not/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_rundll32_advpack_obfuscated_ordinal_call.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious Advpack Call Via Rundll32.EXE
+id: a1473adb-5338-4a20-b4c3-126763e2d3d3
+status: test
+description: Detects execution of "rundll32" calling "advpack.dll" with potential obfuscated ordinal calls in order to leverage the "RegisterOCX" function
+references:
+    - https://web.archive.org/web/20220215183046/https://twitter.com/Hexacorn/status/1224848930795552769
+    - http://www.hexacorn.com/blog/2020/02/05/stay-positive-lolbins-not/
+author: Florian Roth (Nextron Systems), Nasreddine Bencherchali (Nextron Systems)
+date: 2023-05-17
+tags:
+    - attack.stealth
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\rundll32.exe'
+        - OriginalFileName: 'RUNDLL32.EXE'
+        - CommandLine|contains: 'rundll32'
+    selection_cli_dll:
+        CommandLine|contains: 'advpack'
+    selection_cli_ordinal:
+        - CommandLine|contains|all:
+              - '#+'
+              - '12'
+        - CommandLine|contains: '#-'
+    condition: all of selection_*
+falsepositives:
+    - Unlikely
+level: high
+```

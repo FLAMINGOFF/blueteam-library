@@ -1,0 +1,51 @@
+---
+title: Invocation of Active Directory Diagnostic Tool (ntdsutil.exe)
+summary: Detects execution of ntdsutil.exe, which can be used for various attacks against the NTDS database (NTDS.DIT)
+sigma_id: 2afafd61-6aae-4df4-baed-139fa1f4c345
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+techniques:
+  - T1003.003
+author: Thomas Patzke
+date: '2019-01-16'
+modified: '2022-03-11'
+falsepositives:
+  - NTDS maintenance
+references:
+  - https://jpcertcc.github.io/ToolAnalysisResultSheet/details/ntdsutil.htm
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_ntdsutil_usage.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Invocation of Active Directory Diagnostic Tool (ntdsutil.exe)
+id: 2afafd61-6aae-4df4-baed-139fa1f4c345
+status: test
+description: Detects execution of ntdsutil.exe, which can be used for various attacks against the NTDS database (NTDS.DIT)
+references:
+    - https://jpcertcc.github.io/ToolAnalysisResultSheet/details/ntdsutil.htm
+author: Thomas Patzke
+date: 2019-01-16
+modified: 2022-03-11
+tags:
+    - attack.credential-access
+    - attack.t1003.003
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\ntdsutil.exe'
+    condition: selection
+falsepositives:
+    - NTDS maintenance
+level: medium
+```

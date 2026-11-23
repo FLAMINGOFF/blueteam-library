@@ -1,0 +1,53 @@
+---
+import { t, otherLang, type Lang } from "../i18n";
+interface Props { lang: Lang; title?: string; description?: string; nav?: string }
+const { lang, title, description, nav = "" } = Astro.props;
+const base = `/${lang}`;
+const path = Astro.url.pathname;
+const altPath = path.replace(/^\/(zh|en)(?=\/|$)/, "/" + otherLang(lang));
+const fullTitle = title ? `${title} · ${t(lang, "site")}` : t(lang, "site");
+const items = [
+  ["home", "", t(lang, "home")], ["rules", "/rules", t(lang, "rules")], ["incidents", "/incidents", t(lang, "incidents")],
+  ["matrix", "/matrix", t(lang, "matrix")], ["starred", "/starred", t(lang, "starred")], ["about", "/about", t(lang, "about")]
+];
+---
+<!doctype html>
+<html lang={lang === "zh" ? "zh-CN" : "en"} data-theme="system">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{fullTitle}</title>
+  <meta name="description" content={description || t(lang, "tagline")} />
+  <link rel="alternate" hreflang={lang === "zh" ? "en" : "zh-CN"} href={altPath} />
+  <link rel="stylesheet" href="/app.css" />
+  <script is:inline>try{var th=localStorage.getItem("bt-theme");if(th)document.documentElement.dataset.theme=JSON.parse(th)}catch(e){}</script>
+</head>
+<body data-lang={lang}>
+  <a class="skip" href="#main">{lang === "zh" ? "跳到正文" : "Skip to content"}</a>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href={base + "/"}><span class="logo">◆</span> {t(lang, "site")}</a>
+      <nav class="nav">
+        {items.map(([k, p, label]) => <a href={base + p + "/"} class={nav === k ? "active" : ""}>{label}</a>)}
+      </nav>
+      <div class="tools">
+        <a class="lang" href={altPath} hreflang={otherLang(lang)}>{lang === "zh" ? "EN" : "中文"}</a>
+        <div class="theme" role="group" aria-label={t(lang, "theme")}>
+          <button data-theme-set="dark">{t(lang, "dark")}</button>
+          <button data-theme-set="system">{t(lang, "system")}</button>
+          <button data-theme-set="light">{t(lang, "light")}</button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main id="main" class="wrap"><slot /></main>
+  <footer class="footer wrap">
+    <p>{t(lang, "footerLicense")} <a href={base + "/about/"}>{t(lang, "about")}</a></p>
+    <p class="muted">MITRE ATT&CK® is a registered trademark of The MITRE Corporation. · <a href="#">{t(lang, "contribute")}</a></p>
+  </footer>
+  <nav class="tabbar">
+    {items.slice(0, 5).map(([k, p, label]) => <a href={base + p + "/"} class={nav === k ? "active" : ""}>{label}</a>)}
+  </nav>
+  <script is:inline src="/common.js"></script>
+</body>
+</html>

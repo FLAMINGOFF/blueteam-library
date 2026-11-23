@@ -1,0 +1,95 @@
+---
+title: Potential SMB Relay Attack Tool Execution
+summary: Detects different hacktools used for relay attacks on Windows for privilege escalation
+sigma_id: 5589ab4f-a767-433c-961d-c91f3f704db1
+status: test
+level: critical
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0009
+  - TA0002
+  - TA0006
+techniques:
+  - T1557.001
+author: Florian Roth (Nextron Systems)
+date: '2021-07-24'
+modified: '2023-02-14'
+falsepositives:
+  - Legitimate files with these rare hacktool names
+references:
+  - https://foxglovesecurity.com/2016/09/26/rotten-potato-privilege-escalation-from-service-accounts-to-system/
+  - https://pentestlab.blog/2017/04/13/hot-potato/
+  - https://github.com/ohpe/juicy-potato
+  - https://hunter2.gitbook.io/darthsidious/other/war-stories/domain-admin-in-30-minutes
+  - https://hunter2.gitbook.io/darthsidious/execution/responder-with-ntlm-relay-and-empire
+  - https://www.localpotato.com/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hktl_relay_attacks_tools.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential SMB Relay Attack Tool Execution
+id: 5589ab4f-a767-433c-961d-c91f3f704db1
+status: test
+description: Detects different hacktools used for relay attacks on Windows for privilege escalation
+references:
+    - https://foxglovesecurity.com/2016/09/26/rotten-potato-privilege-escalation-from-service-accounts-to-system/
+    - https://pentestlab.blog/2017/04/13/hot-potato/
+    - https://github.com/ohpe/juicy-potato
+    - https://hunter2.gitbook.io/darthsidious/other/war-stories/domain-admin-in-30-minutes
+    - https://hunter2.gitbook.io/darthsidious/execution/responder-with-ntlm-relay-and-empire
+    - https://www.localpotato.com/
+author: Florian Roth (Nextron Systems)
+date: 2021-07-24
+modified: 2023-02-14
+tags:
+    - attack.collection
+    - attack.execution
+    - attack.credential-access
+    - attack.t1557.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_pe:
+        Image|contains:
+            - 'PetitPotam'
+            - 'RottenPotato'
+            - 'HotPotato'
+            - 'JuicyPotato'
+            - '\just_dce_'
+            - 'Juicy Potato'
+            - '\temp\rot.exe'
+            - '\Potato.exe'
+            - '\SpoolSample.exe'
+            - '\Responder.exe'
+            - '\smbrelayx'
+            - '\ntlmrelayx'
+            - '\LocalPotato'
+    selection_script:
+        CommandLine|contains:
+            - 'Invoke-Tater'
+            - ' smbrelay'
+            - ' ntlmrelay'
+            - 'cme smb '
+            - ' /ntlm:NTLMhash '
+            - 'Invoke-PetitPotam'
+            - '.exe -t * -p '  # JuicyPotatoNG pattern https://github.com/antonioCoco/JuicyPotatoNG
+    selection_juicypotato_enum:  # appears when JuicyPotatoNG is used with -b
+        CommandLine|contains: '.exe -c "{'
+        CommandLine|endswith: '}" -z'
+    filter_hotpotatoes:  # known goodware https://hotpot.uvic.ca/
+        Image|contains:
+            - 'HotPotatoes6'
+            - 'HotPotatoes7'
+            - 'HotPotatoes ' # Covers the following: 'HotPotatoes 6', 'HotPotatoes 7', 'HotPotatoes Help', 'HotPotatoes Tutorial'
+    condition: 1 of selection_* and not 1 of filter_*
+falsepositives:
+    - Legitimate files with these rare hacktool names
+level: critical
+```

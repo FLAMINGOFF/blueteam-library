@@ -1,0 +1,75 @@
+---
+title: Suspicious File Download From IP Via Wget.EXE - Paths
+summary: Detects potentially suspicious file downloads directly from IP addresses and stored in suspicious locations using Wget.exe
+sigma_id: 40aa399c-7b02-4715-8e5f-73572b493f33
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques: []
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2024-02-23'
+falsepositives:
+  - Unknown
+references:
+  - https://www.gnu.org/software/wget/manual/wget.html
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_wget_download_susp_locations.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious File Download From IP Via Wget.EXE - Paths
+id: 40aa399c-7b02-4715-8e5f-73572b493f33
+status: test
+description: Detects potentially suspicious file downloads directly from IP addresses and stored in suspicious locations using Wget.exe
+references:
+    - https://www.gnu.org/software/wget/manual/wget.html
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2024-02-23
+tags:
+    - attack.execution
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\wget.exe'
+        - OriginalFileName: 'wget.exe'
+    selection_ip:
+        CommandLine|re: '://[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
+    selection_http:
+        CommandLine|contains: 'http'
+    selection_flag:
+        - CommandLine|re: '\s-O\s'
+        - CommandLine|contains: '--output-document'
+    selection_paths:
+        - CommandLine|contains:
+              - ':\PerfLogs\'
+              - ':\Temp\'
+              - ':\Users\Public\'
+              - ':\Windows\Help\'
+              - ':\Windows\Temp\'
+              - '\Temporary Internet'
+        - CommandLine|contains|all:
+              - ':\Users\'
+              - '\Favorites\'
+        - CommandLine|contains|all:
+              - ':\Users\'
+              - '\Favourites\'
+        - CommandLine|contains|all:
+              - ':\Users\'
+              - '\Contacts\'
+        - CommandLine|contains|all:
+              - ':\Users\'
+              - '\Pictures\'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

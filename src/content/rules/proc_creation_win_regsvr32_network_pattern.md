@@ -1,0 +1,66 @@
+---
+title: Potentially Suspicious Regsvr32 HTTP/FTP Pattern
+summary: Detects regsvr32 execution to download/install/register new DLLs that are hosted on Web or FTP servers.
+sigma_id: 867356ee-9352-41c9-a8f2-1be690d78216
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218.010
+author: Florian Roth (Nextron Systems)
+date: '2023-05-24'
+modified: '2023-05-26'
+falsepositives:
+  - Unknown
+references:
+  - https://twitter.com/mrd0x/status/1461041276514623491
+  - https://twitter.com/tccontre18/status/1480950986650832903
+  - https://lolbas-project.github.io/lolbas/Binaries/Regsvr32/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_regsvr32_network_pattern.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potentially Suspicious Regsvr32 HTTP/FTP Pattern
+id: 867356ee-9352-41c9-a8f2-1be690d78216
+related:
+    - id: 8e2b24c9-4add-46a0-b4bb-0057b4e6187d
+      type: obsolete
+status: test
+description: Detects regsvr32 execution to download/install/register new DLLs that are hosted on Web or FTP servers.
+references:
+    - https://twitter.com/mrd0x/status/1461041276514623491
+    - https://twitter.com/tccontre18/status/1480950986650832903
+    - https://lolbas-project.github.io/lolbas/Binaries/Regsvr32/
+author: Florian Roth (Nextron Systems)
+date: 2023-05-24
+modified: 2023-05-26
+tags:
+    - attack.stealth
+    - attack.t1218.010
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\regsvr32.exe'
+        - OriginalFileName: 'REGSVR32.EXE'
+    selection_flag:
+        CommandLine|contains:
+            - ' /i'
+            - ' -i'
+    selection_protocol:
+        CommandLine|contains:
+            - 'ftp'
+            - 'http'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: medium
+```

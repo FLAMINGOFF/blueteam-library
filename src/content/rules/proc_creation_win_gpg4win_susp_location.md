@@ -1,0 +1,65 @@
+---
+title: File Encryption/Decryption Via Gpg4win From Suspicious Locations
+summary: Detects usage of Gpg4win to encrypt/decrypt files located in potentially suspicious locations.
+sigma_id: e1e0b7d7-e10b-4ee4-ac49-a4bda05d320d
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques: []
+author: Nasreddine Bencherchali (Nextron Systems), X__Junior (Nextron Systems)
+date: '2022-11-30'
+modified: '2023-08-09'
+falsepositives:
+  - Unknown
+references:
+  - https://blogs.vmware.com/security/2022/11/batloader-the-evasive-downloader-malware.html
+  - https://news.sophos.com/en-us/2022/01/19/zloader-installs-remote-access-backdoors-and-delivers-cobalt-strike/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_gpg4win_susp_location.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: File Encryption/Decryption Via Gpg4win From Suspicious Locations
+id: e1e0b7d7-e10b-4ee4-ac49-a4bda05d320d
+status: test
+description: Detects usage of Gpg4win to encrypt/decrypt files located in potentially suspicious locations.
+references:
+    - https://blogs.vmware.com/security/2022/11/batloader-the-evasive-downloader-malware.html
+    - https://news.sophos.com/en-us/2022/01/19/zloader-installs-remote-access-backdoors-and-delivers-cobalt-strike/
+author: Nasreddine Bencherchali (Nextron Systems), X__Junior (Nextron Systems)
+date: 2022-11-30
+modified: 2023-08-09
+tags:
+    - attack.execution
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_metadata:
+        - Image|endswith:
+              - '\gpg.exe'
+              - '\gpg2.exe'
+        - Product: 'GNU Privacy Guard (GnuPG)'
+        - Description: 'GnuPG’s OpenPGP tool'
+    selection_cli:
+        CommandLine|contains: '-passphrase'
+    selection_paths:
+        CommandLine|contains:
+            - ':\PerfLogs\'
+            - ':\Temp\'
+            - ':\Users\Public\'
+            - ':\Windows\Temp\'
+            - '\AppData\Local\Temp\'
+            - '\AppData\Roaming\'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

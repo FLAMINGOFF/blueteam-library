@@ -1,0 +1,57 @@
+---
+title: PUA - Mouse Lock Execution
+summary: In Kaspersky's 2020 Incident Response Analyst Report they listed legitimate tool "Mouse Lock" as being used for both credential access and collection in security incidents.
+sigma_id: c9192ad9-75e5-43eb-8647-82a0a5b493e3
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+  - TA0009
+techniques:
+  - T1056.002
+author: Cian Heasley
+date: '2020-08-13'
+modified: '2023-02-21'
+falsepositives:
+  - Legitimate uses of Mouse Lock software
+references:
+  - https://github.com/klsecservices/Publications/blob/657deb6a6eb6e00669afd40173f425fb49682eaa/Incident-Response-Analyst-Report-2020.pdf
+  - https://sourceforge.net/projects/mouselock/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_pua_mouselock_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: PUA - Mouse Lock Execution
+id: c9192ad9-75e5-43eb-8647-82a0a5b493e3
+status: test
+description: In Kaspersky's 2020 Incident Response Analyst Report they listed legitimate tool "Mouse Lock" as being used for both credential access and collection in security incidents.
+references:
+    - https://github.com/klsecservices/Publications/blob/657deb6a6eb6e00669afd40173f425fb49682eaa/Incident-Response-Analyst-Report-2020.pdf
+    - https://sourceforge.net/projects/mouselock/
+author: Cian Heasley
+date: 2020-08-13
+modified: 2023-02-21
+tags:
+    - attack.credential-access
+    - attack.collection
+    - attack.t1056.002
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        - Product|contains: 'Mouse Lock'
+        - Company|contains: 'Misc314'
+        - CommandLine|contains: 'Mouse Lock_'
+    condition: selection
+falsepositives:
+    - Legitimate uses of Mouse Lock software
+level: medium
+```

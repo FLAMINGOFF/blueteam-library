@@ -1,0 +1,60 @@
+---
+title: Potential Fake Instance Of Hxtsr.EXE Executed
+summary: |-
+  HxTsr.exe is a Microsoft compressed executable file called Microsoft Outlook Communications.
+  HxTsr.exe is part of Outlook apps, because it resides in a hidden "WindowsApps" subfolder of "C:\Program Files".
+  Any instances of hxtsr.exe not in this folder may be malware camouflaging itself as HxTsr.exe
+sigma_id: 4e762605-34a8-406d-b72e-c1a089313320
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1036
+author: Sreeman
+date: '2020-04-17'
+modified: '2024-02-08'
+falsepositives:
+  - Unknown
+references:
+  - Internal Research
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hxtsr_masquerading.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Fake Instance Of Hxtsr.EXE Executed
+id: 4e762605-34a8-406d-b72e-c1a089313320
+status: test
+description: |
+    HxTsr.exe is a Microsoft compressed executable file called Microsoft Outlook Communications.
+    HxTsr.exe is part of Outlook apps, because it resides in a hidden "WindowsApps" subfolder of "C:\Program Files".
+    Any instances of hxtsr.exe not in this folder may be malware camouflaging itself as HxTsr.exe
+references:
+    - Internal Research
+author: Sreeman
+date: 2020-04-17
+modified: 2024-02-08
+tags:
+    - attack.stealth
+    - attack.t1036
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    # TODO: Link this to the more generic system process rule
+    selection:
+        Image|endswith: '\hxtsr.exe'
+    filter_main_hxtsr:
+        Image|contains: ':\program files\windowsapps\microsoft.windowscommunicationsapps_'
+        Image|endswith: '\hxtsr.exe'
+    condition: selection and not 1 of filter_main_*
+falsepositives:
+    - Unknown
+level: medium
+```

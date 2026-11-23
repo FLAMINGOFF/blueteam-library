@@ -1,0 +1,72 @@
+---
+title: Monero Crypto Coin Mining Pool Lookup
+summary: Detects suspicious DNS queries to Monero mining pools
+sigma_id: b593fd50-7335-4682-a36c-4edcb68e4641
+status: stable
+level: high
+platform: other
+logsource: dns
+tactics:
+  - TA0040
+  - TA0010
+techniques:
+  - T1496
+  - T1567
+author: Florian Roth (Nextron Systems)
+date: '2021-10-24'
+falsepositives:
+  - Legitimate crypto coin mining
+references:
+  - https://www.nextron-systems.com/2021/10/24/monero-mining-pool-fqdns/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/network/dns/net_dns_pua_cryptocoin_mining_xmr.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Monero Crypto Coin Mining Pool Lookup
+id: b593fd50-7335-4682-a36c-4edcb68e4641
+status: stable
+description: Detects suspicious DNS queries to Monero mining pools
+references:
+    - https://www.nextron-systems.com/2021/10/24/monero-mining-pool-fqdns/
+author: Florian Roth (Nextron Systems)
+date: 2021-10-24
+tags:
+    - attack.impact
+    - attack.t1496
+    - attack.exfiltration
+    - attack.t1567
+logsource:
+    category: dns
+detection:
+    selection:
+        query|contains:
+            - 'pool.minexmr.com'
+            - 'fr.minexmr.com'
+            - 'de.minexmr.com'
+            - 'sg.minexmr.com'
+            - 'ca.minexmr.com'
+            - 'us-west.minexmr.com'
+            - 'pool.supportxmr.com'
+            - 'mine.c3pool.com'
+            - 'xmr-eu1.nanopool.org'
+            - 'xmr-eu2.nanopool.org'
+            - 'xmr-us-east1.nanopool.org'
+            - 'xmr-us-west1.nanopool.org'
+            - 'xmr-asia1.nanopool.org'
+            - 'xmr-jp1.nanopool.org'
+            - 'xmr-au1.nanopool.org'
+            - 'xmr.2miners.com'
+            - 'xmr.hashcity.org'
+            - 'xmr.f2pool.com'
+            - 'xmrpool.eu'
+            - 'pool.hashvault.pro'
+    condition: selection
+falsepositives:
+    - Legitimate crypto coin mining
+level: high
+```

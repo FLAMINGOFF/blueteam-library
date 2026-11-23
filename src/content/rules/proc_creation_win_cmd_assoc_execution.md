@@ -1,0 +1,67 @@
+---
+title: Change Default File Association Via Assoc
+summary: >-
+  Detects file association changes using the builtin "assoc" command.
+
+  When a file is opened, the default program used to open the file (also called the file association or handler) is checked. File association selections are stored in the Windows Registry and can be
+  edited by users, administrators, or programs that have Registry access or by administrators using the built-in assoc utility. Applications can modify the file association for a given file extension
+  to call an arbitrary program when a file with the given extension is opened.
+sigma_id: 3d3aa6cd-6272-44d6-8afc-7e88dfef7061
+status: test
+level: low
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+  - TA0003
+techniques:
+  - T1546.001
+author: Timur Zinniatullin, oscd.community
+date: '2019-10-21'
+modified: '2023-03-06'
+falsepositives:
+  - Admin activity
+references:
+  - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1546.001/T1546.001.md
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_cmd_assoc_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Change Default File Association Via Assoc
+id: 3d3aa6cd-6272-44d6-8afc-7e88dfef7061
+related:
+    - id: ae6f14e6-14de-45b0-9f44-c0986f50dc89
+      type: similar
+status: test
+description: |
+    Detects file association changes using the builtin "assoc" command.
+    When a file is opened, the default program used to open the file (also called the file association or handler) is checked. File association selections are stored in the Windows Registry and can be edited by users, administrators, or programs that have Registry access or by administrators using the built-in assoc utility. Applications can modify the file association for a given file extension to call an arbitrary program when a file with the given extension is opened.
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1546.001/T1546.001.md
+author: Timur Zinniatullin, oscd.community
+date: 2019-10-21
+modified: 2023-03-06
+tags:
+    - attack.privilege-escalation
+    - attack.persistence
+    - attack.t1546.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\cmd.exe'
+        - OriginalFileName: 'Cmd.Exe'
+    selection_cli:
+        CommandLine|contains: 'assoc'
+    condition: all of selection_*
+falsepositives:
+    - Admin activity
+level: low
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_cmd_assoc_execution/info.yml
+```

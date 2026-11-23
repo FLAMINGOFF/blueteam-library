@@ -1,0 +1,58 @@
+---
+title: Potential Signing Bypass Via Windows Developer Features
+summary: Detects when a user enable developer features such as "Developer Mode" or "Application Sideloading". Which allows the user to install untrusted packages.
+sigma_id: a383dec4-deec-4e6e-913b-ed9249670848
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques: []
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2023-01-11'
+falsepositives:
+  - Unknown
+references:
+  - Internal Research
+  - https://www.sentinelone.com/labs/inside-malicious-windows-apps-for-malware-deployment/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_systemsettingsadminflows_turn_on_dev_features.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Signing Bypass Via Windows Developer Features
+id: a383dec4-deec-4e6e-913b-ed9249670848
+related:
+    - id: b110ebaf-697f-4da1-afd5-b536fa27a2c1
+      type: similar
+status: test
+description: Detects when a user enable developer features such as "Developer Mode" or "Application Sideloading". Which allows the user to install untrusted packages.
+references:
+    - Internal Research
+    - https://www.sentinelone.com/labs/inside-malicious-windows-apps-for-malware-deployment/
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2023-01-11
+tags:
+    - attack.stealth
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\SystemSettingsAdminFlows.exe'
+        - OriginalFileName: 'SystemSettingsAdminFlows.EXE'
+    selection_flag:
+        CommandLine|contains: 'TurnOnDeveloperFeatures'
+    selection_options:
+        CommandLine|contains:
+            - 'DeveloperUnlock'
+            - 'EnableSideloading'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

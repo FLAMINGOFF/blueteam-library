@@ -1,0 +1,64 @@
+---
+title: Ingress/Egress Security Group Modification
+summary: >-
+  Detects when an account makes changes to the ingress or egress rules of a security group.
+
+  This can indicate that an attacker is attempting to open up new attack vectors in the account, that they are trying to exfiltrate data over the network, or that they are trying to allow machines in
+  that VPC/Subnet to contact a C&C server.
+sigma_id: 6fb77778-040f-4015-9440-572aa9b6b580
+status: test
+level: medium
+platform: aws
+logsource: aws / cloudtrail
+tactics:
+  - TA0001
+techniques:
+  - T1190
+author: jamesc-grafana
+date: '2024-07-11'
+falsepositives:
+  - New VPCs and Subnets being setup requiring a different security profile to those already defined
+  - A single port being opened for a new service that is known to be deploying
+  - Administrators closing unused ports to reduce the attack surface
+references:
+  - https://www.gorillastack.com/blog/real-time-events/important-aws-cloudtrail-security-events-tracking/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/cloud/aws/cloudtrail/aws_cloudtrail_security_group_change_ingress_egress.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Ingress/Egress Security Group Modification
+id: 6fb77778-040f-4015-9440-572aa9b6b580
+status: test
+description: |
+    Detects when an account makes changes to the ingress or egress rules of a security group.
+    This can indicate that an attacker is attempting to open up new attack vectors in the account, that they are trying to exfiltrate data over the network, or that they are trying to allow machines in that VPC/Subnet to contact a C&C server.
+references:
+    - https://www.gorillastack.com/blog/real-time-events/important-aws-cloudtrail-security-events-tracking/
+author: jamesc-grafana
+date: 2024-07-11
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    product: aws
+    service: cloudtrail
+detection:
+    selection:
+        eventSource: 'ec2.amazonaws.com'
+        eventName:
+            - 'AuthorizeSecurityGroupEgress'
+            - 'AuthorizeSecurityGroupIngress'
+            - 'RevokeSecurityGroupEgress'
+            - 'RevokeSecurityGroupIngress'
+    condition: selection
+falsepositives:
+    - New VPCs and Subnets being setup requiring a different security profile to those already defined
+    - A single port being opened for a new service that is known to be deploying
+    - Administrators closing unused ports to reduce the attack surface
+level: medium
+```

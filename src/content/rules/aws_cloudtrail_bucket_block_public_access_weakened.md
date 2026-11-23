@@ -1,0 +1,67 @@
+---
+title: AWS Bucket Block Public Access Weakened
+summary: |-
+  Detects the weakening of "Block Public Access" setting of S3 buckets in CloudTrail logs.
+  Monitoring changes to Block Public Access settings is critical, as attackers may disable these safeguards before exposing a bucket through a public ACL or bucket policy.
+sigma_id: ab18a523-e093-4ac6-8303-8c47431f4fca
+status: experimental
+level: medium
+platform: aws
+logsource: aws / cloudtrail
+tactics: []
+techniques:
+  - T1686.001
+author: Shoban Chiddarth
+date: '2026-10-21'
+falsepositives:
+  - Administrators intentionally modifying Block Public Access settings to support a legitimate application or public bucket configuration.
+references:
+  - https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html
+  - https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutPublicAccessBlock.html
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/cloud/aws/cloudtrail/aws_cloudtrail_bucket_block_public_access_weakened.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: AWS Bucket Block Public Access Weakened
+id: ab18a523-e093-4ac6-8303-8c47431f4fca
+status: experimental
+description: |
+    Detects the weakening of "Block Public Access" setting of S3 buckets in CloudTrail logs.
+    Monitoring changes to Block Public Access settings is critical, as attackers may disable these safeguards before exposing a bucket through a public ACL or bucket policy.
+references:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html
+    - https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutPublicAccessBlock.html
+author: Shoban Chiddarth
+date: 2026-10-21
+tags:
+    - attack.defense-impairment
+    - attack.t1686.001
+logsource:
+    product: aws
+    service: cloudtrail
+detection:
+    selection_event_name:
+        eventSource: 's3.amazonaws.com'
+        eventName: 'PutBucketPublicAccessBlock'
+    selection_weaken_restrict_public_buckets:
+        requestParameters.PublicAccessBlockConfiguration.RestrictPublicBuckets: 'false'
+    selection_weaken_block_public_acls:
+        requestParameters.PublicAccessBlockConfiguration.BlockPublicAcls: 'false'
+    selection_weaken_block_public_policy:
+        requestParameters.PublicAccessBlockConfiguration.BlockPublicPolicy: 'false'
+    selection_weaken_ignore_public_acls:
+        requestParameters.PublicAccessBlockConfiguration.IgnorePublicAcls: 'false'
+    selection_status_success:
+        errorCode: 'Success'
+    selection_status_null:
+        errorCode: null
+    condition: selection_event_name and 1 of selection_weaken_* and 1 of selection_status_*
+falsepositives:
+    - Administrators intentionally modifying Block Public Access settings to support a legitimate application or public bucket configuration.
+level: medium
+```

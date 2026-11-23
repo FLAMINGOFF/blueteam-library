@@ -1,0 +1,57 @@
+---
+title: Suspicious CustomShellHost Execution
+summary: >-
+  Detects the execution of CustomShellHost.exe where the child isn't located in 'C:\Windows\explorer.exe'. CustomShellHost is a known LOLBin that can be abused by attackers for defense evasion
+  techniques.
+sigma_id: 84b14121-9d14-416e-800b-f3b829c5a14d
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1216
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-08-19'
+modified: '2025-10-29'
+falsepositives:
+  - False positives are unlikely, investigate matches carefully.
+references:
+  - https://github.com/LOLBAS-Project/LOLBAS/pull/180
+  - https://lolbas-project.github.io/lolbas/Binaries/CustomShellHost/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_customshellhost_susp_exec.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious CustomShellHost Execution
+id: 84b14121-9d14-416e-800b-f3b829c5a14d
+status: test
+description: |
+    Detects the execution of CustomShellHost.exe where the child isn't located in 'C:\Windows\explorer.exe'. CustomShellHost is a known LOLBin that can be abused by attackers for defense evasion techniques.
+references:
+    - https://github.com/LOLBAS-Project/LOLBAS/pull/180
+    - https://lolbas-project.github.io/lolbas/Binaries/CustomShellHost/
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-08-19
+modified: 2025-10-29
+tags:
+    - attack.stealth
+    - attack.t1216
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        ParentImage|endswith: '\CustomShellHost.exe'
+    filter_main_explorer:
+        Image: 'C:\Windows\explorer.exe'
+    condition: selection and not 1 of filter_main_*
+falsepositives:
+    - False positives are unlikely, investigate matches carefully.
+level: high
+```
