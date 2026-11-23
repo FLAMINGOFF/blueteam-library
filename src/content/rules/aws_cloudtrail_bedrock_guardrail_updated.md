@@ -8,7 +8,8 @@ status: experimental
 level: medium
 platform: aws
 logsource: aws / cloudtrail
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1685
 author: Marco Pedrinazzi (@pedrinazziM) (InTheCyber)

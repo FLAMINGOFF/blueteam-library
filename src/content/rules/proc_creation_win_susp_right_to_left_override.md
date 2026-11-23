@@ -8,7 +8,8 @@ status: test
 level: high
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1036.002
 author: Micah Babinski, @micahbabinski, Swachchhanda Shrawan Poudel (Nextron Systems), Luc Génaux

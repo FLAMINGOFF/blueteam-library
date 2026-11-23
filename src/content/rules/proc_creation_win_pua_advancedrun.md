@@ -9,6 +9,7 @@ logsource: windows / process_creation
 tactics:
   - TA0002
   - TA0004
+  - TA0005
 techniques:
   - T1564.003
   - T1134.002

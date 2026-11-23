@@ -6,7 +6,8 @@ status: test
 level: high
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1216
 author: oscd.community, Natalia Shornikova, Nasreddine Bencherchali (Nextron Systems)

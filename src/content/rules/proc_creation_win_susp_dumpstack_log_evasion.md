@@ -6,7 +6,8 @@ status: test
 level: critical
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0112
 techniques: []
 author: Florian Roth (Nextron Systems)
 date: '2022-01-06'

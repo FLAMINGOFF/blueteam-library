@@ -6,7 +6,8 @@ status: test
 level: high
 platform: linux
 logsource: linux / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1014
 author: Nasreddine Bencherchali (Nextron Systems)

@@ -6,7 +6,8 @@ status: test
 level: low
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1070.005
 author: oscd.community, @redcanary, Zach Stanford @svch0st

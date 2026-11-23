@@ -8,6 +8,7 @@ platform: windows
 logsource: windows / process_creation
 tactics:
   - TA0004
+  - TA0112
 techniques:
   - T1484.001
 author: frack113

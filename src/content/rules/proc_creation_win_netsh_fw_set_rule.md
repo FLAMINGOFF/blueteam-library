@@ -6,7 +6,8 @@ status: test
 level: medium
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0112
 techniques: []
 author: X__Junior (Nextron Systems)
 date: '2023-07-18'

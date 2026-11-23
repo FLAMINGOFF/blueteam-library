@@ -6,7 +6,8 @@ status: test
 level: medium
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques: []
 author: CD_ROM_
 date: '2022-05-21'

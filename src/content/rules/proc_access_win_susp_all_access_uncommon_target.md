@@ -8,6 +8,7 @@ platform: windows
 logsource: windows / process_access
 tactics:
   - TA0004
+  - TA0005
 techniques:
   - T1055.011
 author: Nasreddine Bencherchali (Nextron Systems), frack113

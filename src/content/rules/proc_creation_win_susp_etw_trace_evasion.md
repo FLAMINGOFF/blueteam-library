@@ -11,7 +11,9 @@ status: test
 level: high
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
+  - TA0112
 techniques:
   - T1070
   - T1685

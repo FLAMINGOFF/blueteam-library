@@ -8,7 +8,8 @@ status: test
 level: high
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1685.001
 author: Janantha Marasinghe (https://github.com/blueteam0ps)

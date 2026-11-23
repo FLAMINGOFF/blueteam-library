@@ -8,7 +8,8 @@ status: test
 level: medium
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1553.004
 author: oscd.community, @redcanary, Zach Stanford @svch0st

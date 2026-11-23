@@ -6,7 +6,8 @@ status: stable
 level: informational
 platform: linux
 logsource: linux / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1070.004
 author: Ömer Günal, oscd.community

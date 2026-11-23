@@ -6,7 +6,8 @@ status: test
 level: medium
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques: []
 author: Nasreddine Bencherchali
 date: '2023-02-07'

@@ -10,6 +10,7 @@ platform: aws
 logsource: aws / cloudtrail
 tactics:
   - TA0001
+  - TA0005
   - TA0003
   - TA0004
 techniques:

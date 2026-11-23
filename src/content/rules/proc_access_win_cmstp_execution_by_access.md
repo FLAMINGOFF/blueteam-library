@@ -7,6 +7,7 @@ level: high
 platform: windows
 logsource: windows / process_access
 tactics:
+  - TA0005
   - TA0002
 techniques:
   - T1218.003

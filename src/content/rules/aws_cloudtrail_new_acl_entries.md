@@ -6,7 +6,8 @@ status: test
 level: low
 platform: aws
 logsource: aws / cloudtrail
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1686.001
 author: jamesc-grafana

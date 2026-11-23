@@ -6,7 +6,8 @@ status: experimental
 level: high
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1202
   - T1218

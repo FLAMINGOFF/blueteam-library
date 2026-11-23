@@ -12,6 +12,7 @@ tactics:
   - TA0004
   - TA0003
   - TA0002
+  - TA0005
 techniques:
   - T1574.001
 author: Christian Burkard (Nextron Systems)

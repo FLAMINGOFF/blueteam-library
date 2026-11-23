@@ -8,6 +8,7 @@ platform: windows
 logsource: windows / process_creation
 tactics:
   - TA0003
+  - TA0005
 techniques:
   - T1542.001
 author: Nasreddine Bencherchali (Nextron Systems)

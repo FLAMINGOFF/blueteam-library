@@ -6,7 +6,8 @@ status: test
 level: low
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1218.001
 author: E.M. Anhaus (originally from Atomic Blue Detections, Dan Beavin), oscd.community

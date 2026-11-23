@@ -11,6 +11,7 @@ platform: windows
 logsource: windows / process_access
 tactics:
   - TA0006
+  - TA0112
 techniques:
   - T1003.001
   - T1685

@@ -10,6 +10,7 @@ platform: linux
 logsource: linux / process_creation
 tactics:
   - TA0002
+  - TA0112
 techniques:
   - T1685
 author: Milad Cheraghi

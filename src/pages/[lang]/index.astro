@@ -13,17 +13,26 @@ const tac = TACTIC_ORDER.map(id => ({ id, n: rs.filter(r => r.data.tactics.inclu
 const max = tac[0].n || 1;
 ---
 <Base lang={lang} nav="home">
-  <div class="hero"><h1>{t(lang, "site")}</h1><p>{t(lang, "tagline")}</p></div>
-  <div class="stats">
-    <span><b>{rs.length}</b> {t(lang, "rulesCount")}</span>
-    <span><b>{is.length}</b> {t(lang, "incidentsCount")}</span>
-    <span><b>{techCount}</b> {t(lang, "techCount")}</span>
-    <span>{t(lang, "sourceSynced")} <a href="https://github.com/SigmaHQ/sigma" rel="noopener" target="_blank">SigmaHQ</a></span>
-  </div>
-  <form class="search" action={`${B}/${lang}/search/`}>
-    <input name="q" placeholder={t(lang, "searchPh")} autocomplete="off" />
-    <button class="btn">{t(lang, "search")}</button>
-  </form>
+  <section class="hero">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <span class="eyebrow"><span class="pulse"></span>{lang === "zh" ? "开放 · 可追溯 · 按 ATT&CK 组织" : "Open · Attributed · Mapped to ATT&CK"}</span>
+      <h1>{t(lang, "site")}</h1>
+      <p class="lead">{t(lang, "tagline")}</p>
+      <form class="search search-hero" action={`${B}/${lang}/search/`} role="search">
+        <svg class="search-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input name="q" placeholder={t(lang, "searchPh")} autocomplete="off" />
+        <kbd>/</kbd>
+        <button class="btn">{t(lang, "search")}</button>
+      </form>
+      <div class="stat-tiles">
+        <a class="tile" href={`${B}/${lang}/rules/`}><b>{rs.length.toLocaleString()}</b><span>{t(lang, "rulesCount")}</span></a>
+        <a class="tile" href={`${B}/${lang}/incidents/`}><b>{is.length}</b><span>{t(lang, "incidentsCount")}</span></a>
+        <a class="tile" href={`${B}/${lang}/matrix/`}><b>{techCount}</b><span>{t(lang, "techCount")}</span></a>
+        <a class="tile" href="https://github.com/SigmaHQ/sigma" rel="noopener" target="_blank"><b>SigmaHQ</b><span>{t(lang, "sourceSynced")}</span></a>
+      </div>
+    </div>
+  </section>
   <div class="grid2">
     <div>
       <section class="panel">

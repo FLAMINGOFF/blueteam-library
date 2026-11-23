@@ -6,7 +6,8 @@ status: test
 level: medium
 platform: linux
 logsource: linux / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1140
 author: pH-T (Nextron Systems)

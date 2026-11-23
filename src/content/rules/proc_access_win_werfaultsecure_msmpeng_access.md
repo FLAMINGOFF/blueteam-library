@@ -10,7 +10,8 @@ status: experimental
 level: high
 platform: windows
 logsource: windows / process_access
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1685
 author: Swachchhanda Shrawan Poudel (Nextron Systems)

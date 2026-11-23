@@ -6,7 +6,8 @@ status: test
 level: high
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1036.003
 author: Matthew Green - @mgreen27, Florian Roth (Nextron Systems), frack113

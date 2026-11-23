@@ -11,6 +11,7 @@ tactics:
   - TA0004
   - TA0007
   - TA0002
+  - TA0005
 techniques:
   - T1615
   - T1569.002

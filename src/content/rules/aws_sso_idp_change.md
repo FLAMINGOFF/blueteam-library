@@ -11,6 +11,7 @@ logsource: aws / cloudtrail
 tactics:
   - TA0003
   - TA0006
+  - TA0112
 techniques:
   - T1556
 author: Michael McIntyre @wtfender

@@ -6,7 +6,8 @@ status: test
 level: high
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0112
 techniques: []
 author: Nasreddine Bencherchali (Nextron Systems)
 date: '2023-01-11'

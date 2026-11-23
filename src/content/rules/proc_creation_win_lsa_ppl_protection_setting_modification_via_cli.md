@@ -8,7 +8,8 @@ status: test
 level: medium
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1689
 author: Florian Roth (Nextron Systems), Swachchhanda Shrawan Poudel (Nextron Systems)

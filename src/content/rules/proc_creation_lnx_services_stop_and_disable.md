@@ -9,6 +9,7 @@ level: medium
 platform: linux
 logsource: linux / process_creation
 tactics:
+  - TA0112
   - TA0040
 techniques:
   - T1685

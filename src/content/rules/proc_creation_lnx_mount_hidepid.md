@@ -8,6 +8,7 @@ platform: linux
 logsource: linux / process_creation
 tactics:
   - TA0006
+  - TA0005
 techniques:
   - T1564
 author: Joseliyo Sanchez, @Joseliyo_Jstnk

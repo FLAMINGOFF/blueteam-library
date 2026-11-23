@@ -8,7 +8,8 @@ status: stable
 level: medium
 platform: linux
 logsource: linux / process_creation
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1685.006
 author: Ömer Günal, oscd.community

@@ -8,6 +8,7 @@ platform: linux
 logsource: linux / process_creation
 tactics:
   - TA0004
+  - TA0005
 techniques: []
 author: Nasreddine Bencherchali (Nextron Systems)
 date: '2022-07-05'

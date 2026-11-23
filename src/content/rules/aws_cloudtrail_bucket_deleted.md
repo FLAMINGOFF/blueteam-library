@@ -8,7 +8,8 @@ status: experimental
 level: medium
 platform: aws
 logsource: aws / cloudtrail
-tactics: []
+tactics:
+  - TA0005
 techniques: []
 author: Ivan Saakov, Nasreddine Bencherchali
 date: '2025-10-19'

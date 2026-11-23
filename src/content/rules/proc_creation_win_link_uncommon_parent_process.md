@@ -11,7 +11,8 @@ status: test
 level: medium
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1218
 author: Nasreddine Bencherchali (Nextron Systems)

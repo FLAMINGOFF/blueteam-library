@@ -6,7 +6,8 @@ status: stable
 level: high
 platform: aws
 logsource: aws / cloudtrail
-tactics: []
+tactics:
+  - TA0112
 techniques:
   - T1685
 author: Sittikorn S

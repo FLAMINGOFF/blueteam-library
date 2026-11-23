@@ -8,7 +8,8 @@ status: experimental
 level: medium
 platform: windows
 logsource: windows / process_creation
-tactics: []
+tactics:
+  - TA0005
 techniques:
   - T1202
 author: Diablo Research

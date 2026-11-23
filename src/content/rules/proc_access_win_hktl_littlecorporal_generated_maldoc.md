@@ -9,6 +9,7 @@ logsource: windows / process_access
 tactics:
   - TA0002
   - TA0004
+  - TA0005
 techniques:
   - T1204.002
   - T1055.003
