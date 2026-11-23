@@ -57,7 +57,8 @@ const incidents = defineCollection({
     detection_ideas: z.array(bi).default([]),
     related_rules: z.array(z.string()).default([]),   // 规则 slug
     source: source.extend({ title: z.string() }),
-    added: z.string()               // 本站收录日期
+    added: z.string(),              // 本站收录日期
+    generated: z.boolean().optional() // 由每日抓取脚本自动生成
   })
 });
 

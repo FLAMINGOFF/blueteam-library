@@ -1,0 +1,37 @@
+# 每天抓取 CISA 公开通报（KEV 新增 + AA 联合通报），生成中英文复盘摘要，构建通过后直接提交到 main 并触发部署。
+# 需要仓库 Secret：ANTHROPIC_API_KEY（没有时只生成 KEV 模板汇总，跳过联合通报）
+name: Daily CISA advisories
+on:
+  schedule: [{ cron: "0 22 * * *" }]   # 每天 UTC 22:00 = 墨尔本 9:00（夏令时）
+  workflow_dispatch:
+    inputs:
+      lookback_days: { description: "回看天数", default: "3" }
+permissions: { contents: write, actions: write }
+concurrency: { group: content-sync, cancel-in-progress: false }
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: node scripts/fetch-advisories.mjs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LOOKBACK_DAYS: ${{ inputs.lookback_days || '3' }}
+      - id: diff
+        run: echo "changed=$([ -n "$(git status --porcelain src/content)" ] && echo 1 || echo 0)" >> "$GITHUB_OUTPUT"
+      - if: steps.diff.outputs.changed == '1'
+        run: npm run build          # 构建失败（字段不合规等）就不提交
+      - if: steps.diff.outputs.changed == '1'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/content/incidents
+          git commit -m "content: 自动收录 CISA 通报摘要 $(date -u +%F)"
+          git pull --rebase origin main && git push origin HEAD:main
+      # 用 GITHUB_TOKEN 推送不会触发其他工作流，所以手动触发部署
+      - if: steps.diff.outputs.changed == '1'
+        run: gh workflow run deploy.yml --ref main
+        env: { GH_TOKEN: "${{ github.token }}" }
