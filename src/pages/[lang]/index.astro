@@ -33,6 +33,35 @@ const max = tac[0].n || 1;
       </div>
     </div>
   </section>
+  <section class="obs" id="obs" data-base={B} data-lang={lang}>
+    <header class="obs-head">
+      <b class="obs-title">{lang === "zh" ? "检测观测台" : "Detection Observatory"}</b>
+      <ol class="obs-steps">
+        <li><span>01</span>{lang === "zh" ? "规则更新流" : "Rule stream"}</li>
+        <li><span>02</span>{lang === "zh" ? "立体星图" : "3D star map"}</li>
+        <li><span>03</span>{lang === "zh" ? "战术频谱" : "Tactic spectrum"}</li>
+      </ol>
+      <button class="obs-pause" type="button" data-pause aria-pressed="false"><span class="dot"></span><span class="lbl">{lang === "zh" ? "暂停动效" : "Pause motion"}</span></button>
+    </header>
+    <div class="obs-body">
+      <div class="obs-stream">
+        <div class="obs-sub"><span class="mono">01 /</span> {lang === "zh" ? "规则更新流" : "Rule stream"} <span class="muted mono">· SigmaHQ</span></div>
+        <div class="stream-card" id="streamCard" aria-live="polite"></div>
+        <ul class="stream-list" id="streamList"></ul>
+      </div>
+      <div class="obs-star">
+        <div class="obs-sub"><span class="mono">02 /</span> {lang === "zh" ? "立体星图" : "3D star map"}<span class="muted obs-hint">{lang === "zh" ? "拖动旋转，点一颗星查看规则" : "Drag to rotate, click a star to open"}</span></div>
+        <canvas id="starCanvas" aria-label={lang === "zh" ? "按 ATT&CK 战术分布的检测规则星图" : "Star map of detection rules by ATT&CK tactic"} role="img"></canvas>
+        <div class="star-tip" id="starTip" hidden></div>
+        <div class="star-legend" id="starLegend"></div>
+      </div>
+      <div class="obs-spec">
+        <div class="obs-sub"><span class="mono">03 /</span> {lang === "zh" ? "战术频谱" : "Tactic spectrum"}<span class="muted obs-hint">{lang === "zh" ? "柱高为规则数，新规则汇入时跳动" : "Bar height = rule count; jumps on new rules"}</span></div>
+        <canvas id="specCanvas" role="img" aria-label={lang === "zh" ? "各战术规则数量频谱" : "Rule count per tactic"}></canvas>
+      </div>
+    </div>
+  </section>
+  <script is:inline src={B + "/viz.js"} defer></script>
   <div class="grid2">
     <div>
       <section class="panel">
