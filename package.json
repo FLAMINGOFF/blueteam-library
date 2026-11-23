@@ -6,7 +6,12 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "import:sigma": "node scripts/import-sigma.mjs"
+    "import:sigma": "node scripts/import-sigma.mjs",
+    "fetch:advisories": "node scripts/fetch-advisories.mjs"
   },
-  "dependencies": { "astro": "^5.18.2", "js-yaml": "^5.5.0" }
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.12.0",
+    "astro": "^5.18.2",
+    "js-yaml": "^5.5.0"
+  }
 }
