@@ -1,6 +1,7 @@
 ---
+import { B } from "../i18n";
 ---
 <!doctype html><html><head><meta charset="utf-8"><title>Blue Team Library</title>
-<meta http-equiv="refresh" content="0; url=/zh/">
-<script is:inline>location.replace((navigator.language||"").toLowerCase().startsWith("zh")?"/zh/":"/en/")</script>
-</head><body><a href="/zh/">中文</a> · <a href="/en/">English</a></body></html>
+<meta http-equiv="refresh" content={`0; url=${B}/zh/`}>
+<script is:inline define:vars={{ B }}>location.replace(B + ((navigator.language||"").toLowerCase().startsWith("zh")?"/zh/":"/en/"))</script>
+</head><body><a href={`${B}/zh/`}>中文</a> · <a href={`${B}/en/`}>English</a></body></html>

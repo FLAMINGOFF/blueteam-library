@@ -1,6 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { langPaths, t, TACTIC_ORDER, tacticName, type Lang } from "../../i18n";
+import { langPaths, t, TACTIC_ORDER, tacticName, type Lang, B } from "../../i18n";
 import { rules, incidents } from "../../data";
 export const getStaticPaths = langPaths;
 const lang = Astro.params.lang as Lang;
@@ -16,7 +16,7 @@ const topTech = [...techs].sort((a, b) => b[1] - a[1]).slice(0, 20);
   <p class="muted" style="margin-top:0">{t(lang, "matrixIntro")}</p>
   <div class="matrix">
     {cells.map(c => (
-      <a class={`cell heat-${heat(c.n)}`} href={`/${lang}/rules/?tactic=${c.id}`}>
+      <a class={`cell heat-${heat(c.n)}`} href={`${B}/${lang}/rules/?tactic=${c.id}`}>
         <div class="tn">{tacticName(lang, c.id)}</div><div class="tid">{c.id}</div>
         <div class="num">{c.n}</div><div class="small muted">{t(lang, "ruleUnit")} · {c.i} {t(lang, "incUnit")}</div>
       </a>))}
@@ -24,7 +24,7 @@ const topTech = [...techs].sort((a, b) => b[1] - a[1]).slice(0, 20);
   <section class="panel" style="margin-top:20px">
     <h2>{lang === "zh" ? "规则最多的 20 个技术" : "Top 20 techniques by rule count"}</h2>
     {topTech.map(([id, n]) => (
-      <a class="trend" href={`/${lang}/search/?q=${id}`} style="color:inherit"><span><code>{id}</code></span><span class="small muted">{n}</span>
+      <a class="trend" href={`${B}/${lang}/search/?q=${id}`} style="color:inherit"><span><code>{id}</code></span><span class="small muted">{n}</span>
       <span class="bar"><i style={`width:${(n / topTech[0][1]) * 100}%`}></i></span></a>))}
   </section>
 </Base>

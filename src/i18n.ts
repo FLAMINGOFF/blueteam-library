@@ -113,3 +113,4 @@ export const tacticName = (lang: Lang, id: string) => TACTICS[id]?.[lang] ?? id;
 export const levelName = (lang: Lang, l: string) => LEVELS[l]?.[lang] ?? l;
 export const statusName = (lang: Lang, s: string) => STATUS[s]?.[lang] ?? s;
 export const otherLang = (lang: Lang): Lang => (lang === "zh" ? "en" : "zh");
+export const B = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");

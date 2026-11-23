@@ -1,4 +1,4 @@
-# 【待定】部署目标确定后启用（当前示例为 GitHub Pages）
+# 推送到 main 后构建并发布到 GitHub Pages（仓库 Settings → Pages → Source 需选 GitHub Actions）
 name: Deploy
 on:
   push: { branches: [main] }
@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
+      - uses: actions/configure-pages@v5
       - run: npm ci && npm run build
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist }
