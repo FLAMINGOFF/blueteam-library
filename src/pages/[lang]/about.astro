@@ -1,0 +1,33 @@
+---
+import Base from "../../layouts/Base.astro";
+import { langPaths, t, type Lang } from "../../i18n";
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const zh = lang === "zh";
+---
+<Base lang={lang} title={t(lang, "about")} nav="about">
+  <h1>{t(lang, "about")}</h1>
+  {zh ? (
+    <div class="prose">
+      <section class="panel"><h2>本站做什么</h2>
+        <p>本站只整理网络上公开的检测规则与安全事件报告，不发布原创规则。每条内容都标明来源、原作者、原始链接与许可证。</p></section>
+      <section class="panel"><h2>检测规则</h2>
+        <p>规则来自 <a href="https://github.com/SigmaHQ/sigma" target="_blank" rel="noopener">SigmaHQ</a>，按 <a href="https://github.com/SigmaHQ/Detection-Rule-License" target="_blank" rel="noopener">Detection Rule License (DRL) 1.1</a> 转载。该许可证允许复制、修改和再发布，但要求保留：规则作者、指向原规则的链接，以及许可证声明。本站每个规则页顶部都展示这三项。规则内容保持原样，中文标题与摘要为本站翻译，以英文原文为准。</p></section>
+      <section class="panel"><h2>事件复盘</h2>
+        <p>事件复盘是本站根据公开报告撰写的结构化摘要（时间线、根因、防守要点、可用规则），不转载原文全文。原文版权归发布方，请以原文为准。美国政府机构（如 CISA）发布的通报一般属于公有领域。</p></section>
+      <section class="panel"><h2>纠错与下架</h2>
+        <p>如果您是原作者并希望修改署名或下架内容，请通过 GitHub Issue 联系，我们会尽快处理。</p></section>
+    </div>
+  ) : (
+    <div class="prose">
+      <section class="panel"><h2>What this site does</h2>
+        <p>This site curates publicly available detection rules and incident reports. It does not publish original rules. Every item shows its source, original authors, original link and license.</p></section>
+      <section class="panel"><h2>Detection rules</h2>
+        <p>Rules come from <a href="https://github.com/SigmaHQ/sigma" target="_blank" rel="noopener">SigmaHQ</a> and are redistributed under the <a href="https://github.com/SigmaHQ/Detection-Rule-License" target="_blank" rel="noopener">Detection Rule License (DRL) 1.1</a>, which requires keeping the rule authors, a link to the original rule, and the license notice. Each rule page shows all three. Rule content is unchanged.</p></section>
+      <section class="panel"><h2>Incident reviews</h2>
+        <p>Incident reviews are our own structured summaries of public reports (timeline, root cause, lessons, usable rules). We do not republish full reports; originals belong to their publishers. Advisories from US government agencies such as CISA are generally in the public domain.</p></section>
+      <section class="panel"><h2>Corrections and takedown</h2>
+        <p>If you are an original author and want attribution changed or content removed, please open a GitHub issue.</p></section>
+    </div>
+  )}
+</Base>

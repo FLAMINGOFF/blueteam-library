@@ -1,0 +1,12 @@
+---
+import Base from "../../../layouts/Base.astro";
+import ListApp from "../../../components/ListApp.astro";
+import { langPaths, t, type Lang } from "../../../i18n";
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+---
+<Base lang={lang} title={t(lang, "rules")} nav="rules">
+  <h1>{t(lang, "rules")}</h1>
+  <p class="muted" style="margin-top:0">{t(lang, "rulesIntro")}</p>
+  <ListApp lang={lang} mode="rules" />
+</Base>

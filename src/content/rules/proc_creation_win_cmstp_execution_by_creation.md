@@ -1,0 +1,55 @@
+---
+title: CMSTP Execution Process Creation
+summary: Detects various indicators of Microsoft Connection Manager Profile Installer execution
+sigma_id: 7d4cdc5a-0076-40ca-aac8-f7e714570e47
+status: stable
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1218.003
+author: Nik Seetharaman
+date: '2018-07-16'
+modified: '2020-12-23'
+falsepositives:
+  - Legitimate CMSTP use (unlikely in modern enterprise environments)
+references:
+  - https://web.archive.org/web/20190720093911/http://www.endurant.io/cmstp/detecting-cmstp-enabled-code-execution-and-uac-bypass-with-sysmon/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_cmstp_execution_by_creation.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: CMSTP Execution Process Creation
+id: 7d4cdc5a-0076-40ca-aac8-f7e714570e47
+status: stable
+description: Detects various indicators of Microsoft Connection Manager Profile Installer execution
+references:
+    - https://web.archive.org/web/20190720093911/http://www.endurant.io/cmstp/detecting-cmstp-enabled-code-execution-and-uac-bypass-with-sysmon/
+author: Nik Seetharaman
+date: 2018-07-16
+modified: 2020-12-23
+tags:
+    - attack.execution
+    - attack.stealth
+    - attack.t1218.003
+    - attack.g0069
+    - car.2019-04-001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    # CMSTP Spawning Child Process
+    selection:
+        ParentImage|endswith: '\cmstp.exe'
+    condition: selection
+falsepositives:
+    - Legitimate CMSTP use (unlikely in modern enterprise environments)
+level: high
+```

@@ -1,0 +1,59 @@
+---
+title: Abusing Print Executable
+summary: Attackers can use print.exe for remote file copy
+sigma_id: bafac3d6-7de9-4dd9-8874-4a1194b493ed
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218
+author: Furkan CALISKAN, @caliskanfurkan_, @oscd_initiative
+date: '2020-10-05'
+modified: '2022-07-07'
+falsepositives:
+  - Unknown
+references:
+  - https://lolbas-project.github.io/lolbas/Binaries/Print/
+  - https://twitter.com/Oddvarmoe/status/985518877076541440
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_print_remote_file_copy.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Abusing Print Executable
+id: bafac3d6-7de9-4dd9-8874-4a1194b493ed
+status: test
+description: Attackers can use print.exe for remote file copy
+references:
+    - https://lolbas-project.github.io/lolbas/Binaries/Print/
+    - https://twitter.com/Oddvarmoe/status/985518877076541440
+author: 'Furkan CALISKAN, @caliskanfurkan_, @oscd_initiative'
+date: 2020-10-05
+modified: 2022-07-07
+tags:
+    - attack.stealth
+    - attack.t1218
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\print.exe'
+        CommandLine|startswith: 'print'
+        CommandLine|contains|all:
+            - '/D'
+            - '.exe'
+    filter_print:
+        CommandLine|contains: 'print.exe'
+    condition: selection and not filter_print
+falsepositives:
+    - Unknown
+level: medium
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_print_remote_file_copy/info.yml
+```

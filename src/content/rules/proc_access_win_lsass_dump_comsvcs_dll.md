@@ -1,0 +1,55 @@
+---
+title: Lsass Memory Dump via Comsvcs DLL
+summary: Detects adversaries leveraging the MiniDump export function from comsvcs.dll via rundll32 to perform a memory dump from lsass.
+sigma_id: a49fa4d5-11db-418c-8473-1e014a8dd462
+status: test
+level: high
+platform: windows
+logsource: windows / process_access
+tactics:
+  - TA0006
+techniques:
+  - T1003.001
+author: Roberto Rodriguez (Cyb3rWard0g), OTR (Open Threat Research)
+date: '2020-10-20'
+modified: '2023-11-29'
+falsepositives:
+  - Unknown
+references:
+  - https://twitter.com/shantanukhande/status/1229348874298388484
+  - https://modexp.wordpress.com/2019/08/30/minidumpwritedump-via-com-services-dll/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_access/proc_access_win_lsass_dump_comsvcs_dll.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Lsass Memory Dump via Comsvcs DLL
+id: a49fa4d5-11db-418c-8473-1e014a8dd462
+status: test
+description: Detects adversaries leveraging the MiniDump export function from comsvcs.dll via rundll32 to perform a memory dump from lsass.
+references:
+    - https://twitter.com/shantanukhande/status/1229348874298388484
+    - https://modexp.wordpress.com/2019/08/30/minidumpwritedump-via-com-services-dll/
+author: Roberto Rodriguez (Cyb3rWard0g), OTR (Open Threat Research)
+date: 2020-10-20
+modified: 2023-11-29
+tags:
+    - attack.credential-access
+    - attack.t1003.001
+logsource:
+    category: process_access
+    product: windows
+detection:
+    selection:
+        TargetImage|endswith: '\lsass.exe'
+        SourceImage|endswith: '\rundll32.exe'
+        CallTrace|contains: 'comsvcs.dll'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+```

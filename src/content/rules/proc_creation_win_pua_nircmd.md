@@ -1,0 +1,71 @@
+---
+title: PUA - NirCmd Execution
+summary: Detects the use of NirCmd tool for command execution, which could be the result of legitimate administrative activity
+sigma_id: 4e2ed651-1906-4a59-a78a-18220fca1b22
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1569.002
+author: Florian Roth (Nextron Systems), Nasreddine Bencherchali (Nextron Systems)
+date: '2022-01-24'
+modified: '2023-02-13'
+falsepositives:
+  - Legitimate use by administrators
+references:
+  - https://www.nirsoft.net/utils/nircmd.html
+  - https://www.winhelponline.com/blog/run-program-as-system-localsystem-account-windows/
+  - https://www.nirsoft.net/utils/nircmd2.html#using
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_pua_nircmd.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: PUA - NirCmd Execution
+id: 4e2ed651-1906-4a59-a78a-18220fca1b22
+status: test
+description: Detects the use of NirCmd tool for command execution, which could be the result of legitimate administrative activity
+references:
+    - https://www.nirsoft.net/utils/nircmd.html
+    - https://www.winhelponline.com/blog/run-program-as-system-localsystem-account-windows/
+    - https://www.nirsoft.net/utils/nircmd2.html#using
+author: Florian Roth (Nextron Systems), Nasreddine Bencherchali (Nextron Systems)
+date: 2022-01-24
+modified: 2023-02-13
+tags:
+    - attack.execution
+    - attack.t1569.002
+    - attack.s0029
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_org:
+        - Image|endswith: '\NirCmd.exe'
+        - OriginalFileName: 'NirCmd.exe'
+    selection_cmd:
+        CommandLine|contains:
+            - ' execmd '
+            - '.exe script '
+            - '.exe shexec '
+            - ' runinteractive '
+    combo_exec:
+        CommandLine|contains:
+            - ' exec '
+            - ' exec2 '
+    combo_exec_params:
+        CommandLine|contains:
+            - ' show '
+            - ' hide '
+    condition: 1 of selection_* or all of combo_*
+falsepositives:
+    - Legitimate use by administrators
+level: medium
+```

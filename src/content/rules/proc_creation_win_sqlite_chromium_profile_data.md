@@ -1,0 +1,74 @@
+---
+title: SQLite Chromium Profile Data DB Access
+summary: Detect usage of the "sqlite" binary to query databases in Chromium-based browsers for potential data stealing.
+sigma_id: 24c77512-782b-448a-8950-eddb0785fc71
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+  - TA0009
+techniques:
+  - T1539
+  - T1555.003
+  - T1005
+author: TropChaud
+date: '2022-12-19'
+modified: '2023-01-19'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/redcanaryco/atomic-red-team/blob/84d9edaaaa2c5511144521b0e4af726d1c7276ce/atomics/T1539/T1539.md#atomic-test-2---steal-chrome-cookies-windows
+  - https://blog.cyble.com/2022/04/21/prynt-stealer-a-new-info-stealer-performing-clipper-and-keylogger-activities/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_sqlite_chromium_profile_data.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: SQLite Chromium Profile Data DB Access
+id: 24c77512-782b-448a-8950-eddb0785fc71
+status: test
+description: Detect usage of the "sqlite" binary to query databases in Chromium-based browsers for potential data stealing.
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/84d9edaaaa2c5511144521b0e4af726d1c7276ce/atomics/T1539/T1539.md#atomic-test-2---steal-chrome-cookies-windows
+    - https://blog.cyble.com/2022/04/21/prynt-stealer-a-new-info-stealer-performing-clipper-and-keylogger-activities/
+author: TropChaud
+date: 2022-12-19
+modified: 2023-01-19
+tags:
+    - attack.credential-access
+    - attack.t1539
+    - attack.t1555.003
+    - attack.collection
+    - attack.t1005
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_sql:
+        - Product: SQLite
+        - Image|endswith:
+              - '\sqlite.exe'
+              - '\sqlite3.exe'
+    selection_chromium:
+        CommandLine|contains:
+            - '\User Data\' # Most common folder for user profile data among Chromium browsers
+            - '\Opera Software\' # Opera
+            - '\ChromiumViewer\' # Sleipnir (Fenrir)
+    selection_data:
+        CommandLine|contains:
+            - 'Login Data' # Passwords
+            - 'Cookies'
+            - 'Web Data' # Credit cards, autofill data
+            - 'History'
+            - 'Bookmarks'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

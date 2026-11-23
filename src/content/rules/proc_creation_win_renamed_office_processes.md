@@ -1,0 +1,80 @@
+---
+title: Renamed Office Binary Execution
+summary: Detects the execution of a renamed office binary
+sigma_id: 0b0cd537-fc77-4e6e-a973-e53495c1083d
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1036.003
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-12-20'
+modified: '2025-12-09'
+falsepositives:
+  - Unknown
+references:
+  - https://infosec.exchange/@sbousseaden/109542254124022664
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_renamed_office_processes.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Renamed Office Binary Execution
+id: 0b0cd537-fc77-4e6e-a973-e53495c1083d
+status: test
+description: Detects the execution of a renamed office binary
+references:
+    - https://infosec.exchange/@sbousseaden/109542254124022664
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-12-20
+modified: 2025-12-09
+tags:
+    - attack.stealth
+    - attack.t1036.003
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        - OriginalFileName:
+              - 'Excel.exe'
+              - 'MSACCESS.EXE'
+              - 'MSPUB.EXE'
+              - 'OneNote.exe'
+              - 'OneNoteM.exe'
+              - 'OUTLOOK.EXE'
+              - 'POWERPNT.EXE'
+              - 'WinWord.exe'
+              - 'Olk.exe'
+        - Description:
+              - 'Microsoft Access'
+              - 'Microsoft Excel'
+              - 'Microsoft OneNote'
+              - 'Microsoft Outlook'
+              - 'Microsoft PowerPoint'
+              - 'Microsoft Publisher'
+              - 'Microsoft Word'
+              - 'Sent to OneNote Tool'
+    filter_main_legit_names:
+        Image|endswith:
+            - '\EXCEL.exe'
+            - '\excelcnv.exe'
+            - '\MSACCESS.exe'
+            - '\MSPUB.EXE'
+            - '\ONENOTE.EXE'
+            - '\ONENOTEM.EXE'
+            - '\OUTLOOK.EXE'
+            - '\POWERPNT.EXE'
+            - '\WINWORD.exe'
+            - '\OLK.EXE'
+    condition: selection and not 1 of filter_main_*
+falsepositives:
+    - Unknown
+level: high
+```

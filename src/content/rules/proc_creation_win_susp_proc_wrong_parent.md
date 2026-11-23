@@ -1,0 +1,82 @@
+---
+title: Windows Processes Suspicious Parent Directory
+summary: Detect suspicious parent processes of well-known Windows processes
+sigma_id: 96036718-71cc-4027-a538-d1587e0006a7
+status: test
+level: low
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1036.003
+  - T1036.005
+author: vburov
+date: '2019-02-23'
+modified: '2025-03-06'
+falsepositives:
+  - Some security products seem to spawn these
+references:
+  - https://web.archive.org/web/20180718061628/https://securitybytes.io/blue-team-fundamentals-part-two-windows-processes-759fe15965e2
+  - https://www.carbonblack.com/2014/06/10/screenshot-demo-hunt-evil-faster-than-ever-with-carbon-black/
+  - https://www.13cubed.com/downloads/windows_process_genealogy_v2.pdf
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_susp_proc_wrong_parent.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Windows Processes Suspicious Parent Directory
+id: 96036718-71cc-4027-a538-d1587e0006a7
+status: test
+description: Detect suspicious parent processes of well-known Windows processes
+references:
+    - https://web.archive.org/web/20180718061628/https://securitybytes.io/blue-team-fundamentals-part-two-windows-processes-759fe15965e2
+    - https://www.carbonblack.com/2014/06/10/screenshot-demo-hunt-evil-faster-than-ever-with-carbon-black/
+    - https://www.13cubed.com/downloads/windows_process_genealogy_v2.pdf
+author: vburov
+date: 2019-02-23
+modified: 2025-03-06
+tags:
+    - attack.stealth
+    - attack.t1036.003
+    - attack.t1036.005
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith:
+            - '\svchost.exe'
+            - '\taskhost.exe'
+            - '\lsm.exe'
+            - '\lsass.exe'
+            - '\services.exe'
+            - '\lsaiso.exe'
+            - '\csrss.exe'
+            - '\wininit.exe'
+            - '\winlogon.exe'
+    filter_sys:
+        - ParentImage|endswith:
+              - '\SavService.exe'
+              - '\ngen.exe'
+        - ParentImage|contains:
+              - '\System32\'
+              - '\SysWOW64\'
+    filter_msmpeng:
+        ParentImage|contains:
+            - '\Windows Defender\'
+            - '\Microsoft Security Client\'
+        ParentImage|endswith: '\MsMpEng.exe'
+    filter_null:
+        - ParentImage: null
+        - ParentImage:
+              - ''
+              - '-'
+    condition: selection and not 1 of filter_*
+falsepositives:
+    - Some security products seem to spawn these
+level: low
+```

@@ -1,0 +1,62 @@
+---
+title: AWS Route 53 Domain Transfer Lock Disabled
+summary: Detects when a transfer lock was removed from a Route 53 domain. It is recommended to refrain from performing this action unless intending to transfer the domain to a different registrar.
+sigma_id: 3940b5f1-3f46-44aa-b746-ebe615b879e0
+status: test
+level: low
+platform: aws
+logsource: aws / cloudtrail
+tactics:
+  - TA0003
+  - TA0004
+  - TA0006
+techniques:
+  - T1098
+author: Elastic, Austin Songer @austinsonger
+date: '2021-07-22'
+modified: '2022-10-09'
+falsepositives:
+  - >-
+    A domain transfer lock may be disabled by a system or network administrator. Verify whether the user identity, user agent, and/or hostname should be making changes in your environment. Activity
+    from unfamiliar users or hosts should be investigated. If known behavior is causing false positives, it can be exempted from the rule.
+references:
+  - https://github.com/elastic/detection-rules/blob/c76a39796972ecde44cb1da6df47f1b6562c9770/rules/integrations/aws/persistence_route_53_domain_transfer_lock_disabled.toml
+  - https://docs.aws.amazon.com/Route53/latest/APIReference/API_Operations_Amazon_Route_53.html
+  - https://docs.aws.amazon.com/Route53/latest/APIReference/API_domains_DisableDomainTransferLock.html
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/cloud/aws/cloudtrail/aws_route_53_domain_transferred_lock_disabled.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: AWS Route 53 Domain Transfer Lock Disabled
+id: 3940b5f1-3f46-44aa-b746-ebe615b879e0
+status: test
+description: Detects when a transfer lock was removed from a Route 53 domain. It is recommended to refrain from performing this action unless intending to transfer the domain to a different registrar.
+references:
+    - https://github.com/elastic/detection-rules/blob/c76a39796972ecde44cb1da6df47f1b6562c9770/rules/integrations/aws/persistence_route_53_domain_transfer_lock_disabled.toml
+    - https://docs.aws.amazon.com/Route53/latest/APIReference/API_Operations_Amazon_Route_53.html
+    - https://docs.aws.amazon.com/Route53/latest/APIReference/API_domains_DisableDomainTransferLock.html
+author: Elastic, Austin Songer @austinsonger
+date: 2021-07-22
+modified: 2022-10-09
+tags:
+    - attack.persistence
+    - attack.privilege-escalation
+    - attack.credential-access
+    - attack.t1098
+logsource:
+    product: aws
+    service: cloudtrail
+detection:
+    selection:
+        eventSource: route53.amazonaws.com
+        eventName: DisableDomainTransferLock
+    condition: selection
+falsepositives:
+    - A domain transfer lock may be disabled by a system or network administrator. Verify whether the user identity, user agent, and/or hostname should be making changes in your environment. Activity from unfamiliar users or hosts should be investigated. If known behavior is causing false positives, it can be exempted from the rule.
+level: low
+```

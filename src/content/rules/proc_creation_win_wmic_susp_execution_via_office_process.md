@@ -1,0 +1,96 @@
+---
+title: Suspicious WMIC Execution Via Office Process
+summary: Office application called wmic to proxye execution through a LOLBIN process. This is often used to break suspicious parent-child chain (Office app spawns LOLBin).
+sigma_id: e1693bc8-7168-4eab-8718-cdcaa68a1738
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1204.002
+  - T1047
+  - T1218.010
+author: Vadim Khrykov, Cyb3rEng
+date: '2021-08-23'
+modified: '2023-02-14'
+falsepositives:
+  - Unknown
+references:
+  - https://thedfirreport.com/2021/03/29/sodinokibi-aka-revil-ransomware/
+  - https://github.com/vadim-hunter/Detection-Ideas-Rules/blob/02bcbfc2bfb8b4da601bb30de0344ae453aa1afe/Threat%20Intelligence/The%20DFIR%20Report/20210329_Sodinokibi_(aka_REvil)_Ransomware.yaml
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_wmic_susp_execution_via_office_process.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious WMIC Execution Via Office Process
+id: e1693bc8-7168-4eab-8718-cdcaa68a1738
+related:
+    - id: 438025f9-5856-4663-83f7-52f878a70a50
+      type: derived
+    - id: 518643ba-7d9c-4fa5-9f37-baed36059f6a
+      type: obsolete
+    - id: 9d1c72f5-43f0-4da5-9320-648cf2099dd0
+      type: obsolete
+    - id: c0e1c3d5-4381-4f18-8145-2583f06a1fe5
+      type: obsolete
+    - id: 04f5363a-6bca-42ff-be70-0d28bf629ead
+      type: obsolete
+status: test
+description: Office application called wmic to proxye execution through a LOLBIN process. This is often used to break suspicious parent-child chain (Office app spawns LOLBin).
+references:
+    - https://thedfirreport.com/2021/03/29/sodinokibi-aka-revil-ransomware/
+    - https://github.com/vadim-hunter/Detection-Ideas-Rules/blob/02bcbfc2bfb8b4da601bb30de0344ae453aa1afe/Threat%20Intelligence/The%20DFIR%20Report/20210329_Sodinokibi_(aka_REvil)_Ransomware.yaml
+author: Vadim Khrykov, Cyb3rEng
+date: 2021-08-23
+modified: 2023-02-14
+tags:
+    - attack.stealth
+    - attack.t1204.002
+    - attack.t1047
+    - attack.t1218.010
+    - attack.execution
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_parent:
+        ParentImage|endswith:
+            - '\WINWORD.EXE'
+            - '\EXCEL.EXE'
+            - '\POWERPNT.exe'
+            - '\MSPUB.exe'
+            - '\VISIO.exe'
+            - '\MSACCESS.EXE'
+            - '\EQNEDT32.EXE'
+            - '\ONENOTE.EXE'
+            - '\wordpad.exe'
+            - '\wordview.exe'
+    selection_wmic_img:
+        - Image|endswith: '\wbem\WMIC.exe'
+        - OriginalFileName: 'wmic.exe'
+    selection_wmic_cli:
+        CommandLine|contains|all:
+            - 'process'
+            - 'create'
+            - 'call'
+        CommandLine|contains:
+            # Add more suspicious LOLBINs as you see fit
+            - 'regsvr32'
+            - 'rundll32'
+            - 'msiexec'
+            - 'mshta'
+            - 'verclsid'
+            - 'wscript'
+            - 'cscript'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

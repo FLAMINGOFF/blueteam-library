@@ -1,0 +1,81 @@
+---
+title: RDP Enable or Disable via Win32_TerminalServiceSetting WMI Class
+summary: |-
+  Detects enabling or disabling of Remote Desktop Protocol (RDP) using alternate methods such as WMIC or PowerShell.
+  In PowerShell one-liner commands, the "SetAllowTSConnections" method of the "Win32_TerminalServiceSetting" class may be used to enable or disable RDP.
+  In WMIC, the "rdtoggle" alias or "Win32_TerminalServiceSetting" class may be used for the same purpose.
+sigma_id: 4b8f6d3a-9c5e-4f2a-a7d8-6b9c3e5f2a8d
+status: experimental
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0008
+  - TA0002
+techniques:
+  - T1021.001
+  - T1047
+author: Daniel Koifman (KoifSec), Swachchhanda Shrawan Poudel (Nextron Systems)
+date: '2025-11-15'
+falsepositives:
+  - Legitimate system administrators enabling RDP for remote support
+  - System configuration scripts during deployment
+references:
+  - https://www.trendmicro.com/en_gb/research/22/e/uncovering-a-kingminer-botnet-attack-using-trend-micro-managed-x.html
+  - https://github.com/HackTricks-wiki/hacktricks/blob/72f20a3fa26775b932bd819f1824c6377802a768/src/windows-hardening/basic-cmd-for-pentesters.md#firewall
+  - https://github.com/Lifailon/RSA/blob/rsa/Sources/RSA-1.4.1.ps1#L1468
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_rdp_enable_or_disable_via_win32_terminalservicesetting_wmi_class.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: RDP Enable or Disable via Win32_TerminalServiceSetting WMI Class
+id: 4b8f6d3a-9c5e-4f2a-a7d8-6b9c3e5f2a8d
+related:
+    - id: a2863fbc-d5cb-48d5-83fb-d976d4b1743b
+      type: similar
+status: experimental
+description: |
+    Detects enabling or disabling of Remote Desktop Protocol (RDP) using alternate methods such as WMIC or PowerShell.
+    In PowerShell one-liner commands, the "SetAllowTSConnections" method of the "Win32_TerminalServiceSetting" class may be used to enable or disable RDP.
+    In WMIC, the "rdtoggle" alias or "Win32_TerminalServiceSetting" class may be used for the same purpose.
+references:
+    - https://www.trendmicro.com/en_gb/research/22/e/uncovering-a-kingminer-botnet-attack-using-trend-micro-managed-x.html
+    - https://github.com/HackTricks-wiki/hacktricks/blob/72f20a3fa26775b932bd819f1824c6377802a768/src/windows-hardening/basic-cmd-for-pentesters.md#firewall
+    - https://github.com/Lifailon/RSA/blob/rsa/Sources/RSA-1.4.1.ps1#L1468
+author: Daniel Koifman (KoifSec), Swachchhanda Shrawan Poudel (Nextron Systems)
+date: 2025-11-15
+tags:
+    - attack.lateral-movement
+    - attack.t1021.001
+    - attack.execution
+    - attack.t1047
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith:
+              - '\wmic.exe'
+              - '\powershell.exe'
+              - '\pwsh.exe'
+        - OriginalFileName:
+              - 'wmic.exe'
+              - 'PowerShell.EXE'
+              - 'pwsh.dll'
+    selection_cli_method:
+        CommandLine|contains:
+            - 'rdtoggle'
+            - 'Win32_TerminalServiceSetting'
+    selection_cli_property:
+        CommandLine|contains: 'SetAllowTSConnections'
+    condition: all of selection_*
+falsepositives:
+    - Legitimate system administrators enabling RDP for remote support
+    - System configuration scripts during deployment
+level: medium
+```

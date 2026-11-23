@@ -1,0 +1,49 @@
+---
+title: Triple Cross eBPF Rootkit Execve Hijack
+summary: Detects execution of a the file "execve_hijack" which is used by the Triple Cross rootkit as a way to elevate privileges
+sigma_id: 0326c3c8-7803-4a0f-8c5c-368f747f7c3e
+status: test
+level: high
+platform: linux
+logsource: linux / process_creation
+tactics:
+  - TA0004
+techniques: []
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-07-05'
+falsepositives:
+  - Unlikely
+references:
+  - https://github.com/h3xduck/TripleCross/blob/1f1c3e0958af8ad9f6ebe10ab442e75de33e91de/src/helpers/execve_hijack.c#L275
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/linux/process_creation/proc_creation_lnx_triple_cross_rootkit_execve_hijack.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Triple Cross eBPF Rootkit Execve Hijack
+id: 0326c3c8-7803-4a0f-8c5c-368f747f7c3e
+status: test
+description: Detects execution of a the file "execve_hijack" which is used by the Triple Cross rootkit as a way to elevate privileges
+references:
+    - https://github.com/h3xduck/TripleCross/blob/1f1c3e0958af8ad9f6ebe10ab442e75de33e91de/src/helpers/execve_hijack.c#L275
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-07-05
+tags:
+    - attack.privilege-escalation
+    - attack.stealth
+logsource:
+    category: process_creation
+    product: linux
+detection:
+    selection:
+        Image|endswith: '/sudo'
+        CommandLine|contains: 'execve_hijack'
+    condition: selection
+falsepositives:
+    - Unlikely
+level: high
+```

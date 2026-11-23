@@ -1,0 +1,60 @@
+---
+title: DNS Exfiltration and Tunneling Tools Execution
+summary: Well-known DNS Exfiltration tools execution
+sigma_id: 98a96a5a-64a0-4c42-92c5-489da3866cb0
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0010
+  - TA0011
+techniques:
+  - T1048.001
+  - T1071.004
+  - T1132.001
+author: Daniil Yugoslavskiy, oscd.community
+date: '2019-10-24'
+modified: '2021-11-27'
+falsepositives:
+  - Unlikely
+references:
+  - https://github.com/iagox86/dnscat2
+  - https://github.com/yarrick/iodine
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_dns_exfiltration_tools_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: DNS Exfiltration and Tunneling Tools Execution
+id: 98a96a5a-64a0-4c42-92c5-489da3866cb0
+status: test
+description: Well-known DNS Exfiltration tools execution
+references:
+    - https://github.com/iagox86/dnscat2
+    - https://github.com/yarrick/iodine
+author: Daniil Yugoslavskiy, oscd.community
+date: 2019-10-24
+modified: 2021-11-27
+tags:
+    - attack.exfiltration
+    - attack.t1048.001
+    - attack.command-and-control
+    - attack.t1071.004
+    - attack.t1132.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        - Image|endswith: '\iodine.exe'
+        - Image|contains: '\dnscat2'
+    condition: selection
+falsepositives:
+    - Unlikely
+level: high
+```

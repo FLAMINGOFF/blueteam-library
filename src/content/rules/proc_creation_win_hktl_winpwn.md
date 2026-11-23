@@ -1,0 +1,86 @@
+---
+title: HackTool - WinPwn Execution
+summary: Detects commandline keywords indicative of potential usge of the tool WinPwn. A tool for Windows and Active Directory reconnaissance and exploitation.
+sigma_id: d557dc06-62e8-4468-a8e8-7984124908ce
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+  - TA0007
+  - TA0002
+  - TA0004
+techniques:
+  - T1046
+  - T1082
+  - T1106
+  - T1518
+  - T1548.002
+  - T1552.001
+  - T1555
+  - T1555.003
+author: Swachchhanda Shrawan Poudel
+date: '2023-12-04'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/S3cur3Th1sSh1t/WinPwn
+  - https://www.publicnow.com/view/EB87DB49C654D9B63995FAD4C9DE3D3CC4F6C3ED?1671634841
+  - https://web.archive.org/web/20250117201210/https://reconshell.com/winpwn-tool-for-internal-windows-pentesting-and-ad-security/
+  - https://github.com/redcanaryco/atomic-red-team/blob/4d6c4e8e23d465af7a2388620cfe3f8c76e16cf0/atomics/T1082/T1082.md
+  - https://grep.app/search?q=winpwn&filter[repo][0]=redcanaryco/atomic-red-team
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hktl_winpwn.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: HackTool - WinPwn Execution
+id: d557dc06-62e8-4468-a8e8-7984124908ce
+related:
+    - id: 851fd622-b675-4d26-b803-14bc7baa517a
+      type: similar
+status: test
+description: |
+    Detects commandline keywords indicative of potential usge of the tool WinPwn. A tool for Windows and Active Directory reconnaissance and exploitation.
+author: Swachchhanda Shrawan Poudel
+date: 2023-12-04
+references:
+    - https://github.com/S3cur3Th1sSh1t/WinPwn
+    - https://www.publicnow.com/view/EB87DB49C654D9B63995FAD4C9DE3D3CC4F6C3ED?1671634841
+    - https://web.archive.org/web/20250117201210/https://reconshell.com/winpwn-tool-for-internal-windows-pentesting-and-ad-security/
+    - https://github.com/redcanaryco/atomic-red-team/blob/4d6c4e8e23d465af7a2388620cfe3f8c76e16cf0/atomics/T1082/T1082.md
+    - https://grep.app/search?q=winpwn&filter[repo][0]=redcanaryco/atomic-red-team
+tags:
+    - attack.credential-access
+    - attack.discovery
+    - attack.execution
+    - attack.privilege-escalation
+    - attack.t1046
+    - attack.t1082
+    - attack.t1106
+    - attack.t1518
+    - attack.t1548.002
+    - attack.t1552.001
+    - attack.t1555
+    - attack.t1555.003
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|contains:
+            - 'Offline_Winpwn'
+            - 'WinPwn '
+            - 'WinPwn.exe'
+            - 'WinPwn.ps1'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_hktl_winpwn/info.yml
+```

@@ -1,0 +1,69 @@
+---
+title: 7Zip Compressing Dump Files
+summary: Detects execution of 7z in order to compress a file with a ".dmp"/".dump" extension, which could be a step in a process of dump file exfiltration.
+sigma_id: ec570e53-4c76-45a9-804d-dc3f355ff7a7
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0009
+techniques:
+  - T1560.001
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-09-27'
+modified: '2026-06-05'
+falsepositives:
+  - Legitimate use of 7z with a command line in which ".dmp" or ".dump" appears accidentally
+  - Legitimate use of 7z to compress WER ".dmp" files for troubleshooting
+references:
+  - https://thedfirreport.com/2022/09/26/bumblebee-round-two/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_7zip_exfil_dmp_files.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: 7Zip Compressing Dump Files
+id: ec570e53-4c76-45a9-804d-dc3f355ff7a7
+related:
+    - id: 1ac14d38-3dfc-4635-92c7-e3fd1c5f5bfc
+      type: derived
+status: test
+description: Detects execution of 7z in order to compress a file with a ".dmp"/".dump" extension, which could be a step in a process of dump file exfiltration.
+references:
+    - https://thedfirreport.com/2022/09/26/bumblebee-round-two/
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-09-27
+modified: 2026-06-05
+tags:
+    - attack.collection
+    - attack.t1560.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Description|contains: '7-Zip'
+        - Image|endswith:
+              - '\7z.exe'
+              - '\7zr.exe'
+              - '\7za.exe'
+        - OriginalFileName:
+              - '7z.exe'
+              - '7za.exe'
+              - '7zr.exe'
+    selection_extension:
+        CommandLine|contains:
+            - '.dmp'
+            - '.dump'
+            - '.hdmp'
+    condition: all of selection_*
+falsepositives:
+    - Legitimate use of 7z with a command line in which ".dmp" or ".dump" appears accidentally
+    - Legitimate use of 7z to compress WER ".dmp" files for troubleshooting
+level: medium
+```

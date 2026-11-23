@@ -1,0 +1,70 @@
+---
+title: Execute Code with Pester.bat
+summary: Detects code execution via Pester.bat (Pester - Powershell Modulte for testing)
+sigma_id: 59e938ff-0d6d-4dc3-b13f-36cc28734d4e
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1059.001
+  - T1216
+author: Julia Fomina, oscd.community
+date: '2020-10-08'
+modified: '2023-11-09'
+falsepositives:
+  - Legitimate use of Pester for writing tests for Powershell scripts and modules
+references:
+  - https://twitter.com/Oddvarmoe/status/993383596244258816
+  - https://github.com/api0cradle/LOLBAS/blob/d148d278f5f205ce67cfaf49afdfb68071c7252a/OSScripts/pester.md
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_lolbin_pester_1.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Execute Code with Pester.bat
+id: 59e938ff-0d6d-4dc3-b13f-36cc28734d4e
+status: test
+description: Detects code execution via Pester.bat (Pester - Powershell Modulte for testing)
+references:
+    - https://twitter.com/Oddvarmoe/status/993383596244258816
+    - https://github.com/api0cradle/LOLBAS/blob/d148d278f5f205ce67cfaf49afdfb68071c7252a/OSScripts/pester.md
+author: Julia Fomina, oscd.community
+date: 2020-10-08
+modified: 2023-11-09
+tags:
+    - attack.execution
+    - attack.stealth
+    - attack.t1059.001
+    - attack.t1216
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    powershell_module:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+        CommandLine|contains|all:
+            - 'Pester'
+            - 'Get-Help'
+    cmd_execution:
+        Image|endswith: '\cmd.exe'
+        CommandLine|contains|all:
+            - 'pester'
+            - ';'
+    get_help:
+        CommandLine|contains:
+            - 'help'
+            - '\?'
+    condition: powershell_module or (cmd_execution and get_help)
+falsepositives:
+    - Legitimate use of Pester for writing tests for Powershell scripts and modules
+level: medium
+```

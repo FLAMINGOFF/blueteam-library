@@ -1,0 +1,62 @@
+---
+title: Suspicious Remote Child Process From Outlook
+summary: Detects a suspicious child process spawning from Outlook where the image is located in a remote location (SMB/WebDav shares).
+sigma_id: e212d415-0e93-435f-9e1a-f29005bb4723
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1059
+  - T1202
+author: Markus Neis, Nasreddine Bencherchali (Nextron Systems)
+date: '2018-12-27'
+modified: '2023-02-09'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/sensepost/ruler
+  - https://www.fireeye.com/blog/threat-research/2018/12/overruled-containing-a-potentially-destructive-adversary.html
+  - https://speakerdeck.com/heirhabarov/hunting-for-persistence-via-microsoft-exchange-server-or-outlook?slide=49
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_office_outlook_susp_child_processes_remote.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious Remote Child Process From Outlook
+id: e212d415-0e93-435f-9e1a-f29005bb4723
+related:
+    - id: 208748f7-881d-47ac-a29c-07ea84bf691d # Outlook Child Processes
+      type: similar
+status: test
+description: Detects a suspicious child process spawning from Outlook where the image is located in a remote location (SMB/WebDav shares).
+references:
+    - https://github.com/sensepost/ruler
+    - https://www.fireeye.com/blog/threat-research/2018/12/overruled-containing-a-potentially-destructive-adversary.html
+    - https://speakerdeck.com/heirhabarov/hunting-for-persistence-via-microsoft-exchange-server-or-outlook?slide=49
+author: Markus Neis, Nasreddine Bencherchali (Nextron Systems)
+date: 2018-12-27
+modified: 2023-02-09
+tags:
+    - attack.execution
+    - attack.stealth
+    - attack.t1059
+    - attack.t1202
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        ParentImage|endswith: '\outlook.exe'
+        Image|startswith: '\\\\'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+```

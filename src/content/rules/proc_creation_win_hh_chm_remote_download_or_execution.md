@@ -1,0 +1,60 @@
+---
+title: Remote CHM File Download/Execution Via HH.EXE
+summary: Detects the usage of "hh.exe" to execute/download remotely hosted ".chm" files.
+sigma_id: f57c58b3-ee69-4ef5-9041-455bf39aaa89
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218.001
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-09-29'
+modified: '2024-01-31'
+falsepositives:
+  - Unknown
+references:
+  - https://www.splunk.com/en_us/blog/security/follina-for-protocol-handlers.html
+  - https://github.com/redcanaryco/atomic-red-team/blob/1cf4dd51f83dcb0ebe6ade902d6157ad2dbc6ac8/atomics/T1218.001/T1218.001.md
+  - https://www.zscaler.com/blogs/security-research/unintentional-leak-glimpse-attack-vectors-apt37
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hh_chm_remote_download_or_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Remote CHM File Download/Execution Via HH.EXE
+id: f57c58b3-ee69-4ef5-9041-455bf39aaa89
+status: test
+description: Detects the usage of "hh.exe" to execute/download remotely hosted ".chm" files.
+references:
+    - https://www.splunk.com/en_us/blog/security/follina-for-protocol-handlers.html
+    - https://github.com/redcanaryco/atomic-red-team/blob/1cf4dd51f83dcb0ebe6ade902d6157ad2dbc6ac8/atomics/T1218.001/T1218.001.md
+    - https://www.zscaler.com/blogs/security-research/unintentional-leak-glimpse-attack-vectors-apt37
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-09-29
+modified: 2024-01-31
+tags:
+    - attack.stealth
+    - attack.t1218.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - OriginalFileName: 'HH.exe'
+        - Image|endswith: '\hh.exe'
+    selection_cli:
+        CommandLine|contains:
+            - 'http://'
+            - 'https://'
+            - '\\\\'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

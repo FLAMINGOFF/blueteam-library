@@ -1,0 +1,68 @@
+---
+title: Potential Mpclient.DLL Sideloading Via Defender Binaries
+summary: Detects potential sideloading of "mpclient.dll" by Windows Defender processes ("MpCmdRun" and "NisSrv") from their non-default directory.
+sigma_id: 7002aa10-b8d4-47ae-b5ba-51ab07e228b9
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+  - TA0003
+  - TA0002
+techniques:
+  - T1574.001
+author: Bhabesh Raj
+date: '2022-08-01'
+modified: '2023-08-04'
+falsepositives:
+  - Unlikely
+references:
+  - https://www.sentinelone.com/blog/living-off-windows-defender-lockbit-ransomware-sideloads-cobalt-strike-through-microsoft-security-tool
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_mpcmdrun_dll_sideload_defender.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Mpclient.DLL Sideloading Via Defender Binaries
+id: 7002aa10-b8d4-47ae-b5ba-51ab07e228b9
+related:
+    - id: 418dc89a-9808-4b87-b1d7-e5ae0cb6effc
+      type: similar
+status: test
+description: Detects potential sideloading of "mpclient.dll" by Windows Defender processes ("MpCmdRun" and "NisSrv") from their non-default directory.
+references:
+    - https://www.sentinelone.com/blog/living-off-windows-defender-lockbit-ransomware-sideloads-cobalt-strike-through-microsoft-security-tool
+author: Bhabesh Raj
+date: 2022-08-01
+modified: 2023-08-04
+tags:
+    - attack.privilege-escalation
+    - attack.persistence
+    - attack.execution
+    - attack.stealth
+    - attack.t1574.001
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection:
+        Image|endswith:
+            - '\MpCmdRun.exe'
+            - '\NisSrv.exe'
+    filter_main_known_locations:
+        Image|startswith:
+            - 'C:\Program Files (x86)\Windows Defender\'
+            - 'C:\Program Files\Microsoft Security Client\'
+            - 'C:\Program Files\Windows Defender\'
+            - 'C:\ProgramData\Microsoft\Windows Defender\Platform\'
+            - 'C:\Windows\WinSxS\'
+    condition: selection and not 1 of filter_main_*
+falsepositives:
+    - Unlikely
+level: high
+```

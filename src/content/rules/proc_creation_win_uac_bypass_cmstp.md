@@ -1,0 +1,67 @@
+---
+title: Bypass UAC via CMSTP
+summary: Detect commandline usage of Microsoft Connection Manager Profile Installer (cmstp.exe) to install specially formatted local .INF files
+sigma_id: e66779cc-383e-4224-a3a4-267eeb585c40
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+techniques:
+  - T1548.002
+  - T1218.003
+author: E.M. Anhaus (originally from Atomic Blue Detections, Endgame), oscd.community
+date: '2019-10-24'
+modified: '2022-08-30'
+falsepositives:
+  - Legitimate use of cmstp.exe utility by legitimate user
+references:
+  - https://eqllib.readthedocs.io/en/latest/analytics/e584f1a1-c303-4885-8a66-21360c90995b.html
+  - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1218.003/T1218.003.md
+  - https://lolbas-project.github.io/lolbas/Binaries/Cmstp/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_uac_bypass_cmstp.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Bypass UAC via CMSTP
+id: e66779cc-383e-4224-a3a4-267eeb585c40
+status: test
+description: Detect commandline usage of Microsoft Connection Manager Profile Installer (cmstp.exe) to install specially formatted local .INF files
+references:
+    - https://eqllib.readthedocs.io/en/latest/analytics/e584f1a1-c303-4885-8a66-21360c90995b.html
+    - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1218.003/T1218.003.md
+    - https://lolbas-project.github.io/lolbas/Binaries/Cmstp/
+author: E.M. Anhaus (originally from Atomic Blue Detections, Endgame), oscd.community
+date: 2019-10-24
+modified: 2022-08-30
+tags:
+    - attack.privilege-escalation
+    - attack.stealth
+    - attack.t1548.002
+    - attack.t1218.003
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\cmstp.exe'
+        - OriginalFileName: 'CMSTP.EXE'
+    selection_cli:
+        CommandLine|contains:
+            - '/s'
+            - '-s'
+            - '/au'
+            - '-au'
+            - '/ni'
+            - '-ni'
+    condition: all of selection*
+falsepositives:
+    - Legitimate use of cmstp.exe utility by legitimate user
+level: high
+```

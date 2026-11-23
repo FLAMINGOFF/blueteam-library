@@ -1,0 +1,68 @@
+---
+title: Suspicious DLL Loaded via CertOC.EXE
+summary: Detects when a user installs certificates by using CertOC.exe to load the target DLL file.
+sigma_id: 84232095-ecca-4015-b0d7-7726507ee793
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2023-02-15'
+modified: '2024-03-05'
+falsepositives:
+  - Unknown
+references:
+  - https://twitter.com/sblmsrsn/status/1445758411803480072?s=20
+  - https://github.com/elastic/protections-artifacts/commit/746086721fd385d9f5c6647cada1788db4aea95f#diff-fe98e74189873d6df72a15df2eaa0315c59ba9cdaca93ecd68afc4ea09194ef2
+  - https://lolbas-project.github.io/lolbas/Binaries/Certoc/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_certoc_load_dll_susp_locations.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious DLL Loaded via CertOC.EXE
+id: 84232095-ecca-4015-b0d7-7726507ee793
+related:
+    - id: 242301bc-f92f-4476-8718-78004a6efd9f
+      type: similar
+status: test
+description: Detects when a user installs certificates by using CertOC.exe to load the target DLL file.
+references:
+    - https://twitter.com/sblmsrsn/status/1445758411803480072?s=20
+    - https://github.com/elastic/protections-artifacts/commit/746086721fd385d9f5c6647cada1788db4aea95f#diff-fe98e74189873d6df72a15df2eaa0315c59ba9cdaca93ecd68afc4ea09194ef2
+    - https://lolbas-project.github.io/lolbas/Binaries/Certoc/
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2023-02-15
+modified: 2024-03-05
+tags:
+    - attack.stealth
+    - attack.t1218
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\certoc.exe'
+        - OriginalFileName: 'CertOC.exe'
+    selection_cli:
+        CommandLine|contains|windash: ' -LoadDLL '
+    selection_paths:
+        CommandLine|contains:
+            - '\Appdata\Local\Temp\'
+            - '\Desktop\'
+            - '\Downloads\'
+            - '\Users\Public\'
+            - 'C:\Windows\Tasks\'
+            - 'C:\Windows\Temp\'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

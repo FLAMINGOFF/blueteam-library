@@ -1,0 +1,58 @@
+---
+title: File Download Using Notepad++ GUP Utility
+summary: Detects execution of the Notepad++ updater (gup) from a process other than Notepad++ to download files.
+sigma_id: 44143844-0631-49ab-97a0-96387d6b2d7c
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0011
+techniques:
+  - T1105
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-06-10'
+modified: '2023-03-02'
+falsepositives:
+  - Other parent processes other than notepad++ using GUP that are not currently identified
+references:
+  - https://twitter.com/nas_bench/status/1535322182863179776
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_gup_download.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: File Download Using Notepad++ GUP Utility
+id: 44143844-0631-49ab-97a0-96387d6b2d7c
+status: test
+description: Detects execution of the Notepad++ updater (gup) from a process other than Notepad++ to download files.
+references:
+    - https://twitter.com/nas_bench/status/1535322182863179776
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-06-10
+modified: 2023-03-02
+tags:
+    - attack.command-and-control
+    - attack.t1105
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\GUP.exe'
+        - OriginalFileName: 'gup.exe'
+    selection_cli:
+        CommandLine|contains|all:
+            - ' -unzipTo '
+            - 'http'
+    filter:
+        ParentImage|endswith: '\notepad++.exe'
+    condition: all of selection* and not filter
+falsepositives:
+    - Other parent processes other than notepad++ using GUP that are not currently identified
+level: high
+```

@@ -1,0 +1,60 @@
+---
+title: Invoke-Obfuscation COMPRESS OBFUSCATION
+summary: Detects Obfuscated Powershell via COMPRESS OBFUSCATION
+sigma_id: 7eedcc9d-9fdb-4d94-9c54-474e8affc0c7
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1027
+  - T1059.001
+author: Timur Zinniatullin, oscd.community
+date: '2020-10-18'
+modified: '2022-12-29'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/SigmaHQ/sigma/issues/1009
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hktl_invoke_obfuscation_via_compress.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Invoke-Obfuscation COMPRESS OBFUSCATION
+id: 7eedcc9d-9fdb-4d94-9c54-474e8affc0c7
+status: test
+description: Detects Obfuscated Powershell via COMPRESS OBFUSCATION
+references:
+    - https://github.com/SigmaHQ/sigma/issues/1009 # (Task 19)
+author: Timur Zinniatullin, oscd.community
+date: 2020-10-18
+modified: 2022-12-29
+tags:
+    - attack.stealth
+    - attack.t1027
+    - attack.execution
+    - attack.t1059.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|contains|all:
+            - 'new-object'
+            - 'text.encoding]::ascii'
+        CommandLine|contains:
+            - 'system.io.compression.deflatestream'
+            - 'system.io.streamreader'
+            - 'readtoend('
+    condition: selection
+falsepositives:
+    - Unknown
+level: medium
+```

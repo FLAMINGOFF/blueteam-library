@@ -1,0 +1,87 @@
+---
+title: Use NTFS Short Name in Image
+summary: Detect use of the Windows 8.3 short name. Which could be used as a method to avoid Image based detection
+sigma_id: 3ef5605c-9eb9-47b0-9a71-b727e6aa5c3b
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1564.004
+author: frack113, Nasreddine Bencherchali (Nextron Systems)
+date: '2022-08-06'
+modified: '2023-07-20'
+falsepositives:
+  - Software Installers
+references:
+  - https://www.acunetix.com/blog/articles/windows-short-8-3-filenames-web-security-problem/
+  - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc959352(v=technet.10)
+  - https://twitter.com/jonasLyk/status/1555914501802921984
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_susp_ntfs_short_name_use_image.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Use NTFS Short Name in Image
+id: 3ef5605c-9eb9-47b0-9a71-b727e6aa5c3b
+related:
+    - id: dd6b39d9-d9be-4a3b-8fe0-fe3c6a5c1795
+      type: similar
+status: test
+description: Detect use of the Windows 8.3 short name. Which could be used as a method to avoid Image based detection
+references:
+    - https://www.acunetix.com/blog/articles/windows-short-8-3-filenames-web-security-problem/
+    - https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-2000-server/cc959352(v=technet.10)
+    - https://twitter.com/jonasLyk/status/1555914501802921984
+author: frack113, Nasreddine Bencherchali (Nextron Systems)
+date: 2022-08-06
+modified: 2023-07-20
+tags:
+    - attack.stealth
+    - attack.t1564.004
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|contains:
+            - '~1.bat'
+            - '~1.dll'
+            - '~1.exe'
+            - '~1.hta'
+            - '~1.js'
+            - '~1.msi'
+            - '~1.ps1'
+            - '~1.tmp'
+            - '~1.vbe'
+            - '~1.vbs'
+            - '~2.bat'
+            - '~2.dll'
+            - '~2.exe'
+            - '~2.hta'
+            - '~2.js'
+            - '~2.msi'
+            - '~2.ps1'
+            - '~2.tmp'
+            - '~2.vbe'
+            - '~2.vbs'
+    filter_main_generic_parent:
+        ParentImage: 'C:\Windows\explorer.exe'
+    filter_optional_webex:
+        ParentImage|endswith: '\WebEx\WebexHost.exe'
+    filter_optional_thor:
+        ParentImage|endswith: '\thor\thor64.exe'
+    filter_optional_winzip:
+        Image: 'C:\PROGRA~1\WinZip\WZPREL~1.EXE'
+    filter_optional_vcred:
+        Image|endswith: '\VCREDI~1.EXE'
+    condition: selection and not 1 of filter_main_* and not 1 of filter_optional_*
+falsepositives:
+    - Software Installers
+level: medium
+```

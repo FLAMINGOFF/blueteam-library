@@ -1,0 +1,80 @@
+---
+title: Copying Sensitive Files with Credential Data
+summary: Files with well-known filenames (sensitive files with credential data) copying
+sigma_id: e7be6119-fc37-43f0-ad4f-1f3f99be2f9f
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+techniques:
+  - T1003.002
+  - T1003.003
+author: Teymur Kheirkhabarov, Daniil Yugoslavskiy, oscd.community
+date: '2019-10-22'
+modified: '2026-10-31'
+falsepositives:
+  - Copying sensitive files for legitimate use (eg. backup) or forensic investigation by legitimate incident responder or forensic investigator.
+references:
+  - https://room362.com/post/2013/2013-06-10-volume-shadow-copy-ntdsdit-domain-hashes-remotely-part-1/
+  - https://www.slideshare.net/heirhabarov/hunting-for-credentials-dumping-in-windows-environment
+  - https://dfironthemountain.wordpress.com/2018/12/06/locked-file-access-using-esentutl-exe/
+  - https://github.com/LOLBAS-Project/LOLBAS/blob/2cc01b01132b5c304027a658c698ae09dd6a92bf/yml/OSBinaries/Esentutl.yml
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_esentutl_sensitive_file_copy.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Copying Sensitive Files with Credential Data
+id: e7be6119-fc37-43f0-ad4f-1f3f99be2f9f
+status: test
+description: Files with well-known filenames (sensitive files with credential data) copying
+references:
+    - https://room362.com/post/2013/2013-06-10-volume-shadow-copy-ntdsdit-domain-hashes-remotely-part-1/
+    - https://www.slideshare.net/heirhabarov/hunting-for-credentials-dumping-in-windows-environment
+    - https://dfironthemountain.wordpress.com/2018/12/06/locked-file-access-using-esentutl-exe/
+    - https://github.com/LOLBAS-Project/LOLBAS/blob/2cc01b01132b5c304027a658c698ae09dd6a92bf/yml/OSBinaries/Esentutl.yml
+author: Teymur Kheirkhabarov, Daniil Yugoslavskiy, oscd.community
+date: 2019-10-22
+modified: 2026-10-31
+tags:
+    - attack.credential-access
+    - attack.t1003.002
+    - attack.t1003.003
+    - car.2013-07-001
+    - attack.s0404
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_esent_img:
+        - Image|endswith: '\esentutl.exe'
+        - OriginalFileName: 'esentutl.exe'
+    selection_esent_cli:
+        CommandLine|contains|windash:
+            - 'vss'
+            - ' /m '
+            - ' /y '
+    selection_susp_paths:
+        CommandLine|contains:
+            - '\config\RegBack\sam'
+            - '\config\RegBack\security'
+            - '\config\RegBack\system'
+            - '\config\sam'
+            - '\config\security'
+            - '\config\system '        # space needed to avoid false positives with \config\systemprofile\
+            - '\repair\sam'
+            - '\repair\security'
+            - '\repair\system'
+            - '\windows\ntds\ntds.dit'
+    condition: all of selection_esent_* or selection_susp_paths
+falsepositives:
+    - Copying sensitive files for legitimate use (eg. backup) or forensic investigation by legitimate incident responder or forensic investigator.
+level: high
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_esentutl_sensitive_file_copy/info.yml
+```

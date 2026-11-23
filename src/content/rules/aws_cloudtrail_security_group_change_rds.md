@@ -1,0 +1,60 @@
+---
+title: RDS Database Security Group Modification
+summary: >-
+  Detects changes to the security group entries for RDS databases.
+
+  This can indicate that a misconfiguration has occurred which potentially exposes the database to the public internet, a wider audience within the VPC or that removal of valid rules has occurred
+  which could impact the availability of the database to legitimate services and users.
+sigma_id: 14f3f1c8-02d5-43a2-a191-91ffb52d3015
+status: test
+level: medium
+platform: aws
+logsource: aws / cloudtrail
+tactics:
+  - TA0001
+techniques:
+  - T1190
+author: jamesc-grafana
+date: '2024-07-11'
+falsepositives:
+  - Creation of a new Database that needs new security group rules
+references:
+  - https://www.gorillastack.com/blog/real-time-events/important-aws-cloudtrail-security-events-tracking/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/cloud/aws/cloudtrail/aws_cloudtrail_security_group_change_rds.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: RDS Database Security Group Modification
+id: 14f3f1c8-02d5-43a2-a191-91ffb52d3015
+status: test
+description: |
+    Detects changes to the security group entries for RDS databases.
+    This can indicate that a misconfiguration has occurred which potentially exposes the database to the public internet, a wider audience within the VPC or that removal of valid rules has occurred which could impact the availability of the database to legitimate services and users.
+references:
+    - https://www.gorillastack.com/blog/real-time-events/important-aws-cloudtrail-security-events-tracking/
+author: jamesc-grafana
+date: 2024-07-11
+tags:
+    - attack.initial-access
+    - attack.t1190
+logsource:
+    product: aws
+    service: cloudtrail
+detection:
+    selection:
+        eventSource: 'rds.amazonaws.com'
+        eventName:
+            - 'AuthorizeDBSecurityGroupIngress'
+            - 'CreateDBSecurityGroup'
+            - 'DeleteDBSecurityGroup'
+            - 'RevokeDBSecurityGroupIngress'
+    condition: selection
+falsepositives:
+    - Creation of a new Database that needs new security group rules
+level: medium
+```

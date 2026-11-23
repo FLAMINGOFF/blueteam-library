@@ -1,0 +1,58 @@
+---
+title: Suspect Svchost Activity
+summary: It is extremely abnormal for svchost.exe to spawn without any CLI arguments and is normally observed when a malicious process spawns the process and injects code into the process memory space.
+sigma_id: 16c37b52-b141-42a5-a3ea-bbe098444397
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+techniques:
+  - T1055
+author: David Burkett, @signalblur
+date: '2019-12-28'
+modified: '2022-06-27'
+falsepositives:
+  - Rpcnet.exe / rpcnetp.exe which is a lojack style software. https://www.blackhat.com/docs/us-14/materials/us-14-Kamlyuk-Kamluk-Computrace-Backdoor-Revisited.pdf
+references:
+  - https://web.archive.org/web/20180718061628/https://securitybytes.io/blue-team-fundamentals-part-two-windows-processes-759fe15965e2
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_svchost_execution_with_no_cli_flags.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspect Svchost Activity
+id: 16c37b52-b141-42a5-a3ea-bbe098444397
+status: test
+description: It is extremely abnormal for svchost.exe to spawn without any CLI arguments and is normally observed when a malicious process spawns the process and injects code into the process memory space.
+references:
+    - https://web.archive.org/web/20180718061628/https://securitybytes.io/blue-team-fundamentals-part-two-windows-processes-759fe15965e2
+author: David Burkett, @signalblur
+date: 2019-12-28
+modified: 2022-06-27
+tags:
+    - attack.privilege-escalation
+    - attack.stealth
+    - attack.t1055
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|endswith: 'svchost.exe'
+        Image|endswith: '\svchost.exe'
+    filter:
+        - ParentImage|endswith:
+              - '\rpcnet.exe'
+              - '\rpcnetp.exe'
+        - CommandLine: null  # no CommandLine value available
+    condition: selection and not filter
+falsepositives:
+    - Rpcnet.exe / rpcnetp.exe which is a lojack style software. https://www.blackhat.com/docs/us-14/materials/us-14-Kamlyuk-Kamluk-Computrace-Backdoor-Revisited.pdf
+level: high
+```

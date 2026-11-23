@@ -1,0 +1,72 @@
+---
+title: Rundll32 UNC Path Execution
+summary: |-
+  Detects rundll32 execution where the DLL is located on a remote location (share).
+  Threat actors can abuse the rundll32.exe binary to execute remote DLLs from a UNC pathh.
+sigma_id: 5cdb711b-5740-4fb2-ba88-f7945027afac
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+  - TA0008
+techniques:
+  - T1021.002
+  - T1218.011
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-08-10'
+modified: '2026-07-20'
+falsepositives:
+  - Unlikely
+references:
+  - https://www.cybereason.com/blog/rundll32-the-infamous-proxy-for-executing-malicious-code
+  - https://www.microsoft.com/en-us/security/blog/2026/07/16/acr-stealer-two-observed-intrusion-chains-amid-increased-threat-activity/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_rundll32_unc_path.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Rundll32 UNC Path Execution
+id: 5cdb711b-5740-4fb2-ba88-f7945027afac
+status: test
+description: |
+    Detects rundll32 execution where the DLL is located on a remote location (share).
+    Threat actors can abuse the rundll32.exe binary to execute remote DLLs from a UNC pathh.
+references:
+    - https://www.cybereason.com/blog/rundll32-the-infamous-proxy-for-executing-malicious-code
+    - https://www.microsoft.com/en-us/security/blog/2026/07/16/acr-stealer-two-observed-intrusion-chains-amid-increased-threat-activity/
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-08-10
+modified: 2026-07-20
+tags:
+    - attack.execution
+    - attack.lateral-movement
+    - attack.stealth
+    - attack.t1021.002
+    - attack.t1218.011
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\rundll32.exe'
+        - OriginalFileName: 'RUNDLL32.EXE'
+        - CommandLine|contains: 'rundll32'
+    selection_cli:
+        CommandLine|contains:
+            - ' \\\\'
+            - ' ''\\\\'
+            - ' "\\\\'
+    filter_main_cli_pipe:
+        CommandLine|contains: '\\\\.\\pipe'
+    condition: all of selection_* and not 1 of filter_main_*
+falsepositives:
+    - Unlikely
+level: high
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_rundll32_unc_path/info.yml
+```

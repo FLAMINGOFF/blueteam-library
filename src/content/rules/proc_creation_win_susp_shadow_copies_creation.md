@@ -1,0 +1,71 @@
+---
+title: Shadow Copies Creation Using Operating Systems Utilities
+summary: Shadow Copies creation using operating systems utilities, possible credential access
+sigma_id: b17ea6f7-6e90-447e-a799-e6c0a493d6ce
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+techniques:
+  - T1003
+  - T1003.002
+  - T1003.003
+author: Teymur Kheirkhabarov, Daniil Yugoslavskiy, oscd.community
+date: '2019-10-22'
+modified: '2022-11-10'
+falsepositives:
+  - Legitimate administrator working with shadow copies, access for backup purposes
+references:
+  - https://www.slideshare.net/heirhabarov/hunting-for-credentials-dumping-in-windows-environment
+  - https://www.levelblue.com/blogs/spiderlabs-blog/tutorial-for-ntds-goodness-vssadmin-wmis-ntds.dit-system/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_susp_shadow_copies_creation.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Shadow Copies Creation Using Operating Systems Utilities
+id: b17ea6f7-6e90-447e-a799-e6c0a493d6ce
+status: test
+description: Shadow Copies creation using operating systems utilities, possible credential access
+references:
+    - https://www.slideshare.net/heirhabarov/hunting-for-credentials-dumping-in-windows-environment
+    - https://www.levelblue.com/blogs/spiderlabs-blog/tutorial-for-ntds-goodness-vssadmin-wmis-ntds.dit-system/
+author: Teymur Kheirkhabarov, Daniil Yugoslavskiy, oscd.community
+date: 2019-10-22
+modified: 2022-11-10
+tags:
+    - attack.credential-access
+    - attack.t1003
+    - attack.t1003.002
+    - attack.t1003.003
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith:
+              - '\powershell.exe'
+              - '\pwsh.exe'
+              - '\wmic.exe'
+              - '\vssadmin.exe'
+        - OriginalFileName:
+              - 'PowerShell.EXE'
+              - 'pwsh.dll'
+              - 'wmic.exe'
+              - 'VSSADMIN.EXE'
+    selection_cli:
+        CommandLine|contains|all:
+            - 'shadow'
+            - 'create'
+    condition: all of selection_*
+falsepositives:
+    - Legitimate administrator working with shadow copies, access for backup purposes
+level: medium
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_susp_shadow_copies_creation/info.yml
+```

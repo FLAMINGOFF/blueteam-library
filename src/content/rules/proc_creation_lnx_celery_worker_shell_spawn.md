@@ -1,0 +1,88 @@
+---
+title: Shell Spawned by Celery Worker Process
+summary: |-
+  Detects a system shell interpreter being spawned directly by a Celery worker process.
+  This behavior indicates a Python background task execution framework is evaluating raw string input through a shell execution context,
+  which is highly indicative of successful command or prompt injection exploitation against an LLM agent task.
+sigma_id: 904f6442-3b57-4b3f-987c-1559f58ce8d8
+status: experimental
+level: medium
+platform: linux
+logsource: linux / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1059.004
+author: Jennifer Batina
+date: '2026-10-17'
+falsepositives:
+  - Legacy or custom administrative tasks deliberately hardcoded with shell=True or os.system execution inside Celery task functions.
+  - Media processing, deployment, or reporting pipelines that intentionally shell out to external tools (e.g. ffmpeg, git) from within a task.
+references:
+  - https://docs.celeryq.dev/en/stable/userguide/tasks.html
+  - https://genai.owasp.org/llmrisk/llm01-prompt-injection/
+  - https://labs.cloudsecurityalliance.org/research/csa-research-note-promptware-c2-agent-exploitation-20260406/
+  - https://nvd.nist.gov/vuln/detail/CVE-2021-23727
+  - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+  - https://security.snyk.io/vuln/SNYK-PYTHON-CELERY-2314953
+  - https://snyk.io/blog/python-rce-vulnerability/
+  - https://unit42.paloaltonetworks.com/ai-agent-prompt-injection/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/linux/process_creation/proc_creation_lnx_celery_worker_shell_spawn.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Shell Spawned by Celery Worker Process
+id: 904f6442-3b57-4b3f-987c-1559f58ce8d8
+status: experimental
+description: |
+    Detects a system shell interpreter being spawned directly by a Celery worker process.
+    This behavior indicates a Python background task execution framework is evaluating raw string input through a shell execution context,
+    which is highly indicative of successful command or prompt injection exploitation against an LLM agent task.
+references:
+    - https://docs.celeryq.dev/en/stable/userguide/tasks.html
+    - https://genai.owasp.org/llmrisk/llm01-prompt-injection/
+    - https://labs.cloudsecurityalliance.org/research/csa-research-note-promptware-c2-agent-exploitation-20260406/
+    - https://nvd.nist.gov/vuln/detail/CVE-2021-23727
+    - https://owasp.org/www-project-top-10-for-large-language-model-applications/
+    - https://security.snyk.io/vuln/SNYK-PYTHON-CELERY-2314953
+    - https://snyk.io/blog/python-rce-vulnerability/
+    - https://unit42.paloaltonetworks.com/ai-agent-prompt-injection/
+    - https://www.microsoft.com/en-us/security/blog/2026/05/07/prompts-become-shells-rce-vulnerabilities-ai-agent-frameworks
+author: Jennifer Batina
+date: 2026-10-17
+tags:
+    - attack.execution
+    - attack.t1059.004
+logsource:
+    category: process_creation
+    product: linux
+detection:
+    selection_img:
+        Image|endswith:
+            - '/ash'
+            - '/bash'
+            - '/busybox'
+            - '/csh'
+            - '/dash'
+            - '/fish'
+            - '/ksh'
+            - '/sh'
+            - '/tcsh'
+            - '/zsh'
+        ParentCommandLine|contains: 'celery'
+    selection_parent:
+        - ParentImage|endswith:
+              - '/python'
+              - '/python3'
+        - ParentImage|contains: '/python3.'
+    condition: all of selection_*
+falsepositives:
+    - Legacy or custom administrative tasks deliberately hardcoded with shell=True or os.system execution inside Celery task functions.
+    - Media processing, deployment, or reporting pipelines that intentionally shell out to external tools (e.g. ffmpeg, git) from within a task.
+level: medium
+```

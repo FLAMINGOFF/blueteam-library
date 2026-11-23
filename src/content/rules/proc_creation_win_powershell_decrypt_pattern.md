@@ -1,0 +1,78 @@
+---
+title: PowerShell Execution With Potential Decryption Capabilities
+summary: Detects PowerShell commands that decrypt an ".LNK" "file to drop the next stage of the malware.
+sigma_id: 434c08ba-8406-4d15-8b24-782cb071a691
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques: []
+author: X__Junior (Nextron Systems), Nasreddine Bencherchali (Nextron Systems)
+date: '2023-06-30'
+modified: '2023-12-05'
+falsepositives:
+  - Unlikely
+references:
+  - https://research.checkpoint.com/2023/chinese-threat-actors-targeting-europe-in-smugx-campaign/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_powershell_decrypt_pattern.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: PowerShell Execution With Potential Decryption Capabilities
+id: 434c08ba-8406-4d15-8b24-782cb071a691
+status: test
+description: Detects PowerShell commands that decrypt an ".LNK" "file to drop the next stage of the malware.
+references:
+    - https://research.checkpoint.com/2023/chinese-threat-actors-targeting-europe-in-smugx-campaign/
+author: X__Junior (Nextron Systems), Nasreddine Bencherchali (Nextron Systems)
+date: 2023-06-30
+modified: 2023-12-05
+tags:
+    - attack.execution
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_img:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+        OriginalFileName:
+            - 'PowerShell.EXE'
+            - 'pwsh.dll'
+    selection_cli_dir:
+        CommandLine|contains:
+            - "Get-ChildItem "
+            - "dir "
+            - "gci "
+            - "ls "
+    selection_cli_gc:
+        CommandLine|contains:
+            - "Get-Content "
+            - "gc "
+            - 'cat '
+            - 'type '
+            - 'ReadAllBytes'
+    selection_cli_specific:
+        - CommandLine|contains|all:
+              - ' ^| '
+              - '\*.lnk'
+              - '-Recurse'
+              - '-Skip '
+        - CommandLine|contains|all:
+              - ' -ExpandProperty '
+              - '\*.lnk'
+              - 'WriteAllBytes'
+              - ' .length '
+    condition: all of selection_*
+falsepositives:
+    - Unlikely
+level: high
+```

@@ -1,0 +1,58 @@
+---
+title: DLL Execution via Rasautou.exe
+summary: Detects using Rasautou.exe for loading arbitrary .DLL specified in -d option and executes the export specified in -p.
+sigma_id: cd3d1298-eb3b-476c-ac67-12847de55813
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218
+author: Julia Fomina, oscd.community
+date: '2020-10-09'
+falsepositives:
+  - Unlikely
+references:
+  - https://lolbas-project.github.io/lolbas/Binaries/Rasautou/
+  - https://github.com/fireeye/DueDLLigence
+  - https://www.fireeye.com/blog/threat-research/2019/10/staying-hidden-on-the-endpoint-evading-detection-with-shellcode.html
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_lolbin_rasautou_dll_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: DLL Execution via Rasautou.exe
+id: cd3d1298-eb3b-476c-ac67-12847de55813
+status: test
+description: Detects using Rasautou.exe for loading arbitrary .DLL specified in -d option and executes the export specified in -p.
+references:
+    - https://lolbas-project.github.io/lolbas/Binaries/Rasautou/
+    - https://github.com/fireeye/DueDLLigence
+    - https://www.fireeye.com/blog/threat-research/2019/10/staying-hidden-on-the-endpoint-evading-detection-with-shellcode.html
+author: Julia Fomina, oscd.community
+date: 2020-10-09
+tags:
+    - attack.stealth
+    - attack.t1218
+logsource:
+    product: windows
+    category: process_creation
+    definition: Since options '-d' and '-p' were removed in Windows 10 this rule is relevant only for Windows before 10. And as Windows 7 doesn't log command line in 4688 by default, to detect this attack you need Sysmon 1 configured or KB3004375 installed for command-line auditing (https://support.microsoft.com/en-au/help/3004375/microsoft-security-advisory-update-to-improve-windows-command-line-aud)
+detection:
+    selection_img:
+        - Image|endswith: '\rasautou.exe'
+        - OriginalFileName: 'rasdlui.exe'
+    selection_cli:
+        CommandLine|contains|all:
+            - ' -d '
+            - ' -p '
+    condition: all of selection*
+falsepositives:
+    - Unlikely
+level: medium
+```

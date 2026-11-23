@@ -1,0 +1,62 @@
+---
+title: Potential Windows Defender AV Bypass Via Dump64.EXE Rename
+summary: |-
+  Detects when a user is potentially trying to bypass the Windows Defender AV by renaming a tool to dump64.exe and placing it in the Visual Studio folder.
+  Currently the rule is covering only usage of procdump but other utilities can be added in order to increase coverage.
+sigma_id: 129966c9-de17-4334-a123-8b58172e664d
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0006
+techniques:
+  - T1003.001
+author: Austin Songer @austinsonger, Florian Roth (Nextron Systems), Nasreddine Bencherchali (Nextron Systems)
+date: '2021-11-26'
+modified: '2026-11-05'
+falsepositives:
+  - Unknown
+references:
+  - https://twitter.com/mrd0x/status/1460597833917251595
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_dump64_defender_av_bypass_rename.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Windows Defender AV Bypass Via Dump64.EXE Rename
+id: 129966c9-de17-4334-a123-8b58172e664d
+status: test
+description: |
+    Detects when a user is potentially trying to bypass the Windows Defender AV by renaming a tool to dump64.exe and placing it in the Visual Studio folder.
+    Currently the rule is covering only usage of procdump but other utilities can be added in order to increase coverage.
+references:
+    - https://twitter.com/mrd0x/status/1460597833917251595
+author: Austin Songer @austinsonger, Florian Roth (Nextron Systems), Nasreddine Bencherchali (Nextron Systems)
+date: 2021-11-26
+modified: 2026-11-05
+tags:
+    - attack.credential-access
+    - attack.t1003.001
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_dump:
+        Image|startswith: 'C:\Program Files'
+        Image|contains: '\Microsoft Visual Studio\'
+        Image|endswith: '\dump64.exe'
+    selection_tools_procdump:
+        - OriginalFileName: 'procdump'
+        - CommandLine|contains:
+              - ' -ma ' # Full Dump
+              - ' -mp ' # Mini Plus
+    condition: selection_dump and 1 of selection_tools_*
+falsepositives:
+    - Unknown
+level: high
+```

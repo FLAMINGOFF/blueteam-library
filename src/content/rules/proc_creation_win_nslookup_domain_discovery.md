@@ -1,0 +1,55 @@
+---
+title: Network Reconnaissance Activity
+summary: Detects a set of suspicious network related commands often used in recon stages
+sigma_id: e6313acd-208c-44fc-a0ff-db85d572e90e
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0007
+techniques:
+  - T1087
+  - T1082
+author: Florian Roth (Nextron Systems)
+date: '2022-02-07'
+falsepositives:
+  - False positives depend on scripts and administrative tools used in the monitored environment
+references:
+  - https://thedfirreport.com/2022/02/07/qbot-likes-to-move-it-move-it/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_nslookup_domain_discovery.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Network Reconnaissance Activity
+id: e6313acd-208c-44fc-a0ff-db85d572e90e
+status: test
+description: Detects a set of suspicious network related commands often used in recon stages
+references:
+    - https://thedfirreport.com/2022/02/07/qbot-likes-to-move-it-move-it/
+author: Florian Roth (Nextron Systems)
+date: 2022-02-07
+tags:
+    - attack.discovery
+    - attack.t1087
+    - attack.t1082
+    - car.2016-03-001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|contains|all:
+            - 'nslookup'
+            - '_ldap._tcp.dc._msdcs.'
+    condition: selection
+falsepositives:
+    - False positives depend on scripts and administrative tools used in the monitored environment
+level: high
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_nslookup_domain_discovery/info.yml
+```

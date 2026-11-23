@@ -1,0 +1,52 @@
+---
+title: NtdllPipe Like Activity Execution
+summary: Detects command that type the content of ntdll.dll to a different file or a pipe in order to evade AV / EDR detection. As seen being used in the POC NtdllPipe
+sigma_id: bbc865e4-7fcd-45a6-8ff1-95ced28ec5b2
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques: []
+author: Florian Roth (Nextron Systems)
+date: '2022-03-05'
+modified: '2023-03-07'
+falsepositives:
+  - Unknown
+references:
+  - https://web.archive.org/web/20220306121156/https://www.x86matthew.com/view_post?id=ntdll_pipe
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_cmd_ntdllpipe_redirect.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: NtdllPipe Like Activity Execution
+id: bbc865e4-7fcd-45a6-8ff1-95ced28ec5b2
+status: test
+description: Detects command that type the content of ntdll.dll to a different file or a pipe in order to evade AV / EDR detection. As seen being used in the POC NtdllPipe
+references:
+    - https://web.archive.org/web/20220306121156/https://www.x86matthew.com/view_post?id=ntdll_pipe
+author: Florian Roth (Nextron Systems)
+date: 2022-03-05
+modified: 2023-03-07
+tags:
+    - attack.defense-impairment
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|contains:
+            - 'type %windir%\system32\ntdll.dll'
+            - 'type %systemroot%\system32\ntdll.dll'
+            - 'type c:\windows\system32\ntdll.dll'
+            - '\\ntdll.dll > \\\\.\\pipe\\'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+```

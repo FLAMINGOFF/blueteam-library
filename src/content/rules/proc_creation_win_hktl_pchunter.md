@@ -1,0 +1,80 @@
+---
+title: HackTool - PCHunter Execution
+summary: Detects suspicious use of PCHunter, a tool like Process Hacker to view and manipulate processes, kernel options and other low level stuff
+sigma_id: fca949cc-79ca-446e-8064-01aa7e52ece5
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+  - TA0007
+techniques:
+  - T1082
+  - T1057
+  - T1012
+  - T1083
+  - T1007
+author: Florian Roth (Nextron Systems), Nasreddine Bencherchali
+date: '2022-10-10'
+modified: '2024-11-23'
+falsepositives:
+  - Unlikely
+references:
+  - https://web.archive.org/web/20231210115125/http://www.xuetr.com/
+  - https://www.crowdstrike.com/blog/falcon-overwatch-report-finds-increase-in-ecrime/
+  - https://www.hexacorn.com/blog/2018/04/20/kernel-hacking-tool-you-might-have-never-heard-of-xuetr-pchunter/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hktl_pchunter.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: HackTool - PCHunter Execution
+id: fca949cc-79ca-446e-8064-01aa7e52ece5
+status: test
+description: Detects suspicious use of PCHunter, a tool like Process Hacker to view and manipulate processes, kernel options and other low level stuff
+references:
+    - https://web.archive.org/web/20231210115125/http://www.xuetr.com/
+    - https://www.crowdstrike.com/blog/falcon-overwatch-report-finds-increase-in-ecrime/
+    - https://www.hexacorn.com/blog/2018/04/20/kernel-hacking-tool-you-might-have-never-heard-of-xuetr-pchunter/
+author: Florian Roth (Nextron Systems), Nasreddine Bencherchali
+date: 2022-10-10
+modified: 2024-11-23
+tags:
+    - attack.execution
+    - attack.discovery
+    - attack.t1082
+    - attack.t1057
+    - attack.t1012
+    - attack.t1083
+    - attack.t1007
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_image:
+        Image|endswith:
+            - '\PCHunter64.exe'
+            - '\PCHunter32.exe'
+    selection_pe:
+        - OriginalFileName: 'PCHunter.exe'
+        - Description: 'Epoolsoft Windows Information View Tools'
+    selection_hashes:
+        Hashes|contains:
+            - 'SHA1=5F1CBC3D99558307BC1250D084FA968521482025'
+            - 'MD5=987B65CD9B9F4E9A1AFD8F8B48CF64A7'
+            - 'SHA256=2B214BDDAAB130C274DE6204AF6DBA5AEEC7433DA99AA950022FA306421A6D32'
+            - 'IMPHASH=444D210CEA1FF8112F256A4997EED7FF'
+            - 'SHA1=3FB89787CB97D902780DA080545584D97FB1C2EB'
+            - 'MD5=228DD0C2E6287547E26FFBD973A40F14'
+            - 'SHA256=55F041BF4E78E9BFA6D4EE68BE40E496CE3A1353E1CA4306598589E19802522C'
+            - 'IMPHASH=0479F44DF47CFA2EF1CCC4416A538663'
+    condition: 1 of selection_*
+falsepositives:
+    - Unlikely
+level: high
+```

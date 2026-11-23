@@ -1,0 +1,66 @@
+---
+title: Mstsc.EXE Execution From Uncommon Parent
+summary: Detects potential RDP connection via Mstsc using a local ".rdp" file located in suspicious locations.
+sigma_id: ff3b6b39-e765-42f9-bb2c-ea6761e0e0f6
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0008
+techniques: []
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2023-04-18'
+falsepositives:
+  - Unlikely
+references:
+  - https://www.blackhillsinfosec.com/rogue-rdp-revisiting-initial-access-methods/
+  - https://web.archive.org/web/20230726144748/https://blog.thickmints.dev/mintsights/detecting-rogue-rdp/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_mstsc_run_local_rpd_file_susp_parent.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Mstsc.EXE Execution From Uncommon Parent
+id: ff3b6b39-e765-42f9-bb2c-ea6761e0e0f6
+status: test
+description: Detects potential RDP connection via Mstsc using a local ".rdp" file located in suspicious locations.
+references:
+    - https://www.blackhillsinfosec.com/rogue-rdp-revisiting-initial-access-methods/
+    - https://web.archive.org/web/20230726144748/https://blog.thickmints.dev/mintsights/detecting-rogue-rdp/
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2023-04-18
+tags:
+    - attack.lateral-movement
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        ParentImage|endswith:
+            # Covers potential downloads/clicks from browsers
+            - '\brave.exe'
+            - '\CCleanerBrowser.exe'
+            - '\chrome.exe'
+            - '\chromium.exe'
+            - '\firefox.exe'
+            - '\iexplore.exe'
+            - '\microsoftedge.exe'
+            - '\msedge.exe'
+            - '\opera.exe'
+            - '\vivaldi.exe'
+            - '\whale.exe'
+            # Covers potential downloads/clicks from email clients
+            - '\outlook.exe'
+    selection_img:
+        - Image|endswith: '\mstsc.exe'
+        - OriginalFileName: 'mstsc.exe'
+    condition: all of selection_*
+falsepositives:
+    - Unlikely
+level: high
+```

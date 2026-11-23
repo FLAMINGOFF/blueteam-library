@@ -1,0 +1,53 @@
+---
+title: Suspicious GrpConv Execution
+summary: Detects the suspicious execution of a utility to convert Windows 3.x .grp files or for persistence purposes by malicious software or actors
+sigma_id: f14e169e-9978-4c69-acb3-1cff8200bc36
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+  - TA0003
+techniques:
+  - T1547
+author: Florian Roth (Nextron Systems)
+date: '2022-05-19'
+falsepositives:
+  - Unknown
+references:
+  - https://twitter.com/0gtweet/status/1526833181831200770
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_lolbin_susp_grpconv.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious GrpConv Execution
+id: f14e169e-9978-4c69-acb3-1cff8200bc36
+status: test
+description: Detects the suspicious execution of a utility to convert Windows 3.x .grp files or for persistence purposes by malicious software or actors
+references:
+    - https://twitter.com/0gtweet/status/1526833181831200770
+author: Florian Roth (Nextron Systems)
+date: 2022-05-19
+tags:
+    - attack.privilege-escalation
+    - attack.persistence
+    - attack.t1547
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        CommandLine|contains:
+            - 'grpconv.exe -o'
+            - 'grpconv -o'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+```

@@ -1,0 +1,69 @@
+---
+title: Reg Add Suspicious Paths
+summary: Detects when an adversary uses the reg.exe utility to add or modify new keys or subkeys
+sigma_id: b7e2a8d4-74bb-4b78-adc9-3f92af2d4829
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0003
+techniques:
+  - T1112
+  - T1685
+author: frack113, Nasreddine Bencherchali (Nextron Systems)
+date: '2022-08-19'
+modified: '2022-10-10'
+falsepositives:
+  - Rare legitimate add to registry via cli (to these locations)
+references:
+  - https://github.com/redcanaryco/atomic-red-team/blob/40b77d63808dd4f4eafb83949805636735a1fd15/atomics/T1112/T1112.md
+  - https://github.com/redcanaryco/atomic-red-team/blob/40b77d63808dd4f4eafb83949805636735a1fd15/atomics/T1562.001/T1562.001.md
+  - https://www.absolomb.com/2018-01-26-Windows-Privilege-Escalation-Guide/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_reg_susp_paths.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Reg Add Suspicious Paths
+id: b7e2a8d4-74bb-4b78-adc9-3f92af2d4829
+status: test
+description: Detects when an adversary uses the reg.exe utility to add or modify new keys or subkeys
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/40b77d63808dd4f4eafb83949805636735a1fd15/atomics/T1112/T1112.md
+    - https://github.com/redcanaryco/atomic-red-team/blob/40b77d63808dd4f4eafb83949805636735a1fd15/atomics/T1562.001/T1562.001.md
+    - https://www.absolomb.com/2018-01-26-Windows-Privilege-Escalation-Guide/
+author: frack113, Nasreddine Bencherchali (Nextron Systems)
+date: 2022-08-19
+modified: 2022-10-10
+tags:
+    - attack.persistence
+    - attack.defense-impairment
+    - attack.t1112
+    - attack.t1685
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_reg:
+        - Image|endswith: '\reg.exe'
+        - OriginalFileName: 'reg.exe'
+    selection_path:
+        CommandLine|contains:
+            # Add more suspicious registry locations below
+            - '\AppDataLow\Software\Microsoft\'
+            - '\Policies\Microsoft\Windows\OOBE'
+            - '\Policies\Microsoft\Windows NT\CurrentVersion\Winlogon'
+            - '\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon'
+            - '\CurrentControlSet\Control\SecurityProviders\WDigest'
+            - '\Microsoft\Windows Defender\'
+    condition: all of selection_*
+falsepositives:
+    - Rare legitimate add to registry via cli (to these locations)
+level: high
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_reg_susp_paths/info.yml
+```

@@ -1,0 +1,78 @@
+---
+title: Potential Meterpreter/CobaltStrike Activity
+summary: Detects the use of getsystem Meterpreter/Cobalt Strike command by detecting a specific service starting
+sigma_id: 15619216-e993-4721-b590-4c520615a67d
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+techniques:
+  - T1134.001
+  - T1134.002
+author: Teymur Kheirkhabarov, Ecco, Florian Roth
+date: '2019-10-26'
+modified: '2023-02-05'
+falsepositives:
+  - Commandlines containing components like cmd accidentally
+  - Jobs and services started with cmd
+references:
+  - https://speakerdeck.com/heirhabarov/hunting-for-privilege-escalation-in-windows-environment
+  - https://blog.cobaltstrike.com/2014/04/02/what-happens-when-i-type-getsystem/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hktl_meterpreter_getsystem.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Meterpreter/CobaltStrike Activity
+id: 15619216-e993-4721-b590-4c520615a67d
+status: test
+description: Detects the use of getsystem Meterpreter/Cobalt Strike command by detecting a specific service starting
+references:
+    - https://speakerdeck.com/heirhabarov/hunting-for-privilege-escalation-in-windows-environment
+    - https://blog.cobaltstrike.com/2014/04/02/what-happens-when-i-type-getsystem/
+author: Teymur Kheirkhabarov, Ecco, Florian Roth
+date: 2019-10-26
+modified: 2023-02-05
+tags:
+    - attack.privilege-escalation
+    - attack.stealth
+    - attack.t1134.001
+    - attack.t1134.002
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        ParentImage|endswith: '\services.exe'
+    selection_technique_1:
+        # Examples:
+        #   Meterpreter  getsystem technique 1: cmd.exe /c echo 559891bb017 > \\.\pipe\5e120a
+        #   CobaltStrike getsystem technique 1b (expanded env var): %COMSPEC% /c echo 559891bb017 > \\.\pipe\5e120a
+        #   CobaltStrike getsystem technique 1: %COMSPEC% /c echo 559891bb017 > \\.\pipe\5e120a
+        CommandLine|contains|all:
+            - '/c'
+            - 'echo'
+            - '\pipe\'
+        CommandLine|contains:
+            - 'cmd'
+            - '%COMSPEC%'
+    selection_technique_2:
+        # meterpreter getsystem technique 2: rundll32.exe C:\Users\test\AppData\Local\Temp\tmexsn.dll,a /p:tmexsn
+        CommandLine|contains|all:
+            - 'rundll32'
+            - '.dll,a'
+            - '/p:'
+    filter_defender:
+        CommandLine|contains: 'MpCmdRun'
+    condition: selection_img and 1 of selection_technique_* and not 1 of filter_*
+falsepositives:
+    - Commandlines containing components like cmd accidentally
+    - Jobs and services started with cmd
+level: high
+```

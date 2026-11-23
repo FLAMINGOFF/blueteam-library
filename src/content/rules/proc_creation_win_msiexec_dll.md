@@ -1,0 +1,61 @@
+---
+title: DllUnregisterServer Function Call Via Msiexec.EXE
+summary: Detects MsiExec loading a DLL and calling its DllUnregisterServer function
+sigma_id: 84f52741-8834-4a8c-a413-2eb2269aa6c8
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1218.007
+author: frack113
+date: '2022-04-24'
+modified: '2026-10-31'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1218.007/T1218.007.md
+  - https://lolbas-project.github.io/lolbas/Binaries/Msiexec/
+  - https://twitter.com/_st0pp3r_/status/1583914515996897281
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_msiexec_dll.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: DllUnregisterServer Function Call Via Msiexec.EXE
+id: 84f52741-8834-4a8c-a413-2eb2269aa6c8
+status: test
+description: Detects MsiExec loading a DLL and calling its DllUnregisterServer function
+references:
+    - https://github.com/redcanaryco/atomic-red-team/blob/f339e7da7d05f6057fdfcdd3742bfcf365fee2a9/atomics/T1218.007/T1218.007.md
+    - https://lolbas-project.github.io/lolbas/Binaries/Msiexec/
+    - https://twitter.com/_st0pp3r_/status/1583914515996897281
+author: frack113
+date: 2022-04-24
+modified: 2026-10-31
+tags:
+    - attack.stealth
+    - attack.t1218.007
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_img:
+        - Image|endswith: '\msiexec.exe'
+        - OriginalFileName: 'msiexec.exe'
+    selection_cli:
+        CommandLine|contains|windash: ' -z '
+        CommandLine|contains: '.dll'
+    filter_optional_msihandler:
+        CommandLine|endswith: '\MsiExec.exe" /Z "C:\Windows\CCM\MsiHandler.dll"'
+    condition: all of selection_* and not 1 of filter_optional_*
+falsepositives:
+    - Unknown
+level: medium
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_msiexec_dll/info.yml
+```

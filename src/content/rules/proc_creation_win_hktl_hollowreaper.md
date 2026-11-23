@@ -1,0 +1,54 @@
+---
+title: HackTool - HollowReaper Execution
+summary: |-
+  Detects usage of HollowReaper, a process hollowing shellcode launcher used for stealth payload execution through process hollowing.
+  It replaces the memory of a legitimate process with custom shellcode, allowing the attacker to execute payloads under the guise of trusted binaries.
+sigma_id: 85d23b42-9a9d-4f8f-b3d7-d2733c1d58f5
+status: experimental
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+techniques:
+  - T1055.012
+author: Swachchhanda Shrawan Poudel (Nextron Systems)
+date: '2025-07-01'
+falsepositives:
+  - Unknown
+references:
+  - https://github.com/vari-sh/RedTeamGrimoire/tree/b5e7635d34db6e1f0398d8847e8f293186e947c5/HollowReaper
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hktl_hollowreaper.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: HackTool - HollowReaper Execution
+id: 85d23b42-9a9d-4f8f-b3d7-d2733c1d58f5
+status: experimental
+description: |
+    Detects usage of HollowReaper, a process hollowing shellcode launcher used for stealth payload execution through process hollowing.
+    It replaces the memory of a legitimate process with custom shellcode, allowing the attacker to execute payloads under the guise of trusted binaries.
+references:
+    - https://github.com/vari-sh/RedTeamGrimoire/tree/b5e7635d34db6e1f0398d8847e8f293186e947c5/HollowReaper
+author: Swachchhanda Shrawan Poudel (Nextron Systems)
+date: 2025-07-01
+tags:
+    - attack.privilege-escalation
+    - attack.stealth
+    - attack.t1055.012
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\HollowReaper.exe'
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+```

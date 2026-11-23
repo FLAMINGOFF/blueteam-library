@@ -1,0 +1,58 @@
+---
+title: File Encoded To Base64 Via Certutil.EXE
+summary: Detects the execution of certutil with the "encode" flag to encode a file to base64. This can be abused by threat actors and attackers for data exfiltration
+sigma_id: e62a9f0c-ca1e-46b2-85d5-a6da77f86d1a
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1027
+author: Florian Roth (Nextron Systems), Jonhnathan Ribeiro, oscd.community, Nasreddine Bencherchali (Nextron Systems)
+date: '2019-02-24'
+modified: '2024-03-05'
+falsepositives:
+  - As this is a general purpose rule, legitimate usage of the encode functionality will trigger some false positives. Apply additional filters accordingly
+references:
+  - https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/certutil
+  - https://unit42.paloaltonetworks.com/new-babyshark-malware-targets-u-s-national-security-think-tanks/
+  - https://lolbas-project.github.io/lolbas/Binaries/Certutil/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_certutil_encode.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: File Encoded To Base64 Via Certutil.EXE
+id: e62a9f0c-ca1e-46b2-85d5-a6da77f86d1a
+status: test
+description: Detects the execution of certutil with the "encode" flag to encode a file to base64. This can be abused by threat actors and attackers for data exfiltration
+references:
+    - https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/certutil
+    - https://unit42.paloaltonetworks.com/new-babyshark-malware-targets-u-s-national-security-think-tanks/
+    - https://lolbas-project.github.io/lolbas/Binaries/Certutil/
+author: Florian Roth (Nextron Systems), Jonhnathan Ribeiro, oscd.community, Nasreddine Bencherchali (Nextron Systems)
+date: 2019-02-24
+modified: 2024-03-05
+tags:
+    - attack.stealth
+    - attack.t1027
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\certutil.exe'
+        - OriginalFileName: 'CertUtil.exe'
+    selection_cli:
+        CommandLine|contains|windash: '-encode'
+    condition: all of selection_*
+falsepositives:
+    - As this is a general purpose rule, legitimate usage of the encode functionality will trigger some false positives. Apply additional filters accordingly
+level: medium
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_certutil_encode/info.yml
+```

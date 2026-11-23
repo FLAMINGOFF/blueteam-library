@@ -1,0 +1,72 @@
+---
+title: MMC Executing Files with Reversed Extensions Using RTLO Abuse
+summary: Detects malicious behavior where the MMC utility (`mmc.exe`) executes files with reversed extensions caused by Right-to-Left Override (RLO) abuse, disguising them as document formats.
+sigma_id: 9cfe4b27-1e56-48b4-b7a8-d46851c91a44
+status: experimental
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1204.002
+  - T1218.014
+  - T1036.002
+author: Swachchhanda Shrawan Poudel (Nextron Systems)
+date: '2025-02-05'
+falsepositives:
+  - Legitimate administrative actions using MMC to execute misnamed `.msc` files.
+  - Unconventional but non-malicious usage of RLO or reversed extensions.
+references:
+  - https://www.unicode.org/versions/Unicode5.2.0/ch02.pdf
+  - https://en.wikipedia.org/wiki/Right-to-left_override
+  - https://tria.ge/241015-l98snsyeje/behavioral2
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_mmc_rlo_abuse_pattern.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: MMC Executing Files with Reversed Extensions Using RTLO Abuse
+id: 9cfe4b27-1e56-48b4-b7a8-d46851c91a44
+status: experimental
+description: Detects malicious behavior where the MMC utility (`mmc.exe`) executes files with reversed extensions caused by Right-to-Left Override (RLO) abuse, disguising them as document formats.
+references:
+    - https://www.unicode.org/versions/Unicode5.2.0/ch02.pdf
+    - https://en.wikipedia.org/wiki/Right-to-left_override
+    - https://tria.ge/241015-l98snsyeje/behavioral2
+author: Swachchhanda Shrawan Poudel (Nextron Systems)
+date: 2025-02-05
+tags:
+    - attack.execution
+    - attack.stealth
+    - attack.t1204.002
+    - attack.t1218.014
+    - attack.t1036.002
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_image:
+        - Image|endswith: '\mmc.exe'
+        - OriginalFileName: 'MMC.exe'
+    selection_commandline:
+        CommandLine|contains: # While looking at these files the prefix of their name will look something like csm.pdf, but in reality it is msc file
+            - 'cod.msc'  # Reversed `.doc`
+            - 'fdp.msc'  # Reversed `.pdf`
+            - 'ftr.msc'  # Reversed `.rtf`
+            - 'lmth.msc'  # Reversed `.html`
+            - 'slx.msc'  # Reversed `.xls`
+            - 'tdo.msc'  # Reversed `.odt`
+            - 'xcod.msc'  # Reversed `.docx`
+            - 'xslx.msc'  # Reversed `.xlsx`
+            - 'xtpp.msc'  # Reversed `.pptx`
+    condition: all of selection_*
+falsepositives:
+    - Legitimate administrative actions using MMC to execute misnamed `.msc` files.
+    - Unconventional but non-malicious usage of RLO or reversed extensions.
+level: high
+```

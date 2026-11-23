@@ -1,0 +1,11 @@
+---
+import Base from "../../layouts/Base.astro";
+import ListApp from "../../components/ListApp.astro";
+import { langPaths, t, type Lang } from "../../i18n";
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+---
+<Base lang={lang} title={t(lang, "search")}>
+  <h1>{t(lang, "search")}</h1>
+  <ListApp lang={lang} mode="search" />
+</Base>

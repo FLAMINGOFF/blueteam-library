@@ -1,0 +1,73 @@
+---
+title: PUA - System Informer Execution
+summary: Detects the execution of System Informer, a task manager tool to view and manipulate processes, kernel options and other low level operations
+sigma_id: 5722dff1-4bdd-4949-86ab-fbaf707e767a
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0003
+  - TA0004
+  - TA0007
+techniques:
+  - T1082
+  - T1564
+  - T1543
+author: Florian Roth (Nextron Systems)
+date: '2023-05-08'
+modified: '2024-11-23'
+falsepositives:
+  - System Informer is regularly used legitimately by system administrators or developers. Apply additional filters accordingly
+references:
+  - https://github.com/winsiderss/systeminformer
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_pua_system_informer.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: PUA - System Informer Execution
+id: 5722dff1-4bdd-4949-86ab-fbaf707e767a
+related:
+    - id: 811e0002-b13b-4a15-9d00-a613fce66e42
+      type: similar
+status: test
+description: Detects the execution of System Informer, a task manager tool to view and manipulate processes, kernel options and other low level operations
+references:
+    - https://github.com/winsiderss/systeminformer
+author: Florian Roth (Nextron Systems)
+date: 2023-05-08
+modified: 2024-11-23
+tags:
+    - attack.persistence
+    - attack.privilege-escalation
+    - attack.discovery
+    - attack.stealth
+    - attack.t1082
+    - attack.t1564
+    - attack.t1543
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        - Image|endswith: '\SystemInformer.exe'
+        - OriginalFileName: 'SystemInformer.exe'
+        - Description: 'System Informer'
+        - Product: 'System Informer'
+        - Hashes|contains:
+              # Note: add other hashes as needed
+              # 3.0.11077.6550
+              - 'MD5=19426363A37C03C3ED6FEDF57B6696EC'
+              - 'SHA1=8B12C6DA8FAC0D5E8AB999C31E5EA04AF32D53DC'
+              - 'SHA256=8EE9D84DE50803545937A63C686822388A3338497CDDB660D5D69CF68B68F287'
+              - 'IMPHASH=B68908ADAEB5D662F87F2528AF318F12'
+    condition: selection
+falsepositives:
+    - System Informer is regularly used legitimately by system administrators or developers. Apply additional filters accordingly
+level: medium
+```

@@ -1,0 +1,74 @@
+---
+title: Cscript/Wscript Uncommon Script Extension Execution
+summary: Detects Wscript/Cscript executing a file with an uncommon (i.e. non-script) extension
+sigma_id: 99b7460d-c9f1-40d7-a316-1f36f61d52ee
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1059.005
+  - T1059.007
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2023-05-15'
+modified: '2023-06-19'
+falsepositives:
+  - Unknown
+references:
+  - Internal Research
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_wscript_cscript_uncommon_extension_exec.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Cscript/Wscript Uncommon Script Extension Execution
+id: 99b7460d-c9f1-40d7-a316-1f36f61d52ee
+status: test
+description: Detects Wscript/Cscript executing a file with an uncommon (i.e. non-script) extension
+references:
+    - Internal Research
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2023-05-15
+modified: 2023-06-19
+tags:
+    - attack.execution
+    - attack.t1059.005
+    - attack.t1059.007
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - OriginalFileName:
+              - 'wscript.exe'
+              - 'cscript.exe'
+        - Image|endswith:
+              - '\wscript.exe'
+              - '\cscript.exe'
+    selection_extension:
+        CommandLine|contains:
+            # Note: add additional potential suspicious extension
+            # We could specify the "//E:" flag to avoid typos by admin. But since that's prone to blind spots via the creation of assoc it's better not to include it
+            - '.csv'
+            - '.dat'
+            - '.doc'
+            - '.gif'
+            - '.jpeg'
+            - '.jpg'
+            - '.png'
+            - '.ppt'
+            - '.txt'
+            - '.xls'
+            - '.xml'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_wscript_cscript_uncommon_extension_exec/info.yml
+```

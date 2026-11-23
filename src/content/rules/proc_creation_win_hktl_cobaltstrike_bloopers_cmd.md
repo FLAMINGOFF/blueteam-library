@@ -1,0 +1,75 @@
+---
+title: Operator Bloopers Cobalt Strike Commands
+summary: Detects use of Cobalt Strike commands accidentally entered in the CMD shell
+sigma_id: 647c7b9e-d784-4fda-b9a0-45c565a7b729
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1059.003
+author: _pete_0, TheDFIRReport
+date: '2022-05-06'
+modified: '2023-01-30'
+falsepositives:
+  - Unknown
+references:
+  - https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/cobalt-4-5-user-guide.pdf
+  - https://thedfirreport.com/2021/10/04/bazarloader-and-the-conti-leaks/
+  - https://thedfirreport.com/2022/06/16/sans-ransomware-summit-2022-can-you-detect-this/
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hktl_cobaltstrike_bloopers_cmd.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Operator Bloopers Cobalt Strike Commands
+id: 647c7b9e-d784-4fda-b9a0-45c565a7b729
+related:
+    - id: 4f154fb6-27d1-4813-a759-78b93e0b9c48
+      type: similar
+status: test
+description: Detects use of Cobalt Strike commands accidentally entered in the CMD shell
+references:
+    - https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/cobalt-4-5-user-guide.pdf
+    - https://thedfirreport.com/2021/10/04/bazarloader-and-the-conti-leaks/
+    - https://thedfirreport.com/2022/06/16/sans-ransomware-summit-2022-can-you-detect-this/
+author: _pete_0, TheDFIRReport
+date: 2022-05-06
+modified: 2023-01-30
+tags:
+    - attack.execution
+    - attack.t1059.003
+    - stp.1u
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - OriginalFileName: 'Cmd.Exe'
+        - Image|endswith: '\cmd.exe'
+    selection_cli:
+        CommandLine|startswith:
+            - 'cmd '
+            - 'cmd.exe'
+            - 'c:\windows\system32\cmd.exe'
+        CommandLine|contains:
+            - 'psinject'
+            - 'spawnas'
+            - 'make_token'
+            - 'remote-exec'
+            - 'rev2self'
+            - 'dcsync'
+            - 'logonpasswords'
+            - 'execute-assembly'
+            - 'getsystem'
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

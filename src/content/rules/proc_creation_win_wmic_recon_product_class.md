@@ -1,0 +1,73 @@
+---
+title: Potential Product Class Reconnaissance Via Wmic.EXE
+summary: |-
+  Detects the execution of WMIC in order to get a list of firewall, antivirus and antispywware products.
+  Adversaries often enumerate security products installed on a system to identify security controls and potential ways to evade detection or disable protection mechanisms.
+  This information helps them plan their next attack steps and choose appropriate techniques to bypass security measures.
+sigma_id: e568650b-5dcd-4658-8f34-ded0b1e13992
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+  - TA0007
+techniques:
+  - T1047
+  - T1082
+author: Michael Haag, Florian Roth (Nextron Systems), juju4, oscd.community, Swachchhanda Shrawan Poudel (Nextron Systems)
+date: '2023-02-14'
+modified: '2025-03-17'
+falsepositives:
+  - Legitimate use of wmic.exe for reconnaissance of firewall, antivirus and antispywware products.
+references:
+  - https://github.com/albertzsigovits/malware-notes/blob/c820c7fea76cf76a861b28ebc77e06100e20ec29/Ransomware/Maze.md
+  - https://www.hybrid-analysis.com/sample/4be06ecd234e2110bd615649fe4a6fa95403979acf889d7e45a78985eb50acf9?environmentId=1
+  - https://www.trendmicro.com/en_us/research/25/c/socgholishs-intrusion-techniques-facilitate-distribution-of-rans.html
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_wmic_recon_product_class.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potential Product Class Reconnaissance Via Wmic.EXE
+id: e568650b-5dcd-4658-8f34-ded0b1e13992
+status: test
+description: |
+    Detects the execution of WMIC in order to get a list of firewall, antivirus and antispywware products.
+    Adversaries often enumerate security products installed on a system to identify security controls and potential ways to evade detection or disable protection mechanisms.
+    This information helps them plan their next attack steps and choose appropriate techniques to bypass security measures.
+references:
+    - https://github.com/albertzsigovits/malware-notes/blob/c820c7fea76cf76a861b28ebc77e06100e20ec29/Ransomware/Maze.md
+    - https://www.hybrid-analysis.com/sample/4be06ecd234e2110bd615649fe4a6fa95403979acf889d7e45a78985eb50acf9?environmentId=1
+    - https://www.trendmicro.com/en_us/research/25/c/socgholishs-intrusion-techniques-facilitate-distribution-of-rans.html
+author: Michael Haag, Florian Roth (Nextron Systems), juju4, oscd.community, Swachchhanda Shrawan Poudel (Nextron Systems)
+date: 2023-02-14
+modified: 2025-03-17
+tags:
+    - attack.execution
+    - attack.t1047
+    - attack.discovery
+    - attack.t1082
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\wmic.exe'
+        - OriginalFileName: 'wmic.exe'
+    selection_cli:
+        # Example: wmic.exe /Namespace:\\root\SecurityCenter2 Path AntiVirusProduct Get displayName /Format:List
+        CommandLine|contains:
+            - 'AntiVirusProduct'
+            - 'AntiSpywareProduct'
+            - 'FirewallProduct'
+    condition: all of selection_*
+falsepositives:
+    - Legitimate use of wmic.exe for reconnaissance of firewall, antivirus and antispywware products.
+level: medium
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_wmic_recon_product_class/info.yml
+```

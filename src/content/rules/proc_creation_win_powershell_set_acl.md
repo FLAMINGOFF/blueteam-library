@@ -1,0 +1,65 @@
+---
+title: PowerShell Script Change Permission Via Set-Acl
+summary: Detects PowerShell execution to set the ACL of a file or a folder
+sigma_id: bdeb2cff-af74-4094-8426-724dc937f20a
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques: []
+author: Nasreddine Bencherchali (Nextron Systems)
+date: '2022-10-18'
+falsepositives:
+  - Unknown
+references:
+  - https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-acl?view=powershell-5.1
+  - https://github.com/redcanaryco/atomic-red-team/blob/74438b0237d141ee9c99747976447dc884cb1a39/atomics/T1505.005/T1505.005.md
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_powershell_set_acl.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: PowerShell Script Change Permission Via Set-Acl
+id: bdeb2cff-af74-4094-8426-724dc937f20a
+related:
+    - id: cae80281-ef23-44c5-873b-fd48d2666f49 # PsScript Low
+      type: derived
+    - id: 0944e002-e3f6-4eb5-bf69-3a3067b53d73 # ProcCreation Susp
+      type: derived
+    - id: 3bf1d859-3a7e-44cb-8809-a99e066d3478 # PsScript High
+      type: derived
+status: test
+description: Detects PowerShell execution to set the ACL of a file or a folder
+references:
+    - https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.security/set-acl?view=powershell-5.1
+    - https://github.com/redcanaryco/atomic-red-team/blob/74438b0237d141ee9c99747976447dc884cb1a39/atomics/T1505.005/T1505.005.md
+author: Nasreddine Bencherchali (Nextron Systems)
+date: 2022-10-18
+tags:
+    - attack.stealth
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - OriginalFileName:
+              - 'PowerShell.EXE'
+              - 'pwsh.dll'
+        - Image|endswith:
+              - '\powershell.exe'
+              - '\pwsh.exe'
+    selection_cmdlet:
+        CommandLine|contains|all:
+            - 'Set-Acl '
+            - '-AclObject '
+            - '-Path '
+    condition: all of selection_*
+falsepositives:
+    - Unknown
+level: high
+```

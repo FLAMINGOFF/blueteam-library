@@ -1,0 +1,86 @@
+---
+title: Suspicious Child Process Of Wermgr.EXE
+summary: Detects suspicious Windows Error Reporting manager (wermgr.exe) child process
+sigma_id: 396f6630-f3ac-44e3-bfc8-1b161bc00c4e
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+techniques:
+  - T1055
+  - T1036
+author: Florian Roth (Nextron Systems)
+date: '2022-10-14'
+modified: '2024-08-29'
+falsepositives:
+  - Unknown
+references:
+  - https://www.trendmicro.com/en_us/research/22/j/black-basta-infiltrates-networks-via-qakbot-brute-ratel-and-coba.html
+  - https://www.echotrail.io/insights/search/wermgr.exe
+  - https://github.com/binderlabs/DirCreate2System
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_wermgr_susp_child_process.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Suspicious Child Process Of Wermgr.EXE
+id: 396f6630-f3ac-44e3-bfc8-1b161bc00c4e
+related:
+    - id: 5394fcc7-aeb2-43b5-9a09-cac9fc5edcd5
+      type: similar
+status: test
+description: Detects suspicious Windows Error Reporting manager (wermgr.exe) child process
+references:
+    - https://www.trendmicro.com/en_us/research/22/j/black-basta-infiltrates-networks-via-qakbot-brute-ratel-and-coba.html
+    - https://www.echotrail.io/insights/search/wermgr.exe
+    - https://github.com/binderlabs/DirCreate2System
+author: Florian Roth (Nextron Systems)
+date: 2022-10-14
+modified: 2024-08-29
+tags:
+    - attack.privilege-escalation
+    - attack.stealth
+    - attack.t1055
+    - attack.t1036
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        ParentImage|endswith: '\wermgr.exe'
+        Image|endswith:
+            - '\cmd.exe'
+            - '\cscript.exe'
+            - '\ipconfig.exe'
+            - '\mshta.exe'
+            - '\net.exe'
+            - '\net1.exe'
+            - '\netstat.exe'
+            - '\nslookup.exe'
+            - '\powershell_ise.exe'
+            - '\powershell.exe'
+            - '\pwsh.exe'
+            - '\regsvr32.exe'
+            - '\rundll32.exe'
+            - '\systeminfo.exe'
+            - '\whoami.exe'
+            - '\wscript.exe'
+    filter_main_rundll32:
+        Image|endswith: '\rundll32.exe'
+        CommandLine|contains|all:
+            - 'C:\Windows\system32\WerConCpl.dll'
+            - 'LaunchErcApp '
+        CommandLine|contains:
+            - '-queuereporting'
+            - '-responsepester'
+    condition: selection and not 1 of filter_main_*
+falsepositives:
+    - Unknown
+level: high
+```

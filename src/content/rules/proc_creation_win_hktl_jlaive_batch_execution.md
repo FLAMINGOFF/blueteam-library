@@ -1,0 +1,70 @@
+---
+title: HackTool - Jlaive In-Memory Assembly Execution
+summary: Detects the use of Jlaive to execute assemblies in a copied PowerShell
+sigma_id: 0a99eb3e-1617-41bd-b095-13dc767f3def
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+techniques:
+  - T1059.003
+author: Jose Luis Sanchez Martinez (@Joseliyo_Jstnk)
+date: '2022-05-24'
+modified: '2023-02-22'
+falsepositives:
+  - Unknown
+references:
+  - https://jstnk9.github.io/jstnk9/research/Jlaive-Antivirus-Evasion-Tool
+  - https://web.archive.org/web/20220514073704/https://github.com/ch2sh/Jlaive
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_hktl_jlaive_batch_execution.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: HackTool - Jlaive In-Memory Assembly Execution
+id: 0a99eb3e-1617-41bd-b095-13dc767f3def
+status: test
+description: Detects the use of Jlaive to execute assemblies in a copied PowerShell
+references:
+    - https://jstnk9.github.io/jstnk9/research/Jlaive-Antivirus-Evasion-Tool
+    - https://web.archive.org/web/20220514073704/https://github.com/ch2sh/Jlaive
+author: Jose Luis Sanchez Martinez (@Joseliyo_Jstnk)
+date: 2022-05-24
+modified: 2023-02-22
+tags:
+    - attack.execution
+    - attack.t1059.003
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    parent_selection:
+        ParentImage|endswith: '\cmd.exe'
+        ParentCommandLine|endswith: '.bat'
+    selection1:
+        Image|endswith: '\xcopy.exe'
+        CommandLine|contains|all:
+            - 'powershell.exe'
+            - '.bat.exe'
+    selection2:
+        Image|endswith: '\xcopy.exe'
+        CommandLine|contains|all:
+            - 'pwsh.exe'
+            - '.bat.exe'
+    selection3:
+        Image|endswith: '\attrib.exe'
+        CommandLine|contains|all:
+            - '+s'
+            - '+h'
+            - '.bat.exe'
+    condition: parent_selection and (1 of selection*)
+falsepositives:
+    - Unknown
+level: medium
+```

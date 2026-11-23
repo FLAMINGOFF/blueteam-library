@@ -1,0 +1,61 @@
+---
+title: UAC Bypass Using ChangePK and SLUI
+summary: Detects an UAC bypass that uses changepk.exe and slui.exe (UACMe 61)
+sigma_id: 503d581c-7df0-4bbe-b9be-5840c0ecc1fc
+status: test
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0004
+techniques:
+  - T1548.002
+author: Christian Burkard (Nextron Systems)
+date: '2021-08-23'
+modified: '2024-12-01'
+falsepositives:
+  - Unknown
+references:
+  - https://mattharr0ey.medium.com/privilege-escalation-uac-bypass-in-changepk-c40b92818d1b
+  - https://github.com/hfiref0x/UACME
+  - https://medium.com/falconforce/falconfriday-detecting-uac-bypasses-0xff16-86c2a9107abf
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_uac_bypass_changepk_slui.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: UAC Bypass Using ChangePK and SLUI
+id: 503d581c-7df0-4bbe-b9be-5840c0ecc1fc
+status: test
+description: Detects an UAC bypass that uses changepk.exe and slui.exe (UACMe 61)
+references:
+    - https://mattharr0ey.medium.com/privilege-escalation-uac-bypass-in-changepk-c40b92818d1b
+    - https://github.com/hfiref0x/UACME
+    - https://medium.com/falconforce/falconfriday-detecting-uac-bypasses-0xff16-86c2a9107abf
+author: Christian Burkard (Nextron Systems)
+date: 2021-08-23
+modified: 2024-12-01
+tags:
+    - attack.privilege-escalation
+    - attack.t1548.002
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\changepk.exe'
+        ParentImage|endswith: '\slui.exe'
+        IntegrityLevel:
+            - 'High'
+            - 'System'
+            - 'S-1-16-16384' # System
+            - 'S-1-16-12288' # High
+    condition: selection
+falsepositives:
+    - Unknown
+level: high
+```

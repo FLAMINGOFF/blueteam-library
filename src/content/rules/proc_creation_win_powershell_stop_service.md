@@ -1,0 +1,59 @@
+---
+title: Stop Windows Service Via PowerShell Stop-Service
+summary: Detects the stopping of a Windows service via the PowerShell Cmdlet "Stop-Service"
+sigma_id: c49c5062-0966-4170-9efd-9968c913a6cf
+status: test
+level: low
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0040
+techniques:
+  - T1489
+author: Jakob Weinzettl, oscd.community, Nasreddine Bencherchali (Nextron Systems)
+date: '2023-03-05'
+falsepositives:
+  - There are many legitimate reasons to stop a service. This rule isn't looking for any suspicious behaviour in particular. Filter legitimate activity accordingly
+references:
+  - https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/stop-service?view=powershell-7.4
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_powershell_stop_service.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Stop Windows Service Via PowerShell Stop-Service
+id: c49c5062-0966-4170-9efd-9968c913a6cf
+related:
+    - id: eb87818d-db5d-49cc-a987-d5da331fbd90
+      type: obsolete
+status: test
+description: Detects the stopping of a Windows service via the PowerShell Cmdlet "Stop-Service"
+references:
+    - https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/stop-service?view=powershell-7.4
+author: Jakob Weinzettl, oscd.community, Nasreddine Bencherchali (Nextron Systems)
+date: 2023-03-05
+tags:
+    - attack.impact
+    - attack.t1489
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_sc_net_img:
+        - OriginalFileName:
+              - 'PowerShell.EXE'
+              - 'pwsh.dll'
+        - Image|endswith:
+              - '\powershell.exe'
+              - '\pwsh.exe'
+    selection_cli:
+        CommandLine|contains: 'Stop-Service '
+    condition: all of selection_*
+falsepositives:
+    - There are many legitimate reasons to stop a service. This rule isn't looking for any suspicious behaviour in particular. Filter legitimate activity accordingly
+level: low
+```

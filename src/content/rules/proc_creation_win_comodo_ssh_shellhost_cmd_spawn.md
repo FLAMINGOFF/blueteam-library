@@ -1,0 +1,71 @@
+---
+title: OpenEDR Spawning Command Shell
+summary: |-
+  Detects the OpenEDR ssh-shellhost.exe spawning a command shell (cmd.exe) or PowerShell with PTY (pseudo-terminal) capabilities.
+  This may indicate remote command execution through OpenEDR's remote management features, which could be legitimate administrative activity or potential abuse of the remote access tool.
+  Threat actors may leverage OpenEDR's remote shell capabilities to execute commands on compromised systems, facilitating lateral movement or other command-and-control operations.
+sigma_id: 7f3a9c2d-4e8b-4a7f-9d3e-5c6f8a9b2e1d
+status: experimental
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics:
+  - TA0002
+  - TA0008
+  - TA0011
+techniques:
+  - T1059.003
+  - T1021.004
+  - T1219
+author: '@kostastsale'
+date: '2026-02-19'
+falsepositives:
+  - Legitimate use of OpenEDR for remote command execution
+references:
+  - https://kostas-ts.medium.com/detecting-abuse-of-openedrs-permissive-edr-trial-a-security-researcher-s-perspective-fc55bf53972c
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_comodo_ssh_shellhost_cmd_spawn.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: OpenEDR Spawning Command Shell
+id: 7f3a9c2d-4e8b-4a7f-9d3e-5c6f8a9b2e1d
+status: experimental
+description: |
+    Detects the OpenEDR ssh-shellhost.exe spawning a command shell (cmd.exe) or PowerShell with PTY (pseudo-terminal) capabilities.
+    This may indicate remote command execution through OpenEDR's remote management features, which could be legitimate administrative activity or potential abuse of the remote access tool.
+    Threat actors may leverage OpenEDR's remote shell capabilities to execute commands on compromised systems, facilitating lateral movement or other command-and-control operations.
+author: '@kostastsale'
+date: 2026-02-19
+references:
+    - https://kostas-ts.medium.com/detecting-abuse-of-openedrs-permissive-edr-trial-a-security-researcher-s-perspective-fc55bf53972c
+tags:
+    - attack.execution
+    - attack.t1059.003
+    - attack.lateral-movement
+    - attack.t1021.004
+    - attack.command-and-control
+    - attack.t1219
+logsource:
+    product: windows
+    category: process_creation
+detection:
+    selection_img:
+        ParentImage|endswith: '\ITSMService.exe'
+        Image|endswith: '\ssh-shellhost.exe'
+        CommandLine|contains: '--pty'
+    selection_cli_shell:
+        CommandLine|contains:
+            - 'bash'
+            - 'cmd'
+            - 'powershell'
+            - 'pwsh'
+    condition: all of selection_*
+falsepositives:
+    - Legitimate use of OpenEDR for remote command execution
+level: medium
+```

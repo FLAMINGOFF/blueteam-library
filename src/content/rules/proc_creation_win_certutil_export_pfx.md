@@ -1,0 +1,54 @@
+---
+title: Certificate Exported Via Certutil.EXE
+summary: Detects the execution of the certutil with the "exportPFX" flag which allows the utility to export certificates.
+sigma_id: 3ffd6f51-e6c1-47b7-94b4-c1e61d4117c5
+status: test
+level: medium
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1027
+author: Florian Roth (Nextron Systems), Jonhnathan Ribeiro, oscd.community, Nasreddine Bencherchali (Nextron Systems)
+date: '2023-02-15'
+modified: '2024-03-05'
+falsepositives:
+  - There legitimate reasons to export certificates. Investigate the activity to determine if it's benign
+references:
+  - https://www.splunk.com/en_us/blog/security/a-golden-saml-journey-solarwinds-continued.html
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_certutil_export_pfx.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Certificate Exported Via Certutil.EXE
+id: 3ffd6f51-e6c1-47b7-94b4-c1e61d4117c5
+status: test
+description: Detects the execution of the certutil with the "exportPFX" flag which allows the utility to export certificates.
+references:
+    - https://www.splunk.com/en_us/blog/security/a-golden-saml-journey-solarwinds-continued.html
+author: Florian Roth (Nextron Systems), Jonhnathan Ribeiro, oscd.community, Nasreddine Bencherchali (Nextron Systems)
+date: 2023-02-15
+modified: 2024-03-05
+tags:
+    - attack.stealth
+    - attack.t1027
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\certutil.exe'
+        - OriginalFileName: 'CertUtil.exe'
+    selection_cli:
+        CommandLine|contains|windash: '-exportPFX '
+    condition: all of selection_*
+falsepositives:
+    - There legitimate reasons to export certificates. Investigate the activity to determine if it's benign
+level: medium
+regression_tests_path: regression_data/rules/windows/process_creation/proc_creation_win_certutil_export_pfx/info.yml
+```

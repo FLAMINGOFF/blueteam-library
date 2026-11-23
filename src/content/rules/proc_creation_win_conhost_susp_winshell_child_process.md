@@ -1,0 +1,72 @@
+---
+title: Potentially Suspicious Child Processes Spawned by ConHost
+summary: Detects suspicious child processes related to Windows Shell utilities spawned by `conhost.exe`, which could indicate malicious activity using trusted system components.
+sigma_id: dfa03a09-8b92-4d83-8e74-f72839b1c407
+status: experimental
+level: high
+platform: windows
+logsource: windows / process_creation
+tactics: []
+techniques:
+  - T1202
+  - T1218
+author: Swachchhanda Shrawan Poudel (Nextron Systems)
+date: '2025-02-05'
+falsepositives:
+  - Legitimate administrative tasks using `conhost.exe` to spawn child processes such as `cmd.exe`, `powershell.exe`, or `regsvr32.exe`.
+references:
+  - https://tria.ge/241015-l98snsyeje/behavioral2
+source:
+  name: SigmaHQ
+  url: https://github.com/SigmaHQ/sigma/blob/698f0912f571d5fac3bf8c51f5421139834a011c/rules/windows/process_creation/proc_creation_win_conhost_susp_winshell_child_process.yml
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
+format: Sigma
+---
+
+```yaml
+title: Potentially Suspicious Child Processes Spawned by ConHost
+id: dfa03a09-8b92-4d83-8e74-f72839b1c407
+related:
+    - id: 7dc2dedd-7603-461a-bc13-15803d132355
+      type: similar
+status: experimental
+description: Detects suspicious child processes related to Windows Shell utilities spawned by `conhost.exe`, which could indicate malicious activity using trusted system components.
+references:
+    - https://tria.ge/241015-l98snsyeje/behavioral2
+author: Swachchhanda Shrawan Poudel (Nextron Systems)
+date: 2025-02-05
+tags:
+    - attack.stealth
+    - attack.t1202
+    - attack.t1218
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        ParentImage|endswith: '\conhost.exe'
+    selection_child:
+        - Image|endswith:
+              - '\cmd.exe'             # Windows Command Prompt
+              - '\cscript.exe'         # Windows Script Host (used for scripting exploits)
+              - '\mshta.exe'           # MSHTA (HTML Application Host, often abused)
+              - '\powershell_ise.exe'  # PowerShell ISE
+              - '\powershell.exe'      # Windows PowerShell
+              - '\pwsh.exe'            # PowerShell Core
+              - '\regsvr32.exe'        # Windows Registry Server (commonly used for exploits)
+              - '\wscript.exe'         # Windows Script Host (for executing scripts)
+        - OriginalFileName:
+              - 'cmd.exe'
+              - 'cscript.exe'
+              - 'mshta.exe'
+              - 'powershell_ise.exe'
+              - 'powershell.exe'
+              - 'pwsh.dll'
+              - 'regsvr32.exe'
+              - 'wscript.exe'
+    condition: all of selection_*
+falsepositives:
+    - Legitimate administrative tasks using `conhost.exe` to spawn child processes such as `cmd.exe`, `powershell.exe`, or `regsvr32.exe`.
+level: high
+```
