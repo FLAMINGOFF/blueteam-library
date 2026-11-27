@@ -2,6 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import { langPaths, t, TACTIC_ORDER, tacticName, type Lang, B } from "../../i18n";
 import { rules, incidents } from "../../data";
+import attack from "../../data/attack.json";
 export const getStaticPaths = langPaths;
 const lang = Astro.params.lang as Lang;
 const rs = await rules(), is = await incidents();
@@ -10,6 +11,18 @@ const heat = (n: number) => n === 0 ? 0 : n < 30 ? 1 : n < 150 ? 2 : 3;
 const techs = new Map<string, number>();
 rs.forEach(r => r.data.techniques.forEach(x => techs.set(x, (techs.get(x) || 0) + 1)));
 const topTech = [...techs].sort((a, b) => b[1] - a[1]).slice(0, 20);
+
+// 热力图：每个战术下的父技术，规则数按“含任一子技术”计
+const perParent = new Map<string, number>();
+rs.forEach(r => new Set(r.data.techniques.map(x => x.split(".")[0])).forEach(p => perParent.set(p, (perParent.get(p) || 0) + 1)));
+const all = Object.entries(attack.techniques as Record<string, { name: string; tactics: string[] }>).filter(([id]) => !id.includes("."));
+const heatLevel = (n: number) => n === 0 ? 0 : n < 3 ? 1 : n < 10 ? 2 : n < 30 ? 3 : 4;
+const cols = TACTIC_ORDER.map(ta => {
+  const list = all.filter(([, v]) => v.tactics.includes(ta)).map(([id, v]) => ({ id, name: v.name, n: perParent.get(id) || 0 }))
+    .sort((a, b) => b.n - a.n || a.id.localeCompare(b.id, "en", { numeric: true }));
+  return { ta, list, covered: list.filter(x => x.n).length };
+});
+const totalTech = all.length, coveredTech = all.filter(([id]) => perParent.get(id)).length;
 ---
 <Base lang={lang} title={t(lang, "matrix")} nav="matrix">
   <h1>{t(lang, "matrix")}</h1>
@@ -21,6 +34,31 @@ const topTech = [...techs].sort((a, b) => b[1] - a[1]).slice(0, 20);
         <div class="num">{c.n}</div><div class="small muted">{t(lang, "ruleUnit")} · {c.i} {t(lang, "incUnit")}</div>
       </a>))}
   </div>
+  <section class="panel heat" id="heatmap" style="margin-top:20px">
+    <h2>{t(lang, "heatmap")}</h2>
+    <p class="muted small" style="margin-top:0">{t(lang, "heatmapIntro")}</p>
+    <div class="heat-bar">
+      <span class="heat-total"><b>{coveredTech}</b> / {totalTech} {t(lang, "covered")} ({Math.round(coveredTech / totalTech * 100)}%) · <b>{totalTech - coveredTech}</b> {t(lang, "gaps")}</span>
+      <span class="heat-legend" aria-hidden="true"><i class="h0"></i>0<i class="h1"></i>1–2<i class="h2"></i>3–9<i class="h3"></i>10–29<i class="h4"></i>30+</span>
+      <button type="button" class="btn ghost" id="heat-gaps" aria-pressed="false" aria-controls="heat-grid">{t(lang, "onlyGaps")}</button>
+    </div>
+    <div class="heat-scroll" tabindex="0" role="region" aria-label={t(lang, "heatmap")}>
+      <div class="heat-grid" id="heat-grid">
+        {cols.map(c => (
+          <section class="heat-col" aria-labelledby={`h-${c.ta}`}>
+            <h3 id={`h-${c.ta}`}>{tacticName(lang, c.ta)} <span>{c.covered}/{c.list.length}</span></h3>
+            <ul>{c.list.map(x => (
+              <li class={`hc h${heatLevel(x.n)}`}>
+                {x.n
+                  ? <a href={`${B}/${lang}/rules/?q=${x.id}`} title={`${x.id} ${x.name}: ${x.n}`}><code>{x.id}</code><span class="nm">{x.name}</span><b>{x.n}</b></a>
+                  : <span title={`${x.id} ${x.name}: 0`}><code>{x.id}</code><span class="nm">{x.name}</span><b>0</b></span>}
+              </li>))}</ul>
+          </section>))}
+      </div>
+    </div>
+    <p class="muted small">{t(lang, "attackData")} · <a href="https://attack.mitre.org/" rel="noopener" target="_blank">attack.mitre.org</a></p>
+  </section>
+  <script is:inline>(function(){var b=document.getElementById("heat-gaps"),g=document.getElementById("heat-grid");if(!b||!g)return;b.addEventListener("click",function(){var on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",String(on));g.classList.toggle("only-gaps",on)})})()</script>
   <section class="panel" style="margin-top:20px">
     <h2>{lang === "zh" ? "规则最多的 20 个技术" : "Top 20 techniques by rule count"}</h2>
     {topTech.map(([id, n]) => (
