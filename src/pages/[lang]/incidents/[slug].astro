@@ -20,6 +20,7 @@ const rel = d.related_rules.map(id => allRules.find(r => r.id === id)).filter(Bo
     <h1 style="margin:0">{d.title[lang]}</h1><button class="star" type="button" data-star={"i:" + i.id} aria-pressed="false" aria-label={t(lang, "save")}>☆</button>
   </div>
   <div class="badges" style="margin:8px 0 16px">
+    {d.original && <span class="badge og">{t(lang, "original")}</span>}
     <span class={`sev sev-${d.severity}`}>{levelName(lang, d.severity)}</span><span class="badge">{d.sector[lang]}</span>
     {d.tags.map(tg => <a class="badge" href={`${B}/${lang}/incidents/?tag=${encodeURIComponent(tg)}`}>#{tg}</a>)}
   </div>
@@ -28,7 +29,7 @@ const rel = d.related_rules.map(id => allRules.find(r => r.id === id)).filter(Bo
     <p><b>{t(lang, "publisher")}{colon}</b>{d.publisher} · {t(lang, "published")} {d.published}</p>
     <p><b>{t(lang, "license")}{colon}</b>{pick(d.source.license)}</p>
   </div>
-  <p class="note">{t(lang, "summaryNote")}</p>
+  <p class="note">{t(lang, d.original ? "simNote" : "summaryNote")}</p>
   {d.generated && <p class="note">{t(lang, "generatedNote")}</p>}
   <div class="detail">
     <div>

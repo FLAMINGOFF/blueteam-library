@@ -10,7 +10,7 @@
   const ln = l => (levels[l] || {})[lang] || l;
   const sn = s => (statuses[s] || {})[lang] || s;
   const FACETS = {
-    rules: [["tactic", "ta", L.tactic, tn], ["platform", "pf", L.platform], ["level", "lv", L.level, ln], ["status", "st", L.status, sn]],
+    rules: [["source", "src", L.sourceFacet], ["tactic", "ta", L.tactic, tn], ["platform", "pf", L.platform], ["level", "lv", L.level, ln], ["status", "st", L.status, sn]],
     incidents: [["tactic", "ta", L.tactic, tn], ["sector", "sec", L.sector], ["level", "lv", L.level, ln], ["tag", "tg", L.tags]]
   };
   let data = [], shown = PAGE;
@@ -38,7 +38,7 @@
       : [o.d, o.src, o.ac, o.sec];
     // 标题是链接（::after 盖满整张卡片），收藏按钮是它的兄弟元素，避免把按钮嵌在链接里
     return `<article class="card"><button class="star" type="button" data-star="${esc(key)}" aria-pressed="false" aria-label="${esc(L.save + ": " + o.t)}">☆</button>
-      <div class="row1"><span class="badge">${isR ? L.rules : L.incidents}</span><span class="sev sev-${esc(o.lv)}">${esc(ln(o.lv))}</span>${isR ? `<span class="badge fmt">Sigma</span><span class="badge">${esc(sn(o.st))}</span>` : ""}</div>
+      <div class="row1">${o.og ? `<span class="badge og">${esc(L.original)}</span>` : ""}<span class="badge">${isR ? L.rules : L.incidents}</span><span class="sev sev-${esc(o.lv)}">${esc(ln(o.lv))}</span>${isR ? `<span class="badge fmt">Sigma</span><span class="badge">${esc(sn(o.st))}</span>` : ""}</div>
       <a class="title" style="margin-top:6px" href="${href}">${hl(o.t, q)}</a>
       <div class="sum">${hl(o.s, q)}</div>
       <div class="meta">${meta.filter(Boolean).map(m => `<span>${esc(m)}</span>`).join("")}</div></article>`;

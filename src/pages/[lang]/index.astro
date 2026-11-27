@@ -7,6 +7,7 @@ const lang = Astro.params.lang as Lang;
 const rs = await rules(), is = await incidents();
 const techCount = new Set(rs.flatMap(r => r.data.techniques)).size;
 const featured = rs.filter(r => r.data.featured);
+const originals = rs.filter(r => r.data.original).sort((a, b) => a.id.localeCompare(b.id));
 const recent = rs.slice(0, 6);
 const tac = TACTIC_ORDER.map(id => ({ id, n: rs.filter(r => r.data.tactics.includes(id)).length }))
   .sort((a, b) => b.n - a.n).slice(0, 7);
@@ -74,6 +75,18 @@ const max = tac[0].n || 1;
               <div class="badges"><span class={`sev sev-${i.data.severity}`}>{levelName(lang, i.data.severity)}</span><span class="badge">{i.data.publisher}</span><span class="badge">{i.data.published}</span></div>
             </div></li>))}
         </ol>
+      </section>
+      <section class="panel" id="original">
+        <div class="panel-head"><h2>{t(lang, "originalRules")}</h2><a class="small" href={`${B}/${lang}/rules/?source=Blue+Team+Library`}>{t(lang, "all")} →</a></div>
+        <p class="muted small" style="margin-top:0">{t(lang, "originalIntro")}</p>
+        {originals.map(r => (
+          <article class="card">
+            <button class="star" type="button" data-star={"r:" + r.id} aria-pressed="false" aria-label={`${t(lang, "save")}: ${ruleTitle(r, lang)}`}>☆</button>
+            <div class="row1"><span class="badge og">{t(lang, "original")}</span><span class={`sev sev-${r.data.level}`}>{levelName(lang, r.data.level)}</span><span class="badge">{r.data.platform}</span>{r.data.tactics.slice(0, 2).map(x => <span class="badge">{tacticName(lang, x)}</span>)}</div>
+            <a class="title" style="margin-top:6px" href={`${B}/${lang}/rules/${r.id}/`}>{ruleTitle(r, lang)}</a>
+            <div class="sum">{ruleSummary(r, lang)}</div>
+            <div class="meta"><span>{r.data.techniques.join(", ")}</span><span>{(r.data.samples || []).length} {lang === "zh" ? "条样例日志" : "sample logs"}</span></div>
+          </article>))}
       </section>
       <section class="panel">
         <div class="panel-head"><h2>{t(lang, "featured")}</h2><a class="small" href={`${B}/${lang}/rules/`}>{t(lang, "all")} →</a></div>

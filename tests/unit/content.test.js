@@ -3,7 +3,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { splitFrontMatter } from "../../scripts/lib/sigma.mjs";
+import * as yaml from "js-yaml";
+import { splitFrontMatter, toFrontMatter } from "../../scripts/lib/sigma.mjs";
+import { explain, exportsFor } from "../../src/lib/sigma-engine.js";
 import { incidentSchema, ruleSchema } from "../../src/schemas";
 import { LEVELS, STATUS, TACTICS } from "../../src/i18n";
 
@@ -49,6 +51,52 @@ describe("detection rules", () => {
   it("has unique Sigma IDs", () => {
     const ids = rules.map(r => r.data.sigma_id).filter(Boolean);
     expect(ids.length - new Set(ids).size).toBe(0);
+  });
+});
+
+const sigmaOf = body => yaml.load(body.match(/```yaml\n([\s\S]*?)\n```/)[1]);
+const originals = rules.filter(r => r.data.original);
+
+describe("Sigma engine on every rule", () => {
+  it.each(rules.map(r => [r.slug, r]))("%s exports or reports why not", (slug, { body }) => {
+    const e = exportsFor(sigmaOf(body).detection);   // throws only on engine bugs, not on unsupported Sigma
+    for (const k of ["splunk", "kql", "kqlEcs"]) expect(e[k].query || e[k].error, k).toBeTruthy();
+  });
+
+  it("can export at least 90% of rules", () => {
+    const ok = rules.filter(r => exportsFor(sigmaOf(r.body).detection).splunk.query).length;
+    expect(ok / rules.length).toBeGreaterThan(0.9);
+  });
+});
+
+describe("original rules", () => {
+  it("there are some", () => expect(originals.length).toBeGreaterThanOrEqual(5));
+
+  it.each(originals.map(r => [r.slug, r]))("%s", (slug, { data, body }) => {
+    expect(slug).toMatch(/^btl_/);
+    const sigma = sigmaOf(body);
+    // the front matter must describe the Sigma rule in the body, so edits to one are not forgotten in the other
+    const fm = toFrontMatter(sigma, { rel: "x" });
+    for (const k of ["title", "summary", "sigma_id", "status", "level", "platform", "logsource", "tactics", "techniques", "author", "date", "falsepositives", "references"]) expect(data[k], k).toEqual(fm[k]);
+    expect(data.author).toBe("FLAMINGOFF");
+    expect(data.source.name).toBe("Blue Team Library");
+    expect(data.source.url).toBe(`https://github.com/FLAMINGOFF/blueteam-library/blob/main/src/content/rules/${slug}.md`);
+    expect(data.title_zh && data.summary_zh && data.notes_zh && data.notes_en).toBeTruthy();
+    // every original rule ships with at least one log it must catch and one look-alike it must ignore
+    expect(data.samples?.some(s => s.expect)).toBe(true);
+    expect(data.samples?.some(s => !s.expect)).toBe(true);
+    expect(exportsFor(sigma.detection).splunk.query).toBeTruthy();
+  });
+
+  it("only original rules use the btl_ prefix", () => {
+    for (const r of rules.filter(r => r.slug.startsWith("btl_"))) expect(r.data.original, r.slug).toBe(true);
+  });
+});
+
+describe("sample logs", () => {
+  const cases = rules.flatMap(r => (r.data.samples || []).map(s => [`${r.slug}: ${s.name.en}`, r, s]));
+  it.each(cases)("%s", (_, { body }, sample) => {
+    expect(explain(sigmaOf(body).detection, sample.event).matched).toBe(sample.expect);
   });
 });
 

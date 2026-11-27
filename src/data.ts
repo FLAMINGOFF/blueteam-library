@@ -25,12 +25,14 @@ export async function index(lang: Lang) {
   const rs = (await rules()).map(r => ({
     k: "r", id: r.id, t: ruleTitle(r, lang), te: r.data.title, s: ruleSummary(r, lang).slice(0, 220),
     lv: r.data.level, lr: LEVELS[r.data.level]?.rank ?? 9, st: r.data.status, pf: r.data.platform,
-    ta: r.data.tactics, te2: r.data.techniques, d: r.data.modified || r.data.date || "", au: r.data.author, src: r.data.source.name
+    ta: r.data.tactics, te2: r.data.techniques, d: r.data.modified || r.data.date || "", au: r.data.author, src: r.data.source.name,
+    ...(r.data.original ? { og: 1 } : {})
   }));
   const is = (await incidents()).map(i => ({
     k: "i", id: i.id, t: i.data.title[lang], s: i.data.summary[lang].slice(0, 220), lv: i.data.severity,
     lr: LEVELS[i.data.severity]?.rank ?? 9, sec: i.data.sector[lang], ta: i.data.tactics, te2: i.data.techniques,
-    tg: i.data.tags, d: i.data.published, ac: i.data.actor || "", src: i.data.publisher
+    tg: i.data.tags, d: i.data.published, ac: i.data.actor || "", src: i.data.publisher,
+    ...(i.data.original ? { og: 1 } : {})
   }));
   return { rules: rs, incidents: is };
 }
