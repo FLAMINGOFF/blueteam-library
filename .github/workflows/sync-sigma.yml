@@ -9,8 +9,8 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: git clone --depth 1 https://github.com/SigmaHQ/sigma /tmp/sigma
@@ -18,7 +18,7 @@ jobs:
       - id: diff
         run: echo "changed=$([ -n "$(git status --porcelain src/content)" ] && echo 1 || echo 0)" >> "$GITHUB_OUTPUT"
       - if: steps.diff.outputs.changed == '1'
-        run: npm run build          # 构建失败就不提交
+        run: npm run build && npm test   # 构建或内容校验失败就不提交
       - if: steps.diff.outputs.changed == '1'
         run: |
           git config user.name "github-actions[bot]"
@@ -27,5 +27,5 @@ jobs:
           git commit -m "chore: 同步 SigmaHQ 规则 $(date -u +%F)"
           git pull --rebase origin main && git push origin HEAD:main
       - if: steps.diff.outputs.changed == '1'
-        run: gh workflow run deploy.yml --ref main
+        run: gh workflow run ci.yml --ref main
         env: { GH_TOKEN: "${{ github.token }}" }

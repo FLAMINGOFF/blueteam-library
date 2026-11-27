@@ -1,0 +1,78 @@
+# 每次推送和 PR 都跑：lint + 类型检查 → 单元测试（含全部内容校验）→ 构建 → 浏览器冒烟 + axe 无障碍 → Lighthouse。
+# 只有 main 上全部通过才发布到 GitHub Pages（仓库 Settings → Pages → Source 需选 GitHub Actions）。
+# 每日 CISA / 每周 SigmaHQ 机器人用 GITHUB_TOKEN 推送不会触发 push 事件，所以它们提交后会手动触发本工作流（workflow_dispatch）。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  # PR 上新提交取消旧的运行；main 上不取消，保证每次内容更新都能跑完部署
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Lint + type check
+        run: npm run lint
+      - name: Unit tests (scripts, i18n, every rule and incident)
+        run: npm test
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Browser tests (smoke + axe accessibility)
+        run: npm run test:e2e
+
+      - name: Lighthouse
+        run: npx lhci autorun
+      - name: Lighthouse badges
+        run: node scripts/lighthouse-badges.mjs
+      - name: Keep Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci
+          if-no-files-found: ignore
+          include-hidden-files: true
+
+      - if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/configure-pages@v6
+      - if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

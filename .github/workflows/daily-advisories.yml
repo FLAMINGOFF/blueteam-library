@@ -12,8 +12,8 @@ jobs:
   fetch:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with: { node-version: 22, cache: npm }
       - run: npm ci
       - run: node scripts/fetch-advisories.mjs
@@ -23,7 +23,7 @@ jobs:
       - id: diff
         run: echo "changed=$([ -n "$(git status --porcelain src/content)" ] && echo 1 || echo 0)" >> "$GITHUB_OUTPUT"
       - if: steps.diff.outputs.changed == '1'
-        run: npm run build          # 构建失败（字段不合规等）就不提交
+        run: npm run build && npm test   # 构建或内容校验失败就不提交
       - if: steps.diff.outputs.changed == '1'
         run: |
           git config user.name "github-actions[bot]"
@@ -31,7 +31,7 @@ jobs:
           git add src/content/incidents
           git commit -m "content: 自动收录 CISA 通报摘要 $(date -u +%F)"
           git pull --rebase origin main && git push origin HEAD:main
-      # 用 GITHUB_TOKEN 推送不会触发其他工作流，所以手动触发部署
+      # 用 GITHUB_TOKEN 推送不会触发其他工作流，所以手动触发 CI（测试通过后自动部署）
       - if: steps.diff.outputs.changed == '1'
-        run: gh workflow run deploy.yml --ref main
+        run: gh workflow run ci.yml --ref main
         env: { GH_TOKEN: "${{ github.token }}" }
