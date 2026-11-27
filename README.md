@@ -1,21 +1,101 @@
 # 蓝队检测与复盘库 / Blue Team Detection & Incident Library
 
 [![CI](https://github.com/FLAMINGOFF/blueteam-library/actions/workflows/ci.yml/badge.svg)](https://github.com/FLAMINGOFF/blueteam-library/actions/workflows/ci.yml)
-[![Lighthouse performance](https://img.shields.io/endpoint?url=https%3A%2F%2Fflamingoff.github.io%2Fblueteam-library%2Fbadges%2Flighthouse-performance.json)](#质量保障)
-[![Lighthouse accessibility](https://img.shields.io/endpoint?url=https%3A%2F%2Fflamingoff.github.io%2Fblueteam-library%2Fbadges%2Flighthouse-accessibility.json)](#质量保障)
-[![Lighthouse best practices](https://img.shields.io/endpoint?url=https%3A%2F%2Fflamingoff.github.io%2Fblueteam-library%2Fbadges%2Flighthouse-best-practices.json)](#质量保障)
-[![Lighthouse SEO](https://img.shields.io/endpoint?url=https%3A%2F%2Fflamingoff.github.io%2Fblueteam-library%2Fbadges%2Flighthouse-seo.json)](#质量保障)
+[![Lighthouse performance](https://img.shields.io/endpoint?url=https%3A%2F%2Fflamingoff.github.io%2Fblueteam-library%2Fbadges%2Flighthouse-performance.json)](#quality)
+[![Lighthouse accessibility](https://img.shields.io/endpoint?url=https%3A%2F%2Fflamingoff.github.io%2Fblueteam-library%2Fbadges%2Flighthouse-accessibility.json)](#quality)
+[![Lighthouse best practices](https://img.shields.io/endpoint?url=https%3A%2F%2Fflamingoff.github.io%2Fblueteam-library%2Fbadges%2Flighthouse-best-practices.json)](#quality)
+[![Lighthouse SEO](https://img.shields.io/endpoint?url=https%3A%2F%2Fflamingoff.github.io%2Fblueteam-library%2Fbadges%2Flighthouse-seo.json)](#quality)
+
+**English** · [中文](#中文)
+
+🔗 **Live site:** https://flamingoff.github.io/blueteam-library/
+
+## English
+
+A bilingual (English / 中文) static site, built with Astro, that collects public detection rules and security incident reports and organizes them by MITRE ATT&CK. It does not publish original rules: every item keeps its source, original authors, link and license.
+
+- **Detection rules**: about 1,400 Sigma rules synced from [SigmaHQ](https://github.com/SigmaHQ/sigma), filterable by tactic, platform, severity and status, with the original rule, false positives and references.
+- **Incident reviews**: our own structured summaries of public reports (timeline, root cause, lessons for defenders, detection ideas, related rules), with a link to the original.
+- **ATT&CK coverage**: rule counts per tactic and the most-covered techniques.
+- **Detection Observatory** on the home page: a live rule stream, a 3D star map of rules by tactic and a tactic spectrum, with a pause button and `prefers-reduced-motion` support.
+- Search, saved items (stored in your browser only), light/dark theme, mobile layout.
+
+### Run locally
+```bash
+npm install
+npm run dev        # http://localhost:4321
+npm run build      # output in dist/
+```
+
+### Quality
+Every push and pull request runs the [CI workflow](.github/workflows/ci.yml). **The site is deployed to GitHub Pages only if all of it passes.**
+
+| Check | What it covers |
+| --- | --- |
+| **ESLint + astro check** | Lint for browser and Node scripts; type checking for `.astro` / `.ts` |
+| **Unit tests** (Vitest, 1,400+) | SigmaHQ import mapping (tactics, dates, attribution and license, preserved hand-written Chinese fields), the CISA fetcher's pure functions (RSS/HTML parsing, KEV grouping and template, related-rule scoring, model output cleanup), paired EN/中文 strings, and **every rule and incident** passing the site schema with valid ATT&CK IDs and existing related rules |
+| **Browser tests** (Playwright) | Root redirect by browser language, filter/search/sort/load more, saving, language and theme switch, copy rule, matrix links, skip link, `/` shortcut, no horizontal scroll on mobile, and no errors or 404s throughout |
+| **Accessibility** (axe-core) | WCAG 2.1 A/AA scan of 10 page types × both languages × light and dark |
+| **Lighthouse CI** | Scores the production build's home, rule list, rule and incident pages. The badges above show the lowest score from the latest run on `main` |
+
+```bash
+npm run lint
+npm test            # unit tests + content checks
+npm run build
+npm run test:e2e    # browser + accessibility tests (first run: npx playwright install chromium)
+npm run lighthouse  # Lighthouse CI, writes badge files to dist/badges/
+npm run check       # the first four together
+```
+
+### Content
+- `src/content/rules/*.md`: detection rules, generated from SigmaHQ by the import script. YAML front matter holds the metadata; the body is the original Sigma rule.
+  - You can add `title_zh`, `summary_zh`, `notes_zh`, `notes_en` and `featured` by hand; re-imports keep them.
+  - `source` (name, original link, license) is required; the build fails without it.
+- `src/content/incidents/*.md`: incident reviews. **Only our own summary** (bilingual fields) and a link to the original, never the original text.
+- `src/i18n.ts`: UI strings and ATT&CK tactic names. Field schemas live in `src/schemas.ts`.
+
+### Syncing SigmaHQ
+```bash
+git clone --depth 1 https://github.com/SigmaHQ/sigma /tmp/sigma
+npm run import:sigma -- /tmp/sigma                 # default rule folders
+npm run import:sigma -- /tmp/sigma rules/windows   # or pick folders
+```
+`.github/workflows/sync-sigma.yml` syncs weekly. If the build and content checks pass it commits to `main` and triggers CI, which deploys once everything passes.
+
+### Daily CISA advisories
+`.github/workflows/daily-advisories.yml` runs `scripts/fetch-advisories.mjs` every day at about 9:00 Melbourne time:
+- **CISA KEV**: each day's additions to the Known Exploited Vulnerabilities catalog become one review (`cisa-kev-<date>`).
+- **CISA joint advisories** (AA IDs): reads the advisory and writes a bilingual summary (timeline, root cause, lessons, ATT&CK, detection ideas) (`cisa-aa..`).
+- Related rules are matched by CVE tags and ATT&CK techniques.
+- Build and unit tests (including content checks) run before committing, so bad generated content never reaches `main`; the commit then triggers CI, which deploys only if everything passes.
+- Parsing, templates and scoring are in `scripts/lib/advisories.mjs` (pure functions with unit tests); the SigmaHQ mapping is in `scripts/lib/sigma.mjs`.
+- Generated entries carry `generated: true` and the page notes they are automatic and the original prevails.
+- Needs the repository secret `ANTHROPIC_API_KEY` (Settings → Secrets and variables → Actions). Without it only the KEV template summary is generated and joint advisories are skipped.
+- Dry run locally: `ANTHROPIC_API_KEY=... npm run fetch:advisories -- --dry-run`
+
+### Adding an incident review
+Copy any file in `src/content/incidents/` and fill in the fields: bilingual title, summary, timeline and so on, `source.url` for the original report, and `related_rules` with rule file names.
+
+### Licenses and attribution
+- SigmaHQ rules: Detection Rule License (DRL) 1.1. Pages must keep the author, a link to the original rule and the license notice; every rule page shows all three.
+- Incident reports: originals belong to their publishers; this site only has summaries and links. US government advisories such as CISA's are generally public domain.
+
+---
+
+## 中文
+
+[English](#english) · **中文**
 
 收录网络公开的检测规则与安全事件报告的中英双语静态网站（Astro）。本站不发布原创规则。
 
-## 本地运行
+### 本地运行
 ```bash
 npm install
 npm run dev        # http://localhost:4321
 npm run build      # 输出到 dist/
 ```
 
-## 质量保障
+### 质量保障
 每次推送和 PR 都会跑 [CI 工作流](.github/workflows/ci.yml)，**全部通过才会发布到 GitHub Pages**。
 
 | 检查 | 覆盖内容 |
@@ -36,14 +116,14 @@ npm run lighthouse  # Lighthouse CI，并生成 dist/badges/ 徽章文件
 npm run check       # 前四步一起跑
 ```
 
-## 内容结构
+### 内容结构
 - `src/content/rules/*.md`：检测规则。由导入脚本从 SigmaHQ 生成，YAML front-matter 存元数据，正文是原始 Sigma 规则。
   - 可人工补充 `title_zh`、`summary_zh`、`notes_zh`、`notes_en`、`featured`，重新导入时会保留。
   - `source`（来源名、原始链接、许可证）为必填，缺失会导致构建失败。
 - `src/content/incidents/*.md`：事件复盘。**只写本站自己的摘要**（中英双语字段），附原文链接，不转载原文。
 - `src/i18n.ts`：界面文案与 ATT&CK 战术名称。
 
-## 同步 SigmaHQ
+### 同步 SigmaHQ
 ```bash
 git clone --depth 1 https://github.com/SigmaHQ/sigma /tmp/sigma
 npm run import:sigma -- /tmp/sigma            # 默认导入几个常用目录
@@ -51,7 +131,7 @@ npm run import:sigma -- /tmp/sigma rules/windows   # 或指定目录
 ```
 `.github/workflows/sync-sigma.yml` 每周自动同步，构建和内容校验通过后直接提交到 main，再触发 CI，CI 全部通过后部署。
 
-## 每日自动收录 CISA 通报
+### 每日自动收录 CISA 通报
 `.github/workflows/daily-advisories.yml` 每天墨尔本时间约 9:00 运行 `scripts/fetch-advisories.mjs`：
 - **CISA KEV**：把每天新加入“已知被利用漏洞目录”的漏洞汇总成一篇复盘（`cisa-kev-日期`）。
 - **CISA 联合通报**（AA 编号）：读取原文，生成中英文摘要（时间线、根因、防守要点、ATT&CK、检测思路）（`cisa-aa..`）。
@@ -62,9 +142,9 @@ npm run import:sigma -- /tmp/sigma rules/windows   # 或指定目录
 - 需要仓库 Secret `ANTHROPIC_API_KEY`（Settings → Secrets and variables → Actions）。没有时只生成 KEV 模板汇总，跳过联合通报。
 - 本地试运行：`ANTHROPIC_API_KEY=... npm run fetch:advisories -- --dry-run`
 
-## 新增一篇事件复盘
+### 新增一篇事件复盘
 复制 `src/content/incidents/` 中任一文件，按字段填写：标题/摘要/时间线等中英双语、`source.url` 原文链接、`related_rules` 关联规则文件名。
 
-## 许可与署名
+### 许可与署名
 - SigmaHQ 规则：Detection Rule License (DRL) 1.1，页面必须保留作者、原规则链接、许可证声明（规则页已自动展示）。
 - 事件报告：原文版权归发布方，本站只放摘要与链接。CISA 等美国政府通报一般为公有领域。
