@@ -6,7 +6,8 @@
       "url": [
         "http://localhost:4321/blueteam-library/en/",
         "http://localhost:4321/blueteam-library/zh/rules/",
-        "http://localhost:4321/blueteam-library/en/rules/proc_creation_win_certutil_download/",
+        "http://localhost:4321/blueteam-library/en/rules/btl_win_curl_download_to_staging_dir/",
+        "http://localhost:4321/blueteam-library/zh/matrix/",
         "http://localhost:4321/blueteam-library/zh/incidents/cloudflare-thanksgiving-2023/"
       ],
       "numberOfRuns": 3,

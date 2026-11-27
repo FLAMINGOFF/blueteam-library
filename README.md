@@ -12,11 +12,13 @@
 
 ## English
 
-A bilingual (English / 中文) static site, built with Astro, that collects public detection rules and security incident reports and organizes them by MITRE ATT&CK. It does not publish original rules: every item keeps its source, original authors, link and license.
+A bilingual (English / 中文) static site, built with Astro, that collects public detection rules and security incident reports and organizes them by MITRE ATT&CK. Every collected item keeps its source, original authors, link and license, and a small set of **original rules and tabletop write-ups** is marked as such.
 
-- **Detection rules**: about 1,400 Sigma rules synced from [SigmaHQ](https://github.com/SigmaHQ/sigma), filterable by tactic, platform, severity and status, with the original rule, false positives and references.
+- **Original rules**: 8 Sigma rules written for this site (Windows, Linux, AWS CloudTrail), each with sample logs it must catch and look-alikes it must ignore. The samples are evaluated on every build, and the page shows the result.
+- **Try it and export**: every rule page lets you edit a JSON log and see live whether the rule matches, and exports the rule as Splunk SPL and Elastic KQL (raw or ECS field names). Both use a small Sigma engine in `src/lib/sigma-engine.js` that handles about 95% of the collected rules.
+- **Detection rules**: about 1,400 Sigma rules synced from [SigmaHQ](https://github.com/SigmaHQ/sigma), filterable by source, tactic, platform, severity and status, with the original rule, false positives and references.
 - **Incident reviews**: our own structured summaries of public reports (timeline, root cause, lessons for defenders, detection ideas, related rules), with a link to the original.
-- **ATT&CK coverage**: rule counts per tactic and the most-covered techniques.
+- **ATT&CK coverage**: rule counts per tactic, plus a heatmap of every Enterprise technique showing how many rules cover it and where the gaps are.
 - **Detection Observatory** on the home page: a live rule stream, a 3D star map of rules by tactic and a tactic spectrum, with a pause button and `prefers-reduced-motion` support.
 - Search, saved items (stored in your browser only), light/dark theme, mobile layout.
 
@@ -33,7 +35,7 @@ Every push and pull request runs the [CI workflow](.github/workflows/ci.yml). **
 | Check | What it covers |
 | --- | --- |
 | **ESLint + astro check** | Lint for browser and Node scripts; type checking for `.astro` / `.ts` |
-| **Unit tests** (Vitest, 1,400+) | SigmaHQ import mapping (tactics, dates, attribution and license, preserved hand-written Chinese fields), the CISA fetcher's pure functions (RSS/HTML parsing, KEV grouping and template, related-rule scoring, model output cleanup), paired EN/中文 strings, and **every rule and incident** passing the site schema with valid ATT&CK IDs and existing related rules |
+| **Unit tests** (Vitest, 2,900+) | The Sigma engine (modifiers, conditions, SPL and KQL output), every sample log of every rule, SigmaHQ import mapping (tactics, dates, attribution and license, preserved hand-written Chinese fields), the CISA fetcher's pure functions (RSS/HTML parsing, KEV grouping and template, related-rule scoring, model output cleanup), paired EN/中文 strings, and **every rule and incident** passing the site schema with valid ATT&CK IDs and existing related rules |
 | **Browser tests** (Playwright) | Root redirect by browser language, filter/search/sort/load more, saving, language and theme switch, copy rule, matrix links, skip link, `/` shortcut, no horizontal scroll on mobile, and no errors or 404s throughout |
 | **Accessibility** (axe-core) | WCAG 2.1 A/AA scan of 10 page types × both languages × light and dark |
 | **Lighthouse CI** | Scores the production build's home, rule list, rule and incident pages. The badges above show the lowest score from the latest run on `main` |
@@ -52,7 +54,10 @@ npm run check       # the first four together
   - You can add `title_zh`, `summary_zh`, `notes_zh`, `notes_en` and `featured` by hand; re-imports keep them.
   - `source` (name, original link, license) is required; the build fails without it.
 - `src/content/incidents/*.md`: incident reviews. **Only our own summary** (bilingual fields) and a link to the original, never the original text.
+- Original rules are `src/content/rules/btl_*.md` with `original: true`, author FLAMINGOFF and a `samples` list (`name`, `expect`, `event`). Tests check that the front matter matches the Sigma rule in the body and that every sample gives the expected result.
+- Original tabletop write-ups are `src/content/incidents/btl-sim-*.md` with `original: true`; the page says they are fictional.
 - `src/i18n.ts`: UI strings and ATT&CK tactic names. Field schemas live in `src/schemas.ts`.
+- `src/data/attack.json`: trimmed MITRE ATT&CK Enterprise data for the heatmap. Refresh with `node scripts/update-attack.mjs`.
 
 ### Syncing SigmaHQ
 ```bash
@@ -79,6 +84,8 @@ Copy any file in `src/content/incidents/` and fill in the fields: bilingual titl
 ### Licenses and attribution
 - SigmaHQ rules: Detection Rule License (DRL) 1.1. Pages must keep the author, a link to the original rule and the license notice; every rule page shows all three.
 - Incident reports: originals belong to their publishers; this site only has summaries and links. US government advisories such as CISA's are generally public domain.
+- Original rules and tabletop write-ups: written by FLAMINGOFF for this site.
+- MITRE ATT&CK® data © The MITRE Corporation, used under its [terms of use](https://attack.mitre.org/resources/legal-and-branding/terms-of-use/).
 
 ---
 
@@ -86,7 +93,11 @@ Copy any file in `src/content/incidents/` and fill in the fields: bilingual titl
 
 [English](#english) · **中文**
 
-收录网络公开的检测规则与安全事件报告的中英双语静态网站（Astro）。本站不发布原创规则。
+收录网络公开的检测规则与安全事件报告的中英双语静态网站（Astro），按 ATT&CK 组织。收录内容都保留来源、原作者、链接和许可证；另有少量**原创规则和模拟演练复盘**，单独标注。
+
+- **原创规则**：本站编写的 8 条 Sigma 规则（Windows、Linux、AWS CloudTrail），每条都带应命中和不应命中的样例日志，每次构建都会自动验证，规则页展示结果。
+- **试一试与导出**：每个规则页都能编辑 JSON 日志实时查看是否命中，并能一键导出 Splunk SPL 和 Elastic KQL（原字段名或 ECS 字段名）。两者都基于 `src/lib/sigma-engine.js` 里的小型 Sigma 引擎，能处理约 95% 的收录规则。
+- **ATT&CK 覆盖热力图**：列出企业矩阵的全部技术，显示每个技术被多少条规则覆盖、哪里是空白。
 
 ### 本地运行
 ```bash
@@ -101,7 +112,7 @@ npm run build      # 输出到 dist/
 | 检查 | 覆盖内容 |
 | --- | --- |
 | **ESLint + astro check** | 浏览器脚本、Node 脚本的 lint；`.astro` / `.ts` 的类型检查 |
-| **单元测试**（Vitest，1400+） | SigmaHQ 导入转换（战术映射、日期、署名与许可证、保留人工中文字段）、CISA 抓取的纯函数（RSS/HTML 解析、KEV 分组与模板、关联规则打分、模型输出清洗）、中英文案成对，以及**每一条规则和每一篇复盘**都通过站点字段校验、ATT&CK 编号合法、关联规则真实存在 |
+| **单元测试**（Vitest，2900+） | Sigma 引擎（修饰符、条件、SPL / KQL 输出）、每条规则的每条样例日志、SigmaHQ 导入转换（战术映射、日期、署名与许可证、保留人工中文字段）、CISA 抓取的纯函数（RSS/HTML 解析、KEV 分组与模板、关联规则打分、模型输出清洗）、中英文案成对，以及**每一条规则和每一篇复盘**都通过站点字段校验、ATT&CK 编号合法、关联规则真实存在 |
 | **浏览器测试**（Playwright） | 根路径按浏览器语言跳转、筛选/搜索/排序/加载更多、收藏、语言与主题切换、复制规则、矩阵跳转、跳到正文、`/` 快捷键、手机宽度无横向滚动，全程无报错和 404 |
 | **无障碍**（axe-core） | 10 类页面 × 中英 × 深浅色，按 WCAG 2.1 A/AA 自动检查 |
 | **Lighthouse CI** | 对生产构建的首页、规则列表、规则详情、事件详情打分；顶部徽章是最近一次 `main` 构建中各页面的最低分 |
@@ -121,7 +132,10 @@ npm run check       # 前四步一起跑
   - 可人工补充 `title_zh`、`summary_zh`、`notes_zh`、`notes_en`、`featured`，重新导入时会保留。
   - `source`（来源名、原始链接、许可证）为必填，缺失会导致构建失败。
 - `src/content/incidents/*.md`：事件复盘。**只写本站自己的摘要**（中英双语字段），附原文链接，不转载原文。
-- `src/i18n.ts`：界面文案与 ATT&CK 战术名称。
+- 原创规则是 `src/content/rules/btl_*.md`，带 `original: true`、作者 FLAMINGOFF 和 `samples` 样例日志（`name`、`expect`、`event`）。测试会检查 front-matter 与正文 Sigma 规则一致，且每条样例的结果符合预期。
+- 原创模拟演练是 `src/content/incidents/btl-sim-*.md`，带 `original: true`，页面会注明是虚构场景。
+- `src/i18n.ts`：界面文案与 ATT&CK 战术名称。字段定义在 `src/schemas.ts`。
+- `src/data/attack.json`：热力图用的精简 MITRE ATT&CK 企业矩阵数据，用 `node scripts/update-attack.mjs` 更新。
 
 ### 同步 SigmaHQ
 ```bash
@@ -148,3 +162,5 @@ npm run import:sigma -- /tmp/sigma rules/windows   # 或指定目录
 ### 许可与署名
 - SigmaHQ 规则：Detection Rule License (DRL) 1.1，页面必须保留作者、原规则链接、许可证声明（规则页已自动展示）。
 - 事件报告：原文版权归发布方，本站只放摘要与链接。CISA 等美国政府通报一般为公有领域。
+- 原创规则与模拟演练：由 FLAMINGOFF 为本站编写。
+- MITRE ATT&CK® 数据版权归 The MITRE Corporation，按其[使用条款](https://attack.mitre.org/resources/legal-and-branding/terms-of-use/)引用。

@@ -95,14 +95,14 @@ test("a card opens its rule page, which shows source, licence and the Sigma rule
   await expect(page.locator("h1")).toHaveText("使用 certutil 下载文件");
   await expect(page.locator(".srcbox a").first()).toHaveAttribute("href", /github\.com\/SigmaHQ\/sigma\/blob\//);
   await expect(page.locator(".srcbox")).toContainText("Detection Rule License (DRL) 1.1");
-  await expect(page.locator(".code-wrap pre")).toContainText("detection:");
+  await expect(page.locator(".code-wrap pre").first()).toContainText("detection:");
 });
 
 test("copy button copies the Sigma rule", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto(`./en/rules/${RULE}/`);
-  await page.locator("[data-copy]").click();
-  await expect(page.locator("[data-copy]")).toHaveText("Copied");
+  await page.locator("[data-copy]").first().click();
+  await expect(page.locator("[data-copy]").first()).toHaveText("Copied");
   expect(await page.evaluate(() => navigator.clipboard.readText())).toContain("title:");
 });
 
@@ -180,4 +180,77 @@ test("mobile layout shows the tab bar and no horizontal scroll", async ({ browse
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow, p).toBeLessThanOrEqual(0);
   }
+});
+
+test.describe("original rules", () => {
+  const ORIG = "btl_win_curl_download_to_staging_dir";
+
+  test("rule page shows verified sample logs", async ({ page }) => {
+    await page.goto(`./en/rules/${ORIG}/`);
+    await expect(page.locator(".badges .og")).toHaveText("Original");
+    const samples = page.locator(".sample");
+    expect(await samples.count()).toBeGreaterThanOrEqual(2);
+    await expect(page.locator(".sample.bad")).toHaveCount(0);
+    await expect(samples.first().locator(".verdict")).toContainText("Matched");
+  });
+
+  test("try it re-evaluates an edited log in the browser", async ({ page }) => {
+    await page.goto(`./en/rules/${ORIG}/`);
+    const out = page.locator("#try-result");
+    await expect(out).toContainText("Matched");
+    await page.locator("#try-input").fill(JSON.stringify({ Image: "C:\\Windows\\System32\\curl.exe", CommandLine: "curl -o D:\\src\\a.json https://example.com/a.json" }));
+    await expect(out).toContainText("No match");
+    await page.locator("#try-input").fill("{ not json");
+    await expect(out).toHaveText("Not a valid JSON object");
+    await expect(page.locator("#try-input")).toHaveAttribute("aria-invalid", "true");
+    await page.locator("#try-reset").click();
+    await expect(out).toContainText("Matched");
+  });
+
+  test("exports Splunk and Elastic queries that can be copied", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.goto(`./en/rules/${ORIG}/`);
+    const rows = page.locator(".export-row");
+    await expect(rows).toHaveCount(3);
+    await expect(rows.nth(0).locator("pre")).toContainText('CommandLine IN (');
+    await expect(rows.nth(2).locator("pre")).toContainText("process.command_line:");
+    await rows.nth(0).locator("[data-copy]").click();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('Image="*\\\\curl.exe"');
+  });
+
+  test("rules list can be filtered to original rules", async ({ page }) => {
+    await page.goto("./zh/rules/");
+    await page.locator('[data-f="source"][data-v="Blue Team Library"]').click();
+    await expect(page.locator(".toolbar .muted")).toHaveText(/^8 /);
+    for (const b of await page.locator(".card .row1").all()) await expect(b.locator(".og")).toHaveText("原创");
+  });
+
+  test("home lists the original rules", async ({ page }) => {
+    await page.goto("./zh/");
+    await expect(page.locator("#original .card")).toHaveCount(8);
+  });
+
+  test("original incident explains it is a fictional exercise and links its rules", async ({ page }) => {
+    await page.goto("./en/incidents/btl-sim-cloud-rce-to-public-s3/");
+    await expect(page.locator(".note").first()).toContainText("fictional exercise");
+    await expect(page.locator(".detail .card")).toHaveCount(3);
+  });
+});
+
+test("heatmap shows coverage and can show only the gaps", async ({ page }) => {
+  await page.goto("./en/matrix/");
+  await expect(page.locator(".heat-col")).toHaveCount(15);
+  await expect(page.locator(".heat-total")).toContainText("covered");
+  const covered = page.locator(".hc:not(.h0)").first();
+  await expect(covered).toBeVisible();
+  await page.locator("#heat-gaps").click();
+  await expect(page.locator("#heat-gaps")).toHaveAttribute("aria-pressed", "true");
+  await expect(covered).toBeHidden();
+  await expect(page.locator(".hc.h0").first()).toBeVisible();
+  await page.locator("#heat-gaps").click();
+  const link = page.locator(".hc a").first();
+  const id = await link.locator("code").textContent();
+  await link.click();
+  await expect(page).toHaveURL(new RegExp(`rules/\\?q=${id}$`));
+  await expect(page.locator(".card").first()).toBeVisible();
 });

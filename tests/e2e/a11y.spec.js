@@ -11,7 +11,9 @@ const PAGES = [
   ["rule", `rules/${RULE}/`, ".srcbox"],
   ["incidents", "incidents/", ".card"],
   ["incident", `incidents/${INCIDENT}/`, ".timeline"],
-  ["matrix", "matrix/", ".cell"],
+  ["original rule", "rules/btl_aws_s3_acl_grants_public_access/", "#try-result:not(:empty)"],
+  ["original incident", "incidents/btl-sim-phish-to-ntds/", ".timeline"],
+  ["matrix", "matrix/", ".hc"],
   ["search", "search/?q=lsass", ".card"],
   ["starred (empty)", "starred/", ".empty:not(:empty)"],
   ["about", "about/", "h1"]
