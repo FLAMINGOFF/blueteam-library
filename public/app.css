@@ -409,3 +409,55 @@ ul.refs li { margin: 3px 0; }
 
 /* 列表在 JS 拉到数据前先占住一屏高度，避免页脚跳动（CLS） */
 #list-app { min-height: 100vh; }
+
+/* ---------- 原创标识 ---------- */
+.badge.og { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+
+/* ---------- 样例日志 / 试一试 / 导出 ---------- */
+.samples { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 12px; }
+.sample { border: 1px solid var(--line); border-left: 3px solid var(--line-2); border-radius: 10px; padding: 12px 14px; background: var(--bg-2); }
+.sample.ok { border-left-color: var(--low); }
+.sample.bad { border-left-color: var(--crit); }
+.sample-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sample p { margin: 8px 0 0; }
+.sample p code { margin-left: 6px; }
+pre.json, pre.query { margin: 10px 0 0; padding: 12px 14px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); overflow: auto; font: 12.5px/1.55 var(--mono); max-height: 320px; }
+pre.query { white-space: pre-wrap; word-break: break-all; margin: 0; padding-right: 70px; }
+.verdict { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 650; padding: 2px 10px; border-radius: 6px; }
+.verdict.hit { color: color-mix(in srgb, var(--low) 60%, var(--text)); background: color-mix(in srgb, var(--low) 14%, transparent); }
+.verdict.miss { color: var(--text-2); background: var(--panel-2); }
+.verdict.bad { color: color-mix(in srgb, var(--crit) 60%, var(--text)); background: color-mix(in srgb, var(--crit) 12%, transparent); }
+.try-label { display: block; font-size: 13px; font-weight: 600; margin: 10px 0 6px; }
+.try-input { width: 100%; box-sizing: border-box; font: 12.5px/1.55 var(--mono); color: var(--text); background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 8px; padding: 12px 14px; resize: vertical; }
+.try-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.try-input[aria-invalid="true"] { border-color: var(--crit); }
+.try-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-top: 10px; }
+.export-row + .export-row { margin-top: 14px; }
+.export-row h3 { font-size: 13.5px; margin: 0 0 6px; }
+
+/* ---------- ATT&CK 热力图 ---------- */
+/* 深色主题下强调色更亮，混合比例要小一些，格子里的文字才够对比度 */
+:root { --heat1: 12%; --heat2: 24%; --heat3: 38%; --heat4: 52%; }
+:root[data-theme="dark"] { --heat1: 10%; --heat2: 17%; --heat3: 25%; --heat4: 34%; }
+@media (prefers-color-scheme: dark) { :root[data-theme="system"] { --heat1: 10%; --heat2: 17%; --heat3: 25%; --heat4: 34%; } }
+.heat-bar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin: 4px 0 12px; font-size: 13px; }
+.heat-legend { display: inline-flex; align-items: center; gap: 4px 6px; flex-wrap: wrap; color: var(--muted); font: 11.5px var(--mono); }
+.heat-legend i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; margin-left: 6px; }
+.heat-scroll { overflow-x: auto; padding-bottom: 6px; border-radius: 8px; }
+.heat-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.heat-grid { display: grid; grid-template-columns: repeat(15, minmax(132px, 1fr)); gap: 6px; min-width: 2040px; }
+.heat-col h3 { font-size: 12.5px; margin: 0 0 6px; padding: 6px 8px; border-radius: 6px; background: var(--panel-2); position: sticky; top: 0; }
+.heat-col h3 span { font: 11px var(--mono); color: var(--muted); float: right; }
+.heat-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.hc a, .hc > span { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 6px; padding: 5px 7px; border-radius: 5px; font-size: 11.5px; line-height: 1.3; color: var(--text); text-decoration: none; }
+.hc code { font: 600 10.5px var(--mono); }
+.hc b { grid-row: 1; grid-column: 2; justify-self: end; font: 600 10.5px var(--mono); }
+.hc .nm { grid-column: 1 / -1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hc a:hover { outline: 2px solid var(--accent); outline-offset: -2px; text-decoration: none; }
+.h0 > span, .heat-legend .h0 { background: transparent; border: 1px dashed var(--line-2); color: var(--muted); }
+.h1 > a, .heat-legend .h1 { background: color-mix(in srgb, var(--accent) var(--heat1), var(--panel)); }
+.h2 > a, .heat-legend .h2 { background: color-mix(in srgb, var(--accent) var(--heat2), var(--panel)); }
+.h3 > a, .heat-legend .h3 { background: color-mix(in srgb, var(--accent) var(--heat3), var(--panel)); }
+.h4 > a, .heat-legend .h4 { background: color-mix(in srgb, var(--accent) var(--heat4), var(--panel)); }
+.only-gaps .hc:not(.h0) { display: none; }
+.heat-bar .btn { padding: 5px 12px; font-size: 13px; }

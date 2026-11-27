@@ -11,7 +11,7 @@ export const TACTIC = {
   "command-and-control": "TA0011", "impact": "TA0040"
 };
 // 重新导入时保留的人工字段
-export const KEEP = ["title_zh", "summary_zh", "notes_zh", "notes_en", "featured"];
+export const KEEP = ["title_zh", "summary_zh", "notes_zh", "notes_en", "featured", "samples"];
 
 export const asDate = v => v instanceof Date ? v.toISOString().slice(0, 10) : (v ? String(v).replace(/\//g, "-") : undefined);
 

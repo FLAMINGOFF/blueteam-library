@@ -3,6 +3,8 @@ import Base from "../../../layouts/Base.astro";
 import { render } from "astro:content";
 import { LANGS, t, tacticName, levelName, statusName, type Lang, B } from "../../../i18n";
 import { rules, incidents, ruleTitle, ruleSummary, translated } from "../../../data";
+import * as yaml from "js-yaml";
+import { compile, exportsFor, explain } from "../../../lib/sigma-engine.js";
 export async function getStaticPaths() {
   const rs = await rules();
   return LANGS.flatMap(lang => rs.map(r => ({ params: { lang, slug: r.id }, props: { r } })));
@@ -14,6 +16,14 @@ const d = r.data;
 const { Content } = await render(r);
 const rel = (await incidents()).filter(i => i.data.related_rules.includes(r.id));
 const notes = lang === "zh" ? d.notes_zh : d.notes_en;
+// 原始 Sigma 规则在正文的 yaml 代码块里：构建时求值样例日志、生成导出查询
+const sigma = (yaml.load(r.body?.match(/```yaml\n([\s\S]*?)\n```/)?.[1] ?? "") || {}) as { detection?: Record<string, unknown> };
+const ex = exportsFor(sigma.detection);
+const samples = (d.samples || []).map(s => ({ ...s, res: explain(sigma.detection as any, s.event) }));
+let canMatch = true;
+try { compile(sigma.detection); } catch { canMatch = false; }
+const tryValue = JSON.stringify(samples[0]?.event ?? Object.fromEntries(Object.values(sigma.detection || {}).flatMap(v => [].concat(v as any)).filter(v => v && typeof v === "object").flatMap(v => Object.keys(v as object)).map(k => [k.split("|")[0], ""])), null, 2);
+const exportRows = [["Splunk SPL", ex.splunk], ["Elastic KQL", ex.kql], ["Elastic KQL (ECS)", ex.kqlEcs]] as const;
 ---
 <Base lang={lang} title={ruleTitle(r, lang)} description={ruleSummary(r, lang).slice(0, 160)} nav="rules">
   <div class="crumbs"><a href={`${B}/${lang}/rules/`}>{t(lang, "rules")}</a> / {r.id}</div>
@@ -22,6 +32,7 @@ const notes = lang === "zh" ? d.notes_zh : d.notes_en;
   </div>
   {lang === "zh" && translated(r) && <p class="muted small" style="margin:2px 0 0">{d.title}</p>}
   <div class="badges" style="margin:8px 0 16px">
+    {d.original && <span class="badge og">{t(lang, "original")}</span>}
     <span class={`sev sev-${d.level}`}>{levelName(lang, d.level)}</span><span class="badge fmt">{d.format}</span><span class="badge">{statusName(lang, d.status)}</span>
     {lang === "zh" && !translated(r) && <span class="untr">{t(lang, "untranslated")}</span>}
   </div>
@@ -35,8 +46,42 @@ const notes = lang === "zh" ? d.notes_zh : d.notes_en;
       <section class="panel prose-block"><h2>{t(lang, "description")}</h2><p>{ruleSummary(r, lang)}</p>
         {notes && <p class="muted">{notes}</p>}
       </section>
+      {d.original && <p class="note">{t(lang, "originalRuleNote")}</p>}
       <section class="panel"><h2 style="margin-bottom:10px">{t(lang, "detection")} (Sigma)</h2>
         <div class="code-wrap"><button class="copy" type="button" data-copy data-ok={t(lang, "copied")}>{t(lang, "copy")}</button><Content /></div>
+      </section>
+      {samples.length > 0 && <section class="panel" id="samples"><h2>{t(lang, "samples")}</h2>
+        <p class="muted small">{t(lang, "samplesIntro")}</p>
+        <ul class="samples">{samples.map(s => (
+          <li class={`sample ${s.res.matched === s.expect ? "ok" : "bad"}`}>
+            <div class="sample-head">
+              <b>{s.name[lang]}</b>
+              <span class="badge">{s.expect ? t(lang, "expectHit") : t(lang, "expectMiss")}</span>
+              <span class={`verdict ${s.res.matched ? "hit" : "miss"}`}>{s.res.matched ? "✓ " + t(lang, "matched") : "○ " + t(lang, "notMatched")}</span>
+            </div>
+            {s.res.hits.length > 0 && <p class="small muted">{t(lang, "matchedBy")}{colon}{s.res.hits.map(h => <code>{h}</code>)}</p>}
+            <pre class="json" tabindex="0"><code>{JSON.stringify(s.event, null, 2)}</code></pre>
+          </li>))}</ul>
+      </section>}
+      {canMatch && <section class="panel" id="try"><h2>{t(lang, "tryIt")}</h2>
+        <p class="muted small">{t(lang, "tryItIntro")}</p>
+        <script type="application/json" id="sigma-detection" set:html={JSON.stringify(sigma.detection).replace(/</g, "\\u003c")}></script>
+        <label class="try-label" for="try-input">{t(lang, "tryItLabel")}</label>
+        <textarea id="try-input" class="try-input" spellcheck="false" rows={Math.min(18, tryValue.split("\n").length + 1)} data-reset={tryValue}>{tryValue}</textarea>
+        <div class="try-bar">
+          <output id="try-result" class="verdict" role="status" data-hit={t(lang, "matched")} data-miss={t(lang, "notMatched")} data-invalid={t(lang, "tryItInvalid")} data-by={t(lang, "matchedBy")}></output>
+          <button type="button" class="btn ghost" id="try-reset">{t(lang, "reset")}</button>
+        </div>
+      </section>}
+      <section class="panel" id="export"><h2>{t(lang, "exportTitle")}</h2>
+        <p class="muted small">{t(lang, "exportIntro")}</p>
+        {exportRows.map(([label, x]) => (
+          <div class="export-row">
+            <h3>{label}</h3>
+            {x.query
+              ? <div class="code-wrap"><button class="copy" type="button" data-copy data-ok={t(lang, "copied")} aria-label={`${t(lang, "copy")} ${label}`}>{t(lang, "copy")}</button><pre class="query" tabindex="0"><code>{x.query}</code></pre></div>
+              : <p class="untr">{t(lang, "exportUnsupported")}{colon}<code>{x.error}</code></p>}
+          </div>))}
       </section>
       <section class="panel"><h2>{t(lang, "falsepositives")}</h2>
         <ul class="plain">{d.falsepositives.map(f => <li>{String(f)}</li>)}</ul>
@@ -60,3 +105,30 @@ const notes = lang === "zh" ? d.notes_zh : d.notes_en;
     </aside>
   </div>
 </Base>
+<script>
+  import { compile, explain } from "../../../lib/sigma-engine.js";
+  // “试一试”：在浏览器里用同一个引擎对用户编辑的日志求值
+  const det = document.getElementById("sigma-detection");
+  const input = document.getElementById("try-input") as HTMLTextAreaElement | null;
+  const out = document.getElementById("try-result");
+  if (det && input && out) {
+    const detection = JSON.parse(det.textContent || "{}");
+    let ok = true;
+    try { compile(detection); } catch { ok = false; }
+    const run = () => {
+      let ev;
+      try { ev = JSON.parse(input.value); } catch { ev = null; }
+      if (!ev || typeof ev !== "object" || Array.isArray(ev)) {
+        out.className = "verdict bad"; out.textContent = out.dataset.invalid || ""; input.setAttribute("aria-invalid", "true"); return;
+      }
+      input.removeAttribute("aria-invalid");
+      const r = ok ? explain(detection, ev) : { matched: false, hits: [] };
+      out.className = `verdict ${r.matched ? "hit" : "miss"}`;
+      out.textContent = (r.matched ? "✓ " + out.dataset.hit : "○ " + out.dataset.miss) + (r.hits.length ? ` · ${out.dataset.by}: ${r.hits.join(", ")}` : "");
+    };
+    let timer = 0;
+    input.addEventListener("input", () => { clearTimeout(timer); timer = window.setTimeout(run, 150); });
+    document.getElementById("try-reset")?.addEventListener("click", () => { input.value = input.dataset.reset || "{}"; run(); });
+    run();
+  }
+</script>

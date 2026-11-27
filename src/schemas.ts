@@ -8,6 +8,15 @@ export const source = z.object({
   license_url: z.string().url().optional()
 });
 
+const bi = z.object({ zh: z.string(), en: z.string() });
+
+// 样例日志：一条 JSON 事件，以及这条规则应不应该命中它（规则页展示，并在单元测试里逐条验证）
+export const sampleSchema = z.object({
+  name: bi,
+  expect: z.boolean(),
+  event: z.record(z.any())
+});
+
 export const ruleSchema = z.object({
   title: z.string(),
   title_zh: z.string().optional(),
@@ -16,6 +25,8 @@ export const ruleSchema = z.object({
   notes_zh: z.string().optional(),
   notes_en: z.string().optional(),
   featured: z.boolean().optional(),
+  original: z.boolean().optional(),          // 本站原创规则
+  samples: z.array(sampleSchema).optional(),
   sigma_id: z.string().optional(),
   status: z.string(),
   level: z.string(),
@@ -32,7 +43,6 @@ export const ruleSchema = z.object({
   source            // 必填：来源、链接、许可证
 });
 
-const bi = z.object({ zh: z.string(), en: z.string() });
 export const incidentSchema = z.object({
   title: bi,
   summary: bi,
@@ -53,5 +63,6 @@ export const incidentSchema = z.object({
   related_rules: z.array(z.string()).default([]),   // 规则 slug
   source: source.extend({ title: z.string() }),
   added: z.string(),              // 本站收录日期
-  generated: z.boolean().optional() // 由每日抓取脚本自动生成
+  generated: z.boolean().optional(), // 由每日抓取脚本自动生成
+  original: z.boolean().optional()   // 本站原创的模拟演练复盘
 });
