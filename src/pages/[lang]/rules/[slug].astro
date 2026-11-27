@@ -18,7 +18,7 @@ const notes = lang === "zh" ? d.notes_zh : d.notes_en;
 <Base lang={lang} title={ruleTitle(r, lang)} description={ruleSummary(r, lang).slice(0, 160)} nav="rules">
   <div class="crumbs"><a href={`${B}/${lang}/rules/`}>{t(lang, "rules")}</a> / {r.id}</div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <h1 style="margin:0">{ruleTitle(r, lang)}</h1><button class="star" data-star={"r:" + r.id} aria-label="save">☆</button>
+    <h1 style="margin:0">{ruleTitle(r, lang)}</h1><button class="star" type="button" data-star={"r:" + r.id} aria-pressed="false" aria-label={t(lang, "save")}>☆</button>
   </div>
   {lang === "zh" && translated(r) && <p class="muted small" style="margin:2px 0 0">{d.title}</p>}
   <div class="badges" style="margin:8px 0 16px">
@@ -36,7 +36,7 @@ const notes = lang === "zh" ? d.notes_zh : d.notes_en;
         {notes && <p class="muted">{notes}</p>}
       </section>
       <section class="panel"><h2 style="margin-bottom:10px">{t(lang, "detection")} (Sigma)</h2>
-        <div class="code-wrap"><button class="copy" data-copy data-ok={t(lang, "copied")}>{t(lang, "copy")}</button><Content /></div>
+        <div class="code-wrap"><button class="copy" type="button" data-copy data-ok={t(lang, "copied")}>{t(lang, "copy")}</button><Content /></div>
       </section>
       <section class="panel"><h2>{t(lang, "falsepositives")}</h2>
         <ul class="plain">{d.falsepositives.map(f => <li>{String(f)}</li>)}</ul>

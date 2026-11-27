@@ -17,7 +17,7 @@ const rel = d.related_rules.map(id => allRules.find(r => r.id === id)).filter(Bo
 <Base lang={lang} title={d.title[lang]} description={d.summary[lang].slice(0, 160)} nav="incidents">
   <div class="crumbs"><a href={`${B}/${lang}/incidents/`}>{t(lang, "incidents")}</a> / {i.id}</div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-    <h1 style="margin:0">{d.title[lang]}</h1><button class="star" data-star={"i:" + i.id} aria-label="save">☆</button>
+    <h1 style="margin:0">{d.title[lang]}</h1><button class="star" type="button" data-star={"i:" + i.id} aria-pressed="false" aria-label={t(lang, "save")}>☆</button>
   </div>
   <div class="badges" style="margin:8px 0 16px">
     <span class={`sev sev-${d.severity}`}>{levelName(lang, d.severity)}</span><span class="badge">{d.sector[lang]}</span>

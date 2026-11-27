@@ -1,7 +1,9 @@
 ---
 import { B } from "../i18n";
 ---
-<!doctype html><html><head><meta charset="utf-8"><title>Blue Team Library</title>
-<meta http-equiv="refresh" content={`0; url=${B}/zh/`}>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Blue Team Library · 蓝队检测与复盘库</title>
+<meta name="description" content="Bilingual blue-team detection rule and incident review library. 中英双语蓝队检测规则与事件复盘库。">
+<link rel="icon" href={`${B}/favicon.svg`} type="image/svg+xml">
 <script is:inline define:vars={{ B }}>location.replace(B + ((navigator.language||"").toLowerCase().startsWith("zh")?"/zh/":"/en/"))</script>
-</head><body><a href={`${B}/zh/`}>中文</a> · <a href={`${B}/en/`}>English</a></body></html>
+<meta http-equiv="refresh" content={`1; url=${B}/en/`}>
+</head><body><a href={`${B}/zh/`} lang="zh-CN">中文</a> · <a href={`${B}/en/`}>English</a></body></html>

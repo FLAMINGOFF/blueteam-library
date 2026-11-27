@@ -21,7 +21,7 @@ const max = tac[0].n || 1;
       <p class="lead">{t(lang, "tagline")}</p>
       <form class="search search-hero" action={`${B}/${lang}/search/`} role="search">
         <svg class="search-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input name="q" placeholder={t(lang, "searchPh")} autocomplete="off" />
+        <input name="q" type="search" aria-label={t(lang, "search")} placeholder={t(lang, "searchPh")} autocomplete="off" />
         <kbd>/</kbd>
         <button class="btn">{t(lang, "search")}</button>
       </form>
@@ -46,7 +46,7 @@ const max = tac[0].n || 1;
     <div class="obs-body">
       <div class="obs-stream">
         <div class="obs-sub"><span class="mono">01 /</span> {lang === "zh" ? "规则更新流" : "Rule stream"} <span class="muted mono">· SigmaHQ</span></div>
-        <div class="stream-card" id="streamCard" aria-live="polite"></div>
+        <div class="stream-card" id="streamCard"></div>
         <ul class="stream-list" id="streamList"></ul>
       </div>
       <div class="obs-star">
@@ -78,13 +78,13 @@ const max = tac[0].n || 1;
       <section class="panel">
         <div class="panel-head"><h2>{t(lang, "featured")}</h2><a class="small" href={`${B}/${lang}/rules/`}>{t(lang, "all")} →</a></div>
         {featured.map(r => (
-          <a class="card" href={`${B}/${lang}/rules/${r.id}/`}>
-            <button class="star" data-star={"r:" + r.id} aria-label="save">☆</button>
+          <article class="card">
+            <button class="star" type="button" data-star={"r:" + r.id} aria-pressed="false" aria-label={`${t(lang, "save")}: ${ruleTitle(r, lang)}`}>☆</button>
             <div class="row1"><span class={`sev sev-${r.data.level}`}>{levelName(lang, r.data.level)}</span><span class="badge fmt">Sigma</span>{r.data.tactics.slice(0, 2).map(x => <span class="badge">{tacticName(lang, x)}</span>)}</div>
-            <div class="title" style="margin-top:6px">{ruleTitle(r, lang)}</div>
+            <a class="title" style="margin-top:6px" href={`${B}/${lang}/rules/${r.id}/`}>{ruleTitle(r, lang)}</a>
             <div class="sum">{ruleSummary(r, lang)}</div>
             <div class="meta"><span>{r.data.source.name}</span><span>{r.data.author}</span></div>
-          </a>))}
+          </article>))}
       </section>
     </div>
     <div>

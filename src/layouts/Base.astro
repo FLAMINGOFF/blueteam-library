@@ -18,7 +18,10 @@ const items = [
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{fullTitle}</title>
   <meta name="description" content={description || t(lang, "tagline")} />
-  <link rel="alternate" hreflang={lang === "zh" ? "en" : "zh-CN"} href={altPath} />
+  <link rel="canonical" href={new URL(path, Astro.site)} />
+  <link rel="alternate" hreflang={lang === "zh" ? "zh-CN" : "en"} href={new URL(path, Astro.site)} />
+  <link rel="alternate" hreflang={lang === "zh" ? "en" : "zh-CN"} href={new URL(altPath, Astro.site)} />
+  <link rel="icon" href={B + "/favicon.svg"} type="image/svg+xml" />
   <link rel="stylesheet" href={B + "/app.css"} />
   <script is:inline>try{var th=localStorage.getItem("bt-theme");if(th)document.documentElement.dataset.theme=JSON.parse(th)}catch(e){}</script>
 </head>
@@ -27,15 +30,15 @@ const items = [
   <header class="topbar">
     <div class="wrap topbar-inner">
       <a class="brand" href={base + "/"}><svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5l-8-3Z"/><path class="logo-check" d="m8.5 12 2.5 2.5 4.5-5"/></svg><span class="brand-text"> {t(lang, "site")}</span></a>
-      <nav class="nav">
-        {items.map(([k, p, label]) => <a href={base + p + "/"} class={nav === k ? "active" : ""}>{label}</a>)}
+      <nav class="nav" aria-label={t(lang, "mainNav")}>
+        {items.map(([k, p, label]) => <a href={base + p + "/"} class={nav === k ? "active" : ""} aria-current={nav === k ? "page" : undefined}>{label}</a>)}
       </nav>
       <div class="tools">
-        <a class="lang" href={altPath} hreflang={otherLang(lang)}>{lang === "zh" ? "EN" : "中文"}</a>
+        <a class="lang" href={altPath} hreflang={otherLang(lang)} lang={lang === "zh" ? "en" : "zh-CN"}>{lang === "zh" ? "EN" : "中文"}</a>
         <div class="theme" role="group" aria-label={t(lang, "theme")}>
-          <button data-theme-set="dark">{t(lang, "dark")}</button>
-          <button data-theme-set="system">{t(lang, "system")}</button>
-          <button data-theme-set="light">{t(lang, "light")}</button>
+          <button type="button" data-theme-set="dark" aria-pressed="false">{t(lang, "dark")}</button>
+          <button type="button" data-theme-set="system" aria-pressed="false">{t(lang, "system")}</button>
+          <button type="button" data-theme-set="light" aria-pressed="false">{t(lang, "light")}</button>
         </div>
       </div>
     </div>
@@ -45,8 +48,8 @@ const items = [
     <p>{t(lang, "footerLicense")} <a href={base + "/about/"}>{t(lang, "about")}</a></p>
     <p class="muted">MITRE ATT&CK® is a registered trademark of The MITRE Corporation. · <a href="https://github.com/FLAMINGOFF/blueteam-library" rel="noopener">{t(lang, "contribute")}</a></p>
   </footer>
-  <nav class="tabbar">
-    {items.slice(0, 5).map(([k, p, label]) => <a href={base + p + "/"} class={nav === k ? "active" : ""}>{label}</a>)}
+  <nav class="tabbar" aria-label={t(lang, "quickNav")}>
+    {items.slice(0, 5).map(([k, p, label]) => <a href={base + p + "/"} class={nav === k ? "active" : ""} aria-current={nav === k ? "page" : undefined}>{label}</a>)}
   </nav>
   <script is:inline src={B + "/common.js"}></script>
   <script is:inline>document.addEventListener("keydown",e=>{if(e.key==="/"&&!/input|textarea/i.test(document.activeElement.tagName)){const i=document.querySelector("input[name=q]");if(i){e.preventDefault();i.focus()}}})</script>

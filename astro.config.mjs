@@ -5,6 +5,7 @@ export default defineConfig({
   site: "https://flamingoff.github.io",
   base: "/blueteam-library",
   trailingSlash: "ignore",
-  i18n: { defaultLocale: "zh", locales: ["zh", "en"], routing: { prefixDefaultLocale: true, redirectToDefaultLocale: true } },
+  // redirectToDefaultLocale 关掉：根路径用 src/pages/index.astro 按浏览器语言跳转，而不是一律跳到 /zh/
+  i18n: { defaultLocale: "zh", locales: ["zh", "en"], routing: { prefixDefaultLocale: true, redirectToDefaultLocale: false } },
   markdown: { shikiConfig: { themes: { light: "github-light", dark: "github-dark" } } }
 });
