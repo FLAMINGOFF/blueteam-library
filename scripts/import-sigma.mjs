@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 import * as yaml from "js-yaml";
+import { keptFields, toFrontMatter, toMarkdown } from "./lib/sigma.mjs";
 
 const [repo, ...dirsArg] = process.argv.slice(2);
 if (!repo) { console.error("usage: import-sigma.mjs <sigma-repo> [dirs...]"); process.exit(1); }
@@ -15,30 +16,13 @@ const dirs = dirsArg.length ? dirsArg : [
   "rules/cloud/aws", "rules/linux/process_creation", "rules/network/dns"
 ];
 const OUT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../src/content/rules");
-const KEEP = ["title_zh", "summary_zh", "notes_zh", "notes_en", "featured"];
-
-const TACTIC = {
-  "reconnaissance": "TA0043", "resource-development": "TA0042", "initial-access": "TA0001",
-  "execution": "TA0002", "persistence": "TA0003", "privilege-escalation": "TA0004",
-  "defense-evasion": "TA0005", "stealth": "TA0005", "defense-impairment": "TA0112", "credential-access": "TA0006", "discovery": "TA0007",
-  "lateral-movement": "TA0008", "collection": "TA0009", "exfiltration": "TA0010",
-  "command-and-control": "TA0011", "impact": "TA0040"
-};
 let commit = "main";
-try { commit = execSync("git rev-parse HEAD", { cwd: repo }).toString().trim(); } catch {}
+try { commit = execSync("git rev-parse HEAD", { cwd: repo }).toString().trim(); } catch { /* 不是 git 仓库时用 main */ }
 
 function walk(d) {
   return fs.readdirSync(d, { withFileTypes: true }).flatMap(e =>
     e.isDirectory() ? walk(path.join(d, e.name)) : e.name.endsWith(".yml") ? [path.join(d, e.name)] : []);
 }
-function readExisting(file) {
-  if (!fs.existsSync(file)) return {};
-  const m = fs.readFileSync(file, "utf8").match(/^---\n([\s\S]*?)\n---/);
-  if (!m) return {};
-  const fm = yaml.load(m[1]) || {};
-  return Object.fromEntries(KEEP.filter(k => fm[k] != null).map(k => [k, fm[k]]));
-}
-const asDate = v => v instanceof Date ? v.toISOString().slice(0, 10) : (v ? String(v).replace(/\//g, "-") : undefined);
 
 fs.mkdirSync(OUT, { recursive: true });
 let n = 0, skipped = 0;
@@ -47,39 +31,12 @@ for (const dir of dirs) {
     const raw = fs.readFileSync(file, "utf8");
     let r;
     try { r = yaml.load(raw); } catch { skipped++; continue; }
-    if (!r || !r.title || !r.detection) { skipped++; continue; }
-    if (r.status === "deprecated" || r.status === "unsupported") { skipped++; continue; }
-    const tags = r.tags || [];
-    const rel = path.relative(repo, file);
     const slug = path.basename(file, ".yml");
-    const ls = r.logsource || {};
-    const fm = {
-      title: r.title,
-      summary: (r.description || "").trim(),
-      sigma_id: r.id,
-      status: r.status || "unknown",
-      level: r.level || "informational",
-      platform: ls.product || ls.service || "other",
-      logsource: [ls.product, ls.category, ls.service].filter(Boolean).join(" / "),
-      tactics: [...new Set(tags.filter(t => t.startsWith("attack.") && TACTIC[t.slice(7)]).map(t => TACTIC[t.slice(7)]))],
-      techniques: [...new Set(tags.filter(t => /^attack\.t\d{4}/i.test(t)).map(t => t.slice(7).toUpperCase()))],
-      author: r.author || "Unknown",
-      date: asDate(r.date),
-      modified: asDate(r.modified),
-      falsepositives: r.falsepositives || [],
-      references: (r.references || []).slice(0, 8),
-      source: {
-        name: "SigmaHQ",
-        url: `https://github.com/SigmaHQ/sigma/blob/${commit}/${rel}`,
-        license: "DRL-1.1",
-        license_url: "https://github.com/SigmaHQ/Detection-Rule-License"
-      },
-      format: "Sigma",
-      ...readExisting(path.join(OUT, slug + ".md"))
-    };
-    Object.keys(fm).forEach(k => fm[k] === undefined && delete fm[k]);
-    const body = "```yaml\n" + raw.trimEnd() + "\n```\n";
-    fs.writeFileSync(path.join(OUT, slug + ".md"), "---\n" + yaml.dump(fm, { lineWidth: 200 }) + "---\n\n" + body);
+    const out = path.join(OUT, slug + ".md");
+    const kept = keptFields(fs.existsSync(out) ? fs.readFileSync(out, "utf8") : "");
+    const fm = toFrontMatter(r, { rel: path.relative(repo, file), commit, kept });
+    if (!fm) { skipped++; continue; }
+    fs.writeFileSync(out, toMarkdown(fm, raw));
     n++;
   }
 }

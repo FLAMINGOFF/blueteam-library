@@ -17,6 +17,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import * as yaml from "js-yaml";
+import { TACTICS, htmlToText, buildRuleIndex, relatedRules, parseRss, advisoryId, groupKevByDate, normalizeSummary, kevTemplate } from "./lib/advisories.mjs";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const OUT = path.join(ROOT, "src/content/incidents");
@@ -33,7 +34,6 @@ const today = new Date().toISOString().slice(0, 10);
 const since = new Date(Date.now() - LOOKBACK * 864e5).toISOString().slice(0, 10);
 
 const LICENSE = "美国政府作品，通常属公有领域；本站提供自写摘要与链接，以原文为准 / US government work, generally public domain; our own summary and link, the original prevails";
-const TACTICS = ["TA0043","TA0042","TA0001","TA0002","TA0003","TA0004","TA0005","TA0112","TA0006","TA0007","TA0008","TA0009","TA0011","TA0010","TA0040"];
 
 // ---------- 工具 ----------
 async function get(url, type = "text") {
@@ -50,38 +50,6 @@ async function get(url, type = "text") {
 }
 const existing = () => fs.readdirSync(OUT).map(f => f.replace(/\.md$/, ""));
 const has = prefix => existing().some(s => s === prefix || s.startsWith(prefix + "-"));
-const decode = s => s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
-  .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
-function htmlToText(html) {
-  const main = html.match(/<main[\s\S]*?<\/main>/i)?.[0] || html;
-  return decode(main.replace(/<(script|style|nav|header|footer)[\s\S]*?<\/\1>/gi, " ")
-    .replace(/<\/(p|div|li|h\d|tr|br)>/gi, "\n").replace(/<[^>]+>/g, " "))
-    .replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim();
-}
-
-// 规则索引：CVE 标签与 ATT&CK 技术 → 规则 slug
-function ruleIndex() {
-  const byCve = new Map(), byTech = new Map();
-  for (const f of fs.readdirSync(RULES)) {
-    const slug = f.replace(/\.md$/, "");
-    const txt = fs.readFileSync(path.join(RULES, f), "utf8");
-    for (const m of txt.matchAll(/cve\.(\d{4}-\d{4,})/gi)) {
-      const k = "CVE-" + m[1]; (byCve.get(k) || byCve.set(k, new Set()).get(k)).add(slug);
-    }
-    const fm = yaml.load(txt.match(/^---\n([\s\S]*?)\n---/)?.[1] || "") || {};
-    for (const t of fm.techniques || []) (byTech.get(t) || byTech.set(t, []).get(t)).push(slug);
-  }
-  return { byCve, byTech };
-}
-function relatedRules(idx, cves = [], techniques = []) {
-  const out = new Set();
-  for (const c of cves) for (const s of idx.byCve.get(c) || []) out.add(s);
-  // 再按技术匹配：子技术（如 T1059.001）记 2 分，父技术记 1 分，至少 2 分才算相关，最多补到 6 条
-  const score = new Map();
-  for (const t of techniques) for (const s of idx.byTech.get(t) || []) score.set(s, (score.get(s) || 0) + (t.includes(".") ? 2 : 1));
-  for (const [s, v] of [...score].sort((a, b) => b[1] - a[1])) { if (out.size >= 6 || v < 2) break; out.add(s); }
-  return [...out];
-}
 
 // ---------- Claude ----------
 let client = null;
@@ -125,10 +93,7 @@ async function summarize(userText) {
   if (res.stop_reason === "refusal") throw new Error("模型拒绝：" + (res.stop_details?.category || "unknown"));
   if (res.stop_reason === "max_tokens") throw new Error("输出被截断");
   const text = res.content.filter(b => b.type === "text").map(b => b.text).join("");
-  const j = JSON.parse(text);
-  j.techniques = [...new Set(j.techniques.map(t => t.toUpperCase()).filter(t => /^T\d{4}(\.\d{3})?$/.test(t)))];
-  j.tags = [...new Set(j.tags.map(t => t.toLowerCase().replace(/[^a-z0-9-]+/g, "-")).filter(Boolean))].slice(0, 8);
-  return j;
+  return normalizeSummary(JSON.parse(text));
 }
 
 // ---------- 写文件 ----------
@@ -142,48 +107,10 @@ function write(slug, data) {
   console.log("新增", slug);
 }
 
-// ---------- KEV 每日汇总 ----------
-function kevTemplate(date, vs) {
-  const ransom = vs.filter(v => v.knownRansomwareCampaignUse === "Known");
-  const list = vs.map(v => `${v.vendorProject} ${v.product}（${v.cveID}）`).join("、");
-  const listEn = vs.map(v => `${v.vendorProject} ${v.product} (${v.cveID})`).join(", ");
-  return {
-    title: { zh: `CISA KEV 新增 ${vs.length} 个已被在野利用的漏洞（${date}）`, en: `CISA adds ${vs.length} known exploited vulnerabilit${vs.length > 1 ? "ies" : "y"} to KEV (${date})` },
-    summary: {
-      zh: `CISA 于 ${date} 将以下漏洞加入已知被利用漏洞（KEV）目录：${list}。${ransom.length ? `其中 ${ransom.length} 个已知被用于勒索软件活动。` : ""}收录意味着已有可靠的在野利用证据，应优先修复。`,
-      en: `On ${date} CISA added to the Known Exploited Vulnerabilities catalog: ${listEn}.${ransom.length ? ` ${ransom.length} of them ${ransom.length > 1 ? "are" : "is"} known to be used in ransomware campaigns.` : ""} Listing means there is reliable evidence of exploitation in the wild; prioritize remediation.`
-    },
-    sector: { zh: "多行业（使用受影响产品的组织）", en: "Multiple sectors (users of affected products)" },
-    severity: ransom.length ? "critical" : "high",
-    tactics: ["TA0001"], techniques: [], tags: ["kev", "vulnerability", ...(ransom.length ? ["ransomware"] : [])],
-    initial_access: { zh: "利用已知漏洞（各漏洞细节见 CVE 与厂商通告）", en: "Exploitation of known vulnerabilities (see each CVE and vendor advisory)" },
-    detected_by: { zh: "CISA 基于可靠的在野利用证据收录", en: "Added by CISA based on reliable evidence of active exploitation" },
-    timeline: [
-      ...vs.map(v => ({ date, zh: `${v.cveID}（${v.vendorProject} ${v.product}）加入 KEV`, en: `${v.cveID} (${v.vendorProject} ${v.product}) added to KEV` })),
-      ...[...new Set(vs.map(v => v.dueDate))].sort().map(d => ({ date: d, zh: "美国联邦机构修复截止日（BOD 22-01）", en: "Remediation due date for US federal agencies (BOD 22-01)" }))
-    ],
-    root_cause: {
-      zh: "受影响产品存在已被利用的漏洞：" + vs.map(v => `${v.cveID} ${v.vulnerabilityName}`).join("；"),
-      en: "Affected products contain exploited vulnerabilities: " + vs.map(v => `${v.cveID} ${v.vulnerabilityName}`).join("; ")
-    },
-    lessons: [
-      { zh: "盘点资产，确认是否使用上述产品及受影响版本，优先处理面向互联网的实例", en: "Inventory assets for the listed products and versions; start with internet-facing instances" },
-      { zh: "按厂商指引修补或缓解；无法缓解时按 CISA 要求停用该产品", en: "Patch or mitigate per vendor guidance; discontinue the product if no mitigation exists, as CISA advises" },
-      { zh: "修补前后回溯相关日志，排查是否已被利用", en: "Review logs from before and after patching for signs of prior exploitation" }
-    ],
-    detection_ideas: [
-      { zh: "在 Web/应用日志中检索针对受影响产品的异常请求与报错", en: "Search web/app logs for anomalous requests and errors against the affected products" },
-      { zh: "监控受影响服务进程派生命令行、脚本解释器或发起异常外连", en: "Watch the affected service processes for spawning shells or interpreters, or unusual outbound connections" }
-    ]
-  };
-}
-
 async function doKev(idx, budget) {
   const kev = await get(KEV_URL, "json");
-  const byDate = new Map();
-  for (const v of kev.vulnerabilities || []) if (v.dateAdded >= since) (byDate.get(v.dateAdded) || byDate.set(v.dateAdded, []).get(v.dateAdded)).push(v);
   let n = 0;
-  for (const [date, vs] of [...byDate].sort()) {
+  for (const [date, vs] of groupKevByDate(kev, since)) {
     const slug = `cisa-kev-${date}`;
     if (has(slug) || n >= budget) continue;
     let d = kevTemplate(date, vs);
@@ -211,13 +138,10 @@ async function doKev(idx, budget) {
 async function doAdvisories(idx, budget) {
   if (!client) { console.log("未设置 ANTHROPIC_API_KEY，跳过联合通报摘要"); return 0; }
   const rss = await get(RSS_URL);
-  const items = [...rss.matchAll(/<item>([\s\S]*?)<\/item>/g)].map(m => {
-    const tag = t => decode(m[1].match(new RegExp(`<${t}[^>]*>([\\s\\S]*?)</${t}>`))?.[1] || "").trim();
-    return { title: tag("title"), link: tag("link"), date: new Date(tag("pubDate") || Date.now()).toISOString().slice(0, 10) };
-  });
+  const items = parseRss(rss);
   let n = 0;
   for (const it of items) {
-    const id = it.link.match(/\/(aa\d{2}-\d{3}[a-z]?)\b/i)?.[1]?.toLowerCase();
+    const id = advisoryId(it.link);
     if (!id || it.date < since || n >= budget) continue;
     const slug = `cisa-${id}`;
     if (has(slug)) continue;
@@ -237,7 +161,7 @@ async function doAdvisories(idx, budget) {
   return n;
 }
 
-const idx = ruleIndex();
+const idx = buildRuleIndex(fs.readdirSync(RULES).filter(f => f.endsWith(".md")).map(f => ({ slug: f.replace(/\.md$/, ""), text: fs.readFileSync(path.join(RULES, f), "utf8") })));
 let total = 0, failed = 0;
 for (const job of [doAdvisories, doKev]) {
   try { total += await job(idx, MAX_NEW - total); }

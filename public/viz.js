@@ -139,7 +139,7 @@
     }
 
     // 事件节点
-    ip.forEach((q, j) => {
+    ip.forEach(q => {
       const r = 4.5 * q[2] * scale;
       ctx.beginPath(); ctx.arc(q[0], q[1], r + 3, 0, 6.283); ctx.strokeStyle = C.accent; ctx.globalAlpha = 0.5; ctx.stroke();
       ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(q[0], q[1], r, 0, 6.283); ctx.fillStyle = C.accent; ctx.fill();
@@ -277,7 +277,7 @@
   }
 
   // ---------- 主循环 ----------
-  let raf = 0, last = 0, fc = 0;
+  let raf = 0, fc = 0;
   function frame(t) {
     raf = 0;
     if (!D) return;
@@ -286,7 +286,6 @@
     if (++fc % 60 === 0) readColors();
     drawStar(t); drawSpec(t);
     if (!paused && visible && !document.hidden) raf = requestAnimationFrame(frame);
-    last = t;
   }
   function kick() { if (!raf) raf = requestAnimationFrame(frame); }
   function init() {
