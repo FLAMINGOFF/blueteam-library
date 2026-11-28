@@ -22,7 +22,8 @@ references:
 source:
   name: Blue Team Library
   url: https://github.com/FLAMINGOFF/blueteam-library/blob/main/src/content/rules/btl_win_curl_download_to_staging_dir.md
-  license: Original
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
 format: Sigma
 original: true
 title_zh: curl 下载文件并保存到所有用户可写的暂存目录

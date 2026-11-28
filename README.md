@@ -84,7 +84,7 @@ Copy any file in `src/content/incidents/` and fill in the fields: bilingual titl
 ### Licenses and attribution
 - SigmaHQ rules: Detection Rule License (DRL) 1.1. Pages must keep the author, a link to the original rule and the license notice; every rule page shows all three.
 - Incident reports: originals belong to their publishers; this site only has summaries and links. US government advisories such as CISA's are generally public domain.
-- Original rules and tabletop write-ups: written by FLAMINGOFF for this site.
+- Original rules and tabletop write-ups: written by FLAMINGOFF for this site and released under the Detection Rule License (DRL) 1.1, the same licence as SigmaHQ.
 - MITRE ATT&CK® data © The MITRE Corporation, used under its [terms of use](https://attack.mitre.org/resources/legal-and-branding/terms-of-use/).
 
 ---
@@ -162,5 +162,5 @@ npm run import:sigma -- /tmp/sigma rules/windows   # 或指定目录
 ### 许可与署名
 - SigmaHQ 规则：Detection Rule License (DRL) 1.1，页面必须保留作者、原规则链接、许可证声明（规则页已自动展示）。
 - 事件报告：原文版权归发布方，本站只放摘要与链接。CISA 等美国政府通报一般为公有领域。
-- 原创规则与模拟演练：由 FLAMINGOFF 为本站编写。
+- 原创规则与模拟演练：由 FLAMINGOFF 为本站编写，与 SigmaHQ 相同，采用 Detection Rule License (DRL) 1.1。
 - MITRE ATT&CK® 数据版权归 The MITRE Corporation，按其[使用条款](https://attack.mitre.org/resources/legal-and-branding/terms-of-use/)引用。

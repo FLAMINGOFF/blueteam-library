@@ -27,7 +27,7 @@ const rel = d.related_rules.map(id => allRules.find(r => r.id === id)).filter(Bo
   <div class="srcbox">
     <p><b>{t(lang, "source")}{colon}</b><a href={d.source.url} rel="noopener" target="_blank">{d.source.title} ↗</a></p>
     <p><b>{t(lang, "publisher")}{colon}</b>{d.publisher} · {t(lang, "published")} {d.published}</p>
-    <p><b>{t(lang, "license")}{colon}</b>{pick(d.source.license)}</p>
+    <p><b>{t(lang, "license")}{colon}</b>{d.source.license_url ? <a href={d.source.license_url} rel="noopener" target="_blank">{pick(d.source.license)}</a> : pick(d.source.license)}</p>
   </div>
   <p class="note">{t(lang, d.original ? "simNote" : "summaryNote")}</p>
   {d.generated && <p class="note">{t(lang, "generatedNote")}</p>}

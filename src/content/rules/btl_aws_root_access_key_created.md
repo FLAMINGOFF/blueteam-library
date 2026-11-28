@@ -23,7 +23,8 @@ references:
 source:
   name: Blue Team Library
   url: https://github.com/FLAMINGOFF/blueteam-library/blob/main/src/content/rules/btl_aws_root_access_key_created.md
-  license: Original
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
 format: Sigma
 original: true
 title_zh: 为 AWS 根用户创建访问密钥

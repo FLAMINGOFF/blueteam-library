@@ -22,7 +22,8 @@ references:
 source:
   name: Blue Team Library
   url: https://github.com/FLAMINGOFF/blueteam-library/blob/main/src/content/rules/btl_win_nltest_domain_trust_discovery.md
-  license: Original
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
 format: Sigma
 original: true
 title_zh: 使用 nltest 发现域信任关系与域控制器

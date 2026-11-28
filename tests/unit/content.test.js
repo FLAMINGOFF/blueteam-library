@@ -80,6 +80,7 @@ describe("original rules", () => {
     for (const k of ["title", "summary", "sigma_id", "status", "level", "platform", "logsource", "tactics", "techniques", "author", "date", "falsepositives", "references"]) expect(data[k], k).toEqual(fm[k]);
     expect(data.author).toBe("FLAMINGOFF");
     expect(data.source.name).toBe("Blue Team Library");
+    expect(data.source.license).toBe("DRL-1.1");
     expect(data.source.url).toBe(`https://github.com/FLAMINGOFF/blueteam-library/blob/main/src/content/rules/${slug}.md`);
     expect(data.title_zh && data.summary_zh && data.notes_zh && data.notes_en).toBeTruthy();
     // every original rule ships with at least one log it must catch and one look-alike it must ignore
@@ -117,5 +118,6 @@ describe("incident reviews", () => {
     expect(data.lessons.length).toBeGreaterThan(0);
     // related rules must point at rules that exist, or the page renders a broken link
     for (const r of data.related_rules || []) expect(ruleSlugs, `related rule ${r}`).toContain(r);
+    if (data.original) expect(data.source.license_url).toBe("https://github.com/SigmaHQ/Detection-Rule-License");
   });
 });

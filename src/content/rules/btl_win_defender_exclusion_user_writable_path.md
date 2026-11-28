@@ -24,7 +24,8 @@ references:
 source:
   name: Blue Team Library
   url: https://github.com/FLAMINGOFF/blueteam-library/blob/main/src/content/rules/btl_win_defender_exclusion_user_writable_path.md
-  license: Original
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
 format: Sigma
 original: true
 title_zh: 通过 PowerShell 为用户可写路径添加 Defender 排除项

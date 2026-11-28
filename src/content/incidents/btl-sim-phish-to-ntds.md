@@ -46,7 +46,8 @@ source:
   name: Blue Team Library
   title: 原创模拟演练 / Original tabletop scenario
   url: https://github.com/FLAMINGOFF/blueteam-library/blob/main/src/content/incidents/btl-sim-phish-to-ntds.md
-  license: 原创 / Original
+  license: Detection Rule License (DRL) 1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
 added: "2026-11-27"
 original: true
 ---

@@ -22,7 +22,8 @@ references:
 source:
   name: Blue Team Library
   url: https://github.com/FLAMINGOFF/blueteam-library/blob/main/src/content/rules/btl_win_ntds_dit_copy_builtin_tools.md
-  license: Original
+  license: DRL-1.1
+  license_url: https://github.com/SigmaHQ/Detection-Rule-License
 format: Sigma
 original: true
 title_zh: 使用系统自带工具复制 NTDS.dit
